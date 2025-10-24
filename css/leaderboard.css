@@ -455,7 +455,7 @@ body {
     font-size: 1rem;
 }
 
-/* Mobile-Optimized Leaderboard List - Always Scrollable */
+/* Mobile-Optimized Leaderboard Table - Fixed Names & Headers */
 .leaderboard-list {
     background: white;
     border-radius: 16px;
@@ -463,63 +463,100 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
-/* Always Visible Column Headers */
-.list-header {
-    display: grid;
-    grid-template-columns: 80px 1fr 80px 80px 100px;
-    gap: 12px;
-    align-items: center;
-    padding: 16px 20px;
+.leaderboard-table {
+    width: 100%;
+    position: relative;
+}
+
+/* Fixed Headers & Content for Mobile */
+.table-header-fixed {
+    display: flex;
     background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
     color: white;
     font-weight: 600;
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    min-width: 500px; /* Ensure minimum width for all columns */
+    position: sticky;
+    left: 0;
+    z-index: 10;
 }
 
-/* Horizontal Scrollable Container for Mobile */
-.leaderboard-items-wrapper {
+.table-header-fixed .header-rank {
+    width: 80px;
+    padding: 16px 10px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.table-header-fixed .header-participant {
+    width: 200px;
+    padding: 16px 15px;
+    flex-shrink: 0;
+}
+
+/* Scrollable Content Wrapper */
+.table-content-wrapper {
+    position: relative;
     overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: #cbd5e1 #f1f5f9;
 }
 
-/* Custom Scrollbar for WebKit browsers */
-.leaderboard-items-wrapper::-webkit-scrollbar {
+/* Custom Scrollbar */
+.table-content-wrapper::-webkit-scrollbar {
     height: 8px;
 }
 
-.leaderboard-items-wrapper::-webkit-scrollbar-track {
+.table-content-wrapper::-webkit-scrollbar-track {
     background: #f1f5f9;
     border-radius: 4px;
 }
 
-.leaderboard-items-wrapper::-webkit-scrollbar-thumb {
+.table-content-wrapper::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 4px;
 }
 
-.leaderboard-items-wrapper::-webkit-scrollbar-thumb:hover {
+.table-content-wrapper::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }
 
+/* Scrollable Headers */
+.table-header-scroll {
+    display: flex;
+    background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
+    color: white;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 260px;
+    margin-left: 280px;
+}
+
+.table-header-scroll .header-score,
+.table-header-scroll .header-time,
+.table-header-scroll .header-date {
+    width: 85px;
+    padding: 16px 10px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* Leaderboard Items Container */
 .leaderboard-items {
     display: flex;
     flex-direction: column;
-    min-width: 500px; /* Match header width */
 }
 
 .leaderboard-item {
-    display: grid;
-    grid-template-columns: 80px 1fr 80px 80px 100px;
-    gap: 12px;
+    display: flex;
     align-items: center;
-    padding: 16px 20px;
     border-bottom: 1px solid #f1f5f9;
     transition: background-color 300ms ease;
+    position: relative;
 }
 
 .leaderboard-item:hover {
@@ -531,19 +568,35 @@ body {
     border-left: 4px solid #4F46E5;
 }
 
+/* Fixed Part of Each Row */
+.item-fixed {
+    display: flex;
+    align-items: center;
+    background: inherit;
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    border-right: 2px solid #f1f5f9;
+}
+
 .item-rank {
+    width: 80px;
+    padding: 16px 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
     color: #1a202c;
+    flex-shrink: 0;
 }
 
 .item-player {
+    width: 200px;
+    padding: 16px 15px;
     display: flex;
     align-items: center;
     gap: 12px;
-    min-width: 0; /* Allow text truncation */
+    flex-shrink: 0;
 }
 
 .player-avatar {
@@ -558,7 +611,8 @@ body {
 .player-info {
     display: flex;
     flex-direction: column;
-    min-width: 0; /* Allow text truncation */
+    min-width: 0;
+    flex: 1;
 }
 
 .player-name {
@@ -568,6 +622,7 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 140px; /* Ensures at least 15 characters are visible */
 }
 
 .current-user-badge {
@@ -578,25 +633,43 @@ body {
     font-size: 0.7rem;
     font-weight: 600;
     width: fit-content;
+    margin-top: 2px;
+}
+
+/* Scrollable Part of Each Row */
+.item-scrollable {
+    display: flex;
+    align-items: center;
+    min-width: 260px;
+    margin-left: 280px;
 }
 
 .item-score {
+    width: 85px;
+    padding: 16px 10px;
     font-weight: 700;
     color: #4F46E5;
     text-align: center;
+    flex-shrink: 0;
 }
 
 .item-time {
+    width: 85px;
+    padding: 16px 10px;
     color: #64748b;
     font-size: 0.85rem;
     text-align: center;
+    flex-shrink: 0;
 }
 
 .item-date {
+    width: 85px;
+    padding: 16px 10px;
     color: #64748b;
     font-size: 0.8rem;
     text-align: center;
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 /* Loading Placeholder Styles */
@@ -606,20 +679,25 @@ body {
 }
 
 .loading-item {
-    display: grid;
-    grid-template-columns: 80px 1fr 80px 80px 100px;
-    gap: 12px;
+    display: flex;
     align-items: center;
-    padding: 16px 20px;
     border-bottom: 1px solid #f1f5f9;
 }
 
-.loading-rank,
-.loading-participant,
-.loading-score,
-.loading-time,
-.loading-date {
+.loading-fixed {
+    display: flex;
+    align-items: center;
+    position: sticky;
+    left: 0;
+    background: white;
+    border-right: 2px solid #f1f5f9;
+    z-index: 5;
+}
+
+.loading-rank {
+    width: 80px;
     height: 20px;
+    margin: 16px 10px;
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
     animation: loading-shimmer 1.5s infinite;
@@ -627,8 +705,31 @@ body {
 }
 
 .loading-participant {
+    width: 160px;
     height: 36px;
+    margin: 16px 15px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s infinite;
     border-radius: 18px;
+}
+
+.loading-scroll {
+    display: flex;
+    min-width: 260px;
+    margin-left: 280px;
+}
+
+.loading-score,
+.loading-time,
+.loading-date {
+    width: 85px;
+    height: 20px;
+    margin: 16px 10px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s infinite;
+    border-radius: 4px;
 }
 
 @keyframes loading-shimmer {
@@ -640,22 +741,21 @@ body {
     }
 }
 
-/* Toast Banner Advertisement - After 20th Rank */
-.toast-banner-ad {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    margin: 20px;
+/* Simple Toast Advertisement - Below Leaderboard */
+.simple-toast-ad {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px dashed #dee2e6;
     border-radius: 16px;
-    padding: 24px;
+    padding: 20px;
+    margin: 24px 0;
     position: relative;
-    overflow: hidden;
-    animation: slideInUp 0.6s ease-out;
-    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+    animation: fadeInUp 0.5s ease-out;
 }
 
-@keyframes slideInUp {
+@keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(40px);
+        transform: translateY(20px);
     }
     to {
         opacity: 1;
@@ -663,113 +763,83 @@ body {
     }
 }
 
-.banner-close-btn {
+.toast-ad-close {
     position: absolute;
     top: 12px;
     right: 12px;
     width: 28px;
     height: 28px;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(108, 117, 125, 0.2);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: white;
+    color: #6c757d;
     font-size: 0.9rem;
     transition: all 200ms ease;
 }
 
-.banner-close-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
+.toast-ad-close:hover {
+    background: rgba(108, 117, 125, 0.3);
     transform: scale(1.1);
 }
 
-.toast-banner-main {
+.toast-ad-content {
     display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 16px;
+    justify-content: center;
 }
 
-.toast-banner-icon {
-    width: 56px;
-    height: 56px;
-    background: rgba(255, 255, 255, 0.2);
+.toast-ad-placeholder {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    max-width: 500px;
+    width: 100%;
+}
+
+.toast-ad-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(108, 117, 125, 0.1);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.8rem;
-    color: white;
+    color: #6c757d;
     flex-shrink: 0;
-    animation: pulse 2s infinite;
 }
 
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-.toast-banner-text {
+.toast-ad-text {
     flex: 1;
-    color: white;
+    color: #495057;
 }
 
-.toast-banner-text h4 {
+.toast-ad-text h4 {
     font-size: 1.2rem;
+    font-weight: 600;
     margin-bottom: 8px;
-    font-weight: 700;
+    color: #495057;
 }
 
-.toast-banner-text p {
+.toast-ad-text p {
     font-size: 0.9rem;
-    opacity: 0.95;
+    color: #6c757d;
     line-height: 1.4;
 }
 
-.toast-banner-action {
+.toast-ad-action {
     flex-shrink: 0;
 }
 
-.toast-upgrade-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    color: white;
+.ad-button-placeholder {
+    background: rgba(108, 117, 125, 0.1);
+    border: 2px dashed #dee2e6;
+    color: #6c757d;
     padding: 12px 24px;
     border-radius: 8px;
-    cursor: pointer;
-    transition: all 200ms ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 700;
-    font-size: 0.9rem;
-}
-
-.toast-upgrade-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.toast-banner-timer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    font-size: 0.85rem;
-}
-
-.timer-icon {
-    color: rgba(255, 255, 255, 0.8);
-}
-
-.timer-text strong {
-    font-family: 'Courier New', monospace;
+    font-weight: 500;
     font-size: 0.9rem;
 }
 
@@ -1086,7 +1156,7 @@ body {
     
     .quiz-stats {
         flex-direction: column;
-        gap: 16px;
+        gap: 16
         align-items: center;
     }
     
@@ -1149,29 +1219,119 @@ body {
         justify-content: center;
     }
     
-    /* Mobile: Show horizontal scroll hint */
-    .leaderboard-items-wrapper::after {
-        content: '← Swipe to see all columns →';
-        display: block;
-        text-align: center;
-        padding: 12px;
+    /* Mobile: Fixed headers remain visible */
+    .table-header-fixed .header-rank {
+        width: 60px;
+        padding: 12px 8px;
         font-size: 0.8rem;
-        color: #64748b;
-        background: #f8fafc;
-        font-style: italic;
     }
     
-    .toast-banner-main {
+    .table-header-fixed .header-participant {
+        width: 180px;
+        padding: 12px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .table-header-scroll {
+        margin-left: 240px;
+        min-width: 240px;
+    }
+    
+    .table-header-scroll .header-score,
+    .table-header-scroll .header-time,
+    .table-header-scroll .header-date {
+        width: 80px;
+        padding: 12px 8px;
+        font-size: 0.8rem;
+    }
+    
+    /* Mobile: Item adjustments */
+    .item-rank {
+        width: 60px;
+        padding: 12px 8px;
+    }
+    
+    .item-player {
+        width: 180px;
+        padding: 12px 12px;
+    }
+    
+    .player-name {
+        max-width: 120px;
+        font-size: 0.85rem;
+    }
+    
+    .item-scrollable {
+        margin-left: 240px;
+        min-width: 240px;
+    }
+    
+    .item-score {
+        width: 80px;
+        padding: 12px 8px;
+        font-size: 0.85rem;
+    }
+    
+    .item-time {
+        width: 80px;
+        padding: 12px 8px;
+        font-size: 0.8rem;
+    }
+    
+    .item-date {
+        width: 80px;
+        padding: 12px 8px;
+        font-size: 0.75rem;
+    }
+    
+    /* Mobile: Loading adjustments */
+    .loading-fixed {
+        border-right: 2px solid #f1f5f9;
+    }
+    
+    .loading-rank {
+        width: 60px;
+        margin: 12px 8px;
+    }
+    
+    .loading-participant {
+        width: 140px;
+        margin: 12px 12px;
+        height: 32px;
+    }
+    
+    .loading-scroll {
+        margin-left: 240px;
+        min-width: 240px;
+    }
+    
+    .loading-score,
+    .loading-time,
+    .loading-date {
+        width: 80px;
+        margin: 12px 8px;
+    }
+    
+    /* Mobile: Toast ad adjustments */
+    .toast-ad-placeholder {
         flex-direction: column;
         text-align: center;
-        gap: 12px;
+        gap: 16px;
     }
     
-    .toast-banner-timer {
-        flex-direction: column;
-        gap: 4px;
+    .toast-ad-icon {
+        align-self: center;
     }
     
+    .toast-ad-text h4 {
+        font-size: 1.1rem;
+    }
+    
+    .toast-ad-text p {
+        font-size: 0.85rem;
+    }
+    
+    /* Mobile: Stats grid */
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
@@ -1195,6 +1355,19 @@ body {
     .pdf-modal-content {
         padding: 24px;
     }
+    
+    /* Mobile: Add scroll indicator */
+    .table-content-wrapper::after {
+        content: '← Swipe to see Time & Date →';
+        display: block;
+        text-align: center;
+        padding: 8px 12px;
+        font-size: 0.75rem;
+        color: #64748b;
+        background: #f8fafc;
+        font-style: italic;
+        border-top: 1px solid #f1f5f9;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1208,6 +1381,7 @@ body {
     .video-ad-placeholder,
     .leaderboard-filters,
     .leaderboard-list,
+    .simple-toast-ad,
     .leaderboard-stats {
         padding: 16px;
     }
@@ -1248,37 +1422,195 @@ body {
         font-size: 0.85rem;
     }
     
-    .list-header {
-        padding: 12px 16px;
-        font-size: 0.8rem;
+    /* Very small mobile: Further adjustments */
+    .table-header-fixed .header-rank {
+        width: 50px;
+        padding: 10px 6px;
+        font-size: 0.75rem;
     }
     
-    .leaderboard-item {
-        padding: 12px 16px;
+    .table-header-fixed .header-participant {
+        width: 160px;
+        padding: 10px 10px;
+        font-size: 0.75rem;
+    }
+    
+    .table-header-scroll {
+        margin-left: 210px;
+        min-width: 220px;
+    }
+    
+    .table-header-scroll .header-score,
+    .table-header-scroll .header-time,
+    .table-header-scroll .header-date {
+        width: 70px;
+        padding: 10px 6px;
+        font-size: 0.75rem;
+    }
+    
+    .item-rank {
+        width: 50px;
+        padding: 10px 6px;
+    }
+    
+    .item-player {
+        width: 160px;
+        padding: 10px 10px;
     }
     
     .player-avatar {
-        width: 32px;
-        height: 32px;
+        width: 30px;
+        height: 30px;
+    }
+    
+    .player-name {
+        max-width: 100px;
+        font-size: 0.8rem;
+    }
+    
+    .current-user-badge {
+        font-size: 0.6rem;
+        padding: 1px 4px;
+    }
+    
+    .item-scrollable {
+        margin-left: 210px;
+        min-width: 220px;
+    }
+    
+    .item-score,
+    .item-time,
+    .item-date {
+        width: 70px;
+        padding: 10px 6px;
+        font-size: 0.75rem;
+    }
+    
+    .loading-rank {
+        width: 50px;
+        margin: 10px 6px;
+    }
+    
+    .loading-participant {
+        width: 120px;
+        margin: 10px 10px;
+        height: 30px;
+    }
+    
+    .loading-scroll {
+        margin-left: 210px;
+        min-width: 220px;
+    }
+    
+    .loading-score,
+    .loading-time,
+    .loading-date {
+        width: 70px;
+        margin: 10px 6px;
     }
     
     .stats-grid {
         grid-template-columns: 1fr;
     }
     
-    .toast-banner-ad {
-        margin: 16px 12px;
-        padding: 16px;
+    .simple-toast-ad {
+        padding: 12px;
+        margin: 16px 0;
     }
     
-    .toast-banner-icon {
-        width: 48px;
-        height: 48px;
+    .toast-ad-close {
+        width: 24px;
+        height: 24px;
+        top: 8px;
+        right: 8px;
+        font-size: 0.8rem;
+    }
+    
+    .toast-ad-icon {
+        width: 50px;
+        height: 50px;
         font-size: 1.5rem;
     }
     
-    .toast-upgrade-btn {
+    .toast-ad-text h4 {
+        font-size: 1rem;
+    }
+    
+    .toast-ad-text p {
+        font-size: 0.8rem;
+    }
+    
+    .ad-button-placeholder {
         padding: 10px 20px;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+    .crown-icon,
+    .toast-ad-icon,
+    .simple-toast-ad,
+    .loading-shimmer {
+        animation: none;
+    }
+    
+    .bounce,
+    .pulse,
+    .slideInUp,
+    .fadeInUp {
+        animation: none;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .leaderboard-item:hover {
+        background: #000;
+        color: #fff;
+    }
+    
+    .filter-tab:hover {
+        background: #000;
+        color: #fff;
+    }
+    
+    .download-pdf-btn:hover,
+    .action-btn:hover {
+        filter: contrast(2);
+    }
+}
+
+/* Print Styles */
+@media print {
+    .leaderboard-header,
+    .video-ad-placeholder,
+    .simple-toast-ad,
+    .leaderboard-actions,
+    .loading-spinner,
+    .toast-notification,
+    .pdf-modal {
+        display: none !important;
+    }
+    
+    .leaderboard-container {
+        padding: 20px;
+        box-shadow: none;
+    }
+    
+    .leaderboard-list,
+    .quiz-info-card,
+    .podium-section,
+    .your-position-card {
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .table-content-wrapper {
+        overflow: visible;
+    }
+    
+    .table-content-wrapper::after {
+        display: none;
     }
 }
