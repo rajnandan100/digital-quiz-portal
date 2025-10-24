@@ -172,76 +172,82 @@
             </div>
         </div>
 
-        <!-- Mobile-Optimized Leaderboard List - Slidable on Mobile -->
+        <!-- Mobile-Optimized Leaderboard List - Improved for Mobile Names -->
         <div class="leaderboard-list">
-            <!-- Mobile: Always Visible Column Headers -->
-            <div class="list-header">
-                <div class="header-rank">Rank</div>
-                <div class="header-participant">Participant</div>
-                <div class="header-score">Score</div>
-                <div class="header-time">Time</div>
-                <div class="header-date">Date</div>
-            </div>
-            
-            <!-- Mobile: Horizontal Scrollable Container -->
-            <div class="leaderboard-items-wrapper">
-                <div class="leaderboard-items" id="leaderboard-items">
-                    <!-- Real leaderboard items will be dynamically loaded here -->
-                    <div class="loading-placeholder">
-                        <div class="loading-item">
-                            <div class="loading-rank"></div>
-                            <div class="loading-participant"></div>
-                            <div class="loading-score"></div>
-                            <div class="loading-time"></div>
-                            <div class="loading-date"></div>
-                        </div>
-                        <div class="loading-item">
-                            <div class="loading-rank"></div>
-                            <div class="loading-participant"></div>
-                            <div class="loading-score"></div>
-                            <div class="loading-time"></div>
-                            <div class="loading-date"></div>
-                        </div>
-                        <div class="loading-item">
-                            <div class="loading-rank"></div>
-                            <div class="loading-participant"></div>
-                            <div class="loading-score"></div>
-                            <div class="loading-time"></div>
-                            <div class="loading-date"></div>
+            <!-- Fixed Column Headers for Mobile -->
+            <div class="leaderboard-table">
+                <div class="table-header-fixed">
+                    <div class="header-rank">Rank</div>
+                    <div class="header-participant">Participant</div>
+                </div>
+                
+                <div class="table-content-wrapper">
+                    <div class="table-header-scroll">
+                        <div class="header-score">Score</div>
+                        <div class="header-time">Time</div>
+                        <div class="header-date">Date</div>
+                    </div>
+                    
+                    <!-- Horizontal Scrollable Container -->
+                    <div class="leaderboard-items" id="leaderboard-items">
+                        <!-- Real leaderboard items will be dynamically loaded here -->
+                        <div class="loading-placeholder">
+                            <div class="loading-item">
+                                <div class="loading-fixed">
+                                    <div class="loading-rank"></div>
+                                    <div class="loading-participant"></div>
+                                </div>
+                                <div class="loading-scroll">
+                                    <div class="loading-score"></div>
+                                    <div class="loading-time"></div>
+                                    <div class="loading-date"></div>
+                                </div>
+                            </div>
+                            <div class="loading-item">
+                                <div class="loading-fixed">
+                                    <div class="loading-rank"></div>
+                                    <div class="loading-participant"></div>
+                                </div>
+                                <div class="loading-scroll">
+                                    <div class="loading-score"></div>
+                                    <div class="loading-time"></div>
+                                    <div class="loading-date"></div>
+                                </div>
+                            </div>
+                            <div class="loading-item">
+                                <div class="loading-fixed">
+                                    <div class="loading-rank"></div>
+                                    <div class="loading-participant"></div>
+                                </div>
+                                <div class="loading-scroll">
+                                    <div class="loading-score"></div>
+                                    <div class="loading-time"></div>
+                                    <div class="loading-date"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Toast Banner Advertisement - After 20 participants -->
-            <div class="toast-banner-ad" id="toast-banner-ad" style="display: none;">
-                <div class="toast-banner-content">
-                    <div class="banner-close-btn" onclick="closeToastBannerAd()">
-                        <i class="fas fa-times"></i>
+        <!-- Simple Toast Advertisement Below Leaderboard - Removable -->
+        <div class="simple-toast-ad" id="simple-toast-ad">
+            <div class="toast-ad-close" onclick="closeSimpleToastAd()">
+                <i class="fas fa-times"></i>
+            </div>
+            <div class="toast-ad-content">
+                <div class="toast-ad-placeholder">
+                    <div class="toast-ad-icon">
+                        <i class="fas fa-bullhorn"></i>
                     </div>
-                    
-                    <div class="toast-banner-main">
-                        <div class="toast-banner-icon">
-                            <i class="fas fa-gift"></i>
-                        </div>
-                        <div class="toast-banner-text">
-                            <h4>🎁 Special Offer: 50% OFF Premium!</h4>
-                            <p>Limited time offer - Unlock unlimited quizzes, detailed analytics and certificates</p>
-                        </div>
-                        <div class="toast-banner-action">
-                            <button class="toast-upgrade-btn" onclick="claimSpecialOffer()">
-                                <i class="fas fa-bolt"></i>
-                                Claim Offer
-                            </button>
-                        </div>
+                    <div class="toast-ad-text">
+                        <h4>Advertisement Space</h4>
+                        <p>Your advertisement content will be displayed here</p>
                     </div>
-                    
-                    <div class="toast-banner-timer">
-                        <div class="timer-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="timer-text">
-                            <span>Offer expires in: <strong id="offer-timer">23:59:45</strong></span>
+                    <div class="toast-ad-action">
+                        <div class="ad-button-placeholder">
+                            <span>Ad Button</span>
                         </div>
                     </div>
                 </div>
