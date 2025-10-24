@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Modal</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            padding: 50px;
+            background: #f0f0f0;
+        }
+        
+        .test-button {
+            background: #4F46E5;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        /* Modal Styles */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 300ms ease;
+        }
+        
+        .auth-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .auth-container {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            transform: scale(0.9);
+            transition: transform 300ms ease;
+            position: relative;
+        }
+        
+        .auth-modal.show .auth-container {
+            transform: scale(1);
+        }
+        
+        .auth-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 1;
+        }
+        
+        .auth-header {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            padding: 40px 30px 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        .auth-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .auth-title {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .auth-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .auth-content {
+            padding: 30px;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            background: #f3f4f6;
+            border-radius: 12px;
+            padding: 4px;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 200ms;
+        }
+        
+        .auth-tab.active {
+            background: white;
+            color: #4F46E5;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 200ms;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #4F46E5;
+        }
+        
+        .auth-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .auth-btn-primary {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: white;
+        }
+        
+        .auth-btn-google {
+            background: white;
+            color: #374151;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e5e7eb;
+        }
+        
+        .auth-divider span {
+            padding: 0 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Modal Test Page</h1>
+    <button class="test-button" onclick="showModal()">Test Login Modal</button>
+    
+    <!-- Modal -->
+    <div class="auth-modal" id="auth-modal">
+        <div class="auth-container">
+            <button class="auth-close" onclick="hideModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <i class="fas fa-brain"></i>
+                    <span>DigiQuiz Portal</span>
+                </div>
+                <h2 class="auth-title">Welcome Back!</h2>
+                <p class="auth-subtitle">Sign in to access your quizzes</p>
+            </div>
+            
+            <div class="auth-content">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchTab('login')">Sign In</button>
+                    <button class="auth-tab" onclick="switchTab('signup')">Sign Up</button>
+                </div>
+                
+                <form id="login-form" class="auth-form active">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" placeholder="Enter your password">
+                    </div>
+                    <button type="button" class="auth-btn auth-btn-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
+                    </button>
+                    <div class="auth-divider">
+                        <span>or continue with</span>
+                    </div>
+                    <button type="button" class="auth-btn auth-btn-google">
+                        <i class="fab fa-google"></i>
+                        Continue with Google
+                    </button>
+                </form>
+                
+                <form id="signup-form" class="auth-form">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-input" placeholder="Enter your full name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-input" placeholder="Enter your email">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-input" placeholder="Create a password">
+                    </div>
+                    <button type="button" class="auth-btn auth-btn-primary">
+                        <i class="fas fa-user-plus"></i>
+                        Create Account
+                    </button>
+                    <div class="auth-divider">
+                        <span>or continue with</span>
+                    </div>
+                    <button type="button" class="auth-btn auth-btn-google">
+                        <i class="fab fa-google"></i>
+                        Continue with Google
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showModal() {
+            document.getElementById('auth-modal').classList.add('show');
+        }
+        
+        function hideModal() {
+            document.getElementById('auth-modal').classList.remove('show');
+        }
+        
+        function switchTab(tab) {
+            // Update tabs
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update forms
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            document.getElementById(tab + '-form').classList.add('active');
+        }
+        
+        // Close modal when clicking background
+        document.getElementById('auth-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideModal();
+            }
+        });
+    </script>
+</body>
+</html>
