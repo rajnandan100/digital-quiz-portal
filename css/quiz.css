@@ -1,155 +1,140 @@
-/* ===== UPDATED QUIZ PAGE STYLES - MOBILE OPTIMIZED ===== */
+/* ===== MINIMAL QUIZ HEADER STYLES ===== */
 
-/* Quiz Navigation - Mobile Optimized */
-.quiz-nav {
-    background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
-    backdrop-filter: blur(10px);
+/* Fixed Quiz Header - Minimal */
+.quiz-header-fixed {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1000;
-    box-shadow: 0 4px 20px rgba(79, 70, 229, 0.3);
-}
-
-.quiz-nav .nav-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 20px; /* Reduced padding for thinner nav */
-    max-width: 100%;
-}
-
-/* Left: Circular Logo - Compact */
-.nav-logo-circle {
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Reduced gap */
-    color: white;
-    min-width: fit-content;
-}
-
-.logo-circle {
-    width: 36px; /* Reduced from 50px */
-    height: 36px; /* Reduced from 50px */
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
+    background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
     backdrop-filter: blur(10px);
+    box-shadow: 0 2px 15px rgba(79, 70, 229, 0.2);
+    z-index: 1000;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Left: Static Timer */
+.timer-static {
     display: flex;
     align-items: center;
-    justify-content: center;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    transition: all 300ms ease;
-}
-
-.logo-circle:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
-}
-
-.logo-circle i {
-    font-size: 1.2rem; /* Reduced from 1.5rem */
-    color: white;
-}
-
-.logo-text {
-    font-size: 0.95rem; /* Reduced from 1.1rem */
-    font-weight: 600;
-    color: white;
-}
-
-/* Center: Timer - Compact */
-.quiz-timer-center {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    max-width: 200px; /* Limit maximum width */
-    margin: 0 16px; /* Add margin for breathing room */
 }
 
 .timer-container {
     display: flex;
     align-items: center;
-    gap: 8px; /* Reduced gap */
+    gap: 10px;
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
-    padding: 8px 16px; /* Reduced padding */
-    border-radius: 20px; /* Reduced border radius */
+    padding: 8px 16px;
+    border-radius: 25px;
     border: 2px solid rgba(255, 255, 255, 0.2);
     animation: pulse-timer 2s infinite;
-    min-width: 0; /* Allow shrinking */
 }
 
 .timer-icon {
-    font-size: 1.1rem; /* Reduced from 1.5rem */
+    font-size: 1.2rem;
     color: rgba(255, 255, 255, 0.9);
-    flex-shrink: 0; /* Don't shrink the icon */
 }
 
 .timer-content {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    min-width: 0; /* Allow shrinking */
-}
-
-.timer-label {
-    font-size: 0.6rem; /* Reduced from 0.7rem */
-    color: rgba(255, 255, 255, 0.8);
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.3px; /* Reduced letter spacing */
-    line-height: 1;
 }
 
 .timer-display {
-    font-size: 1.3rem; /* Reduced from 1.8rem */
+    font-size: 1.4rem;
     font-weight: 700;
     color: white;
     font-family: 'Courier New', monospace;
-    letter-spacing: 0.5px; /* Reduced letter spacing */
-    line-height: 1;
+    letter-spacing: 1px;
 }
 
 @keyframes pulse-timer {
     0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.02); }
+    50% { transform: scale(1.03); }
 }
 
-/* Right: User Profile - Compact */
-.nav-user-profile {
+/* Right: User Profile - Static with Dropdown */
+.user-profile-static {
+    position: relative;
+}
+
+.user-info {
     display: flex;
     align-items: center;
-    min-width: fit-content;
+    cursor: pointer;
+    position: relative;
 }
 
-.user-avatar-circle {
-    width: 36px; /* Reduced from 50px */
-    height: 36px; /* Reduced from 50px */
+.user-avatar-static {
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid rgba(255, 255, 255, 0.3); /* Thinner border */
+    border: 2px solid rgba(255, 255, 255, 0.3);
     transition: all 300ms ease;
 }
 
-.user-avatar-circle:hover {
+.user-avatar-static:hover {
     border-color: rgba(255, 255, 255, 0.6);
     transform: scale(1.05);
 }
 
-.user-name-nav {
-    color: white;
-    font-weight: 500;
-    margin-left: 8px; /* Reduced margin */
-    font-size: 0.9rem; /* Reduced font size */
+/* User Dropdown Menu */
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    min-width: 150px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 300ms ease;
+    z-index: 1001;
+    margin-top: 8px;
 }
 
-/* Main Quiz Layout */
+.user-info:hover .user-dropdown,
+.user-dropdown:hover {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    color: #374151;
+    cursor: pointer;
+    transition: background-color 200ms;
+    border-radius: 8px;
+    margin: 4px;
+}
+
+.dropdown-item:hover {
+    background: #f3f4f6;
+    color: #4F46E5;
+}
+
+.dropdown-item i {
+    width: 16px;
+    text-align: center;
+}
+
+/* Main Quiz Layout - Adjusted for minimal header */
 .quiz-container {
     display: grid;
     grid-template-columns: auto 1fr 300px;
     gap: 24px;
-    padding: 80px 24px 24px; /* Reduced from 100px */
+    padding: 70px 24px 24px; /* Reduced top padding */
     min-height: 100vh;
     background: #f9fafb;
 }
@@ -157,7 +142,7 @@
 /* Question Palette - Minimizable */
 .question-palette-wrapper {
     position: sticky;
-    top: 100px; /* Adjusted for thinner nav */
+    top: 90px; /* Adjusted for minimal header */
     height: fit-content;
 }
 
@@ -350,7 +335,7 @@
     border: 1px solid #e5e7eb;
 }
 
-.quiz-header {
+.quiz-info-header {
     margin-bottom: 32px;
     padding-bottom: 24px;
     border-bottom: 2px solid #f3f4f6;
@@ -602,7 +587,7 @@
 /* Motivational Section */
 .motivation-section {
     position: sticky;
-    top: 100px; /* Adjusted for thinner nav */
+    top: 90px; /* Adjusted for minimal header */
 }
 
 .motivation-card {
@@ -931,7 +916,7 @@
     color: #6b7280;
 }
 
-/* MOBILE RESPONSIVE DESIGN - OPTIMIZED */
+/* MOBILE RESPONSIVE DESIGN */
 @media (max-width: 1200px) {
     .quiz-container {
         grid-template-columns: auto 1fr 250px;
@@ -942,7 +927,7 @@
 @media (max-width: 1024px) {
     .quiz-container {
         grid-template-columns: 1fr;
-        padding: 70px 16px 16px; /* Reduced top padding */
+        padding: 60px 16px 16px;
     }
     
     .question-palette-wrapper,
@@ -963,54 +948,30 @@
 }
 
 @media (max-width: 768px) {
-    .quiz-nav .nav-container {
-        padding: 8px 16px; /* Even thinner on mobile */
-        gap: 8px;
-    }
-    
-    .logo-text {
-        display: none; /* Hide logo text on mobile */
-    }
-    
-    .user-name-nav {
-        display: none; /* Hide user name on mobile */
+    .quiz-header-fixed {
+        padding: 8px 16px;
     }
     
     .timer-container {
-        padding: 6px 12px; /* Thinner padding on mobile */
+        padding: 6px 12px;
         gap: 6px;
-        max-width: 140px; /* Limit width on mobile */
     }
     
     .timer-display {
-        font-size: 1.1rem; /* Smaller timer on mobile */
-    }
-    
-    .timer-label {
-        font-size: 0.55rem; /* Smaller label on mobile */
+        font-size: 1.1rem;
     }
     
     .timer-icon {
-        font-size: 1rem; /* Smaller icon on mobile */
+        font-size: 1rem;
     }
     
-    .logo-circle {
-        width: 32px; /* Smaller logo on mobile */
+    .user-avatar-static {
+        width: 32px;
         height: 32px;
     }
     
-    .logo-circle i {
-        font-size: 1rem; /* Smaller icon on mobile */
-    }
-    
-    .user-avatar-circle {
-        width: 32px; /* Smaller avatar on mobile */
-        height: 32px;
-    }
-    
-    /* Adjust main content padding to account for thinner nav */
     .quiz-container {
-        padding-top: 60px; /* Much less padding on mobile */
+        padding-top: 50px;
     }
     
     .quiz-content {
@@ -1057,40 +1018,26 @@
 }
 
 @media (max-width: 480px) {
-    .quiz-nav .nav-container {
-        padding: 6px 12px; /* Ultra-thin on small mobile */
+    .quiz-header-fixed {
+        padding: 6px 12px;
     }
     
     .timer-container {
-        padding: 5px 10px;
-        max-width: 120px;
+        padding: 4px 8px;
+        gap: 4px;
     }
     
     .timer-display {
         font-size: 1rem;
     }
     
-    .timer-label {
-        font-size: 0.5rem;
-    }
-    
-    .logo-circle,
-    .user-avatar-circle {
-        width: 28px; /* Ultra-compact on small screens */
+    .user-avatar-static {
+        width: 28px;
         height: 28px;
     }
     
-    .logo-circle i {
-        font-size: 0.9rem;
-    }
-    
-    .timer-icon {
-        font-size: 0.9rem;
-    }
-    
-    /* Adjust main content padding */
     .quiz-container {
-        padding-top: 50px; /* Minimal padding on small mobile */
+        padding-top: 45px;
         gap: 12px;
         padding-left: 12px;
         padding-right: 12px;
@@ -1131,67 +1078,5 @@
     .submit-modal-body,
     .submit-modal-footer {
         padding: 16px;
-    }
-}
-
-/* Landscape Mobile Optimization */
-@media (max-width: 768px) and (orientation: landscape) {
-    .quiz-nav .nav-container {
-        padding: 4px 12px; /* Ultra-thin in landscape */
-    }
-    
-    .timer-container {
-        padding: 4px 8px;
-    }
-    
-    .timer-display {
-        font-size: 0.95rem;
-    }
-    
-    .timer-label {
-        display: none; /* Hide label in landscape for space */
-    }
-    
-    .logo-circle,
-    .user-avatar-circle {
-        width: 26px;
-        height: 26px;
-    }
-    
-    .quiz-container {
-        padding-top: 45px; /* Minimal padding in landscape */
-    }
-}
-
-/* Very Large Screens - Keep Normal Size */
-@media (min-width: 1200px) {
-    .quiz-nav .nav-container {
-        padding: 16px 32px; /* Larger padding on desktop */
-    }
-    
-    .logo-circle {
-        width: 44px;
-        height: 44px;
-    }
-    
-    .user-avatar-circle {
-        width: 44px;
-        height: 44px;
-    }
-    
-    .timer-container {
-        padding: 12px 20px;
-    }
-    
-    .timer-display {
-        font-size: 1.6rem;
-    }
-    
-    .timer-label {
-        font-size: 0.75rem;
-    }
-    
-    .quiz-container {
-        padding-top: 100px; /* Normal padding on desktop */
     }
 }
