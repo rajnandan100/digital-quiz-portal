@@ -1,4 +1,4 @@
-// ===== LEADERBOARD PAGE - COMPLETE FUNCTIONALITY WITH REAL DATA & PDF GENERATION =====
+// ===== LEADERBOARD PAGE - COMPLETE FUNCTIONALITY WITH MOBILE-OPTIMIZED TABLE =====
 
 class LeaderboardManager {
     constructor() {
@@ -11,7 +11,6 @@ class LeaderboardManager {
         this.currentPage = 1;
         this.itemsPerPage = 20;
         this.isLoading = false;
-        this.offerTimer = null;
         
         this.init();
     }
@@ -35,7 +34,7 @@ class LeaderboardManager {
                 this.updateUserUI(user);
                 this.loadRealLeaderboardData();
                 this.showVideoAdPlaceholder();
-                this.startOfferTimer();
+                this.showSimpleToastAd();
             } else {
                 // Redirect to home if not authenticated
                 window.location.href = '../index.html';
@@ -276,11 +275,6 @@ class LeaderboardManager {
             const actualIndex = startIndex + index;
             const listItem = this.createParticipantItem(participant, actualIndex);
             container.appendChild(listItem);
-            
-            // Show toast banner ad after 20th participant
-            if (actualIndex === 19) { // 0-based index for 20th item
-                this.showToastBannerAd();
-            }
         });
         
         // Update load more button
@@ -298,19 +292,23 @@ class LeaderboardManager {
         });
         
         item.innerHTML = `
-            <div class="item-rank">
-                ${medal || `#${participant.rank}`}
-            </div>
-            <div class="item-player">
-                <img src="${participant.avatar}" alt="${participant.name}" class="player-avatar">
-                <div class="player-info">
-                    <div class="player-name">${participant.name}</div>
-                    ${participant.isCurrentUser ? '<div class="current-user-badge">You</div>' : ''}
+            <div class="item-fixed">
+                <div class="item-rank">
+                    ${medal || `#${participant.rank}`}
+                </div>
+                <div class="item-player">
+                    <img src="${participant.avatar}" alt="${participant.name}" class="player-avatar">
+                    <div class="player-info">
+                        <div class="player-name" title="${participant.name}">${participant.name}</div>
+                        ${participant.isCurrentUser ? '<div class="current-user-badge">You</div>' : ''}
+                    </div>
                 </div>
             </div>
-            <div class="item-score">${participant.score}%</div>
-            <div class="item-time">${this.formatTime(participant.time)}</div>
-            <div class="item-date">${date}</div>
+            <div class="item-scrollable">
+                <div class="item-score">${participant.score}%</div>
+                <div class="item-time">${this.formatTime(participant.time)}</div>
+                <div class="item-date">${date}</div>
+            </div>
         `;
         
         return item;
@@ -447,51 +445,20 @@ class LeaderboardManager {
         }
     }
 
-    // Toast Banner Advertisement Functions
-    showToastBannerAd() {
-        const toastBannerAd = document.getElementById('toast-banner-ad');
-        if (toastBannerAd) {
-            toastBannerAd.style.display = 'block';
+    // Simple Toast Advertisement Functions
+    showSimpleToastAd() {
+        const simpleToastAd = document.getElementById('simple-toast-ad');
+        if (simpleToastAd) {
+            simpleToastAd.style.display = 'block';
         }
     }
 
-    closeToastBannerAd() {
-        const toastBannerAd = document.getElementById('toast-banner-ad');
-        if (toastBannerAd) {
-            toastBannerAd.style.display = 'none';
+    closeSimpleToastAd() {
+        const simpleToastAd = document.getElementById('simple-toast-ad');
+        if (simpleToastAd) {
+            simpleToastAd.style.display = 'none';
         }
-        this.showToast('Special offer dismissed', 'info');
-    }
-
-    claimSpecialOffer() {
-        this.showToast('Redirecting to premium upgrade...', 'info');
-        this.closeToastBannerAd();
-        setTimeout(() => {
-            this.showToast('🚀 Premium upgrade page coming soon!', 'success');
-        }, 1000);
-    }
-
-    startOfferTimer() {
-        let timeLeft = 24 * 60 * 60 - 1; // 23:59:59
-        const timerElement = document.getElementById('offer-timer');
-        
-        this.offerTimer = setInterval(() => {
-            const hours = Math.floor(timeLeft / 3600);
-            const minutes = Math.floor((timeLeft % 3600) / 60);
-            const seconds = timeLeft % 60;
-            
-            if (timerElement) {
-                timerElement.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }
-            
-            timeLeft--;
-            
-            if (timeLeft < 0) {
-                clearInterval(this.offerTimer);
-                this.closeToastBannerAd();
-                this.showToast('Special offer expired', 'warning');
-            }
-        }, 1000);
+        this.showToast('Advertisement dismissed', 'info');
     }
 
     // PDF Download Function
@@ -672,15 +639,9 @@ function downloadLeaderboardPDF() {
     }
 }
 
-function closeToastBannerAd() {
+function closeSimpleToastAd() {
     if (window.leaderboardManager) {
-        window.leaderboardManager.closeToastBannerAd();
-    }
-}
-
-function claimSpecialOffer() {
-    if (window.leaderboardManager) {
-        window.leaderboardManager.claimSpecialOffer();
+        window.leaderboardManager.closeSimpleToastAd();
     }
 }
 
