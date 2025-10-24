@@ -1,4 +1,4 @@
-// Firebase Configuration
+
 const firebaseConfig = {
   apiKey: "AIzaSyBiS1wFqB5dHjn6UiRhheSLhOekkLBlfmw",
   authDomain: "digi-quiz-portal.firebaseapp.com",
@@ -9,7 +9,5 @@ const firebaseConfig = {
   measurementId: "G-78W1YHEG93"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-
 console.log('Firebase initialized successfully!');
