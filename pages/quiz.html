@@ -25,28 +25,30 @@
     <!-- Navigation Header -->
     <nav class="navbar quiz-nav" id="navbar">
         <div class="nav-container">
-            <div class="nav-logo">
-                <i class="fas fa-brain"></i>
-                <span>DigiQuiz Portal</span>
+            <!-- Left: Logo -->
+            <div class="nav-logo-circle">
+                <div class="logo-circle">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <span class="logo-text">DigiQuiz Portal</span>
             </div>
             
-            <div class="quiz-info-header">
-                <div class="quiz-title-header" id="quiz-title-header">
-                    Loading Quiz...
-                </div>
-                <div class="quiz-timer" id="quiz-timer">
-                    <i class="fas fa-clock"></i>
-                    <span id="timer-display">30:00</span>
+            <!-- Center: Timer -->
+            <div class="quiz-timer-center" id="quiz-timer">
+                <div class="timer-container">
+                    <i class="fas fa-clock timer-icon"></i>
+                    <div class="timer-content">
+                        <span class="timer-label">Time Remaining</span>
+                        <span class="timer-display" id="timer-display">30:00</span>
+                    </div>
                 </div>
             </div>
             
-            <div class="nav-auth">
-                <div class="user-info" id="user-info" style="display: none;">
-                    <img src="" alt="User" class="user-avatar" id="user-avatar">
-                    <span class="user-name" id="user-name"></span>
-                    <button class="btn-logout" id="btn-logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
+            <!-- Right: User Profile -->
+            <div class="nav-user-profile">
+                <div class="user-info" id="user-info">
+                    <img src="" alt="User" class="user-avatar-circle" id="user-avatar">
+                    <span class="user-name-nav" id="user-name"></span>
                 </div>
             </div>
         </div>
@@ -54,69 +56,84 @@
 
     <!-- Main Quiz Container -->
     <div class="quiz-container" id="quiz-container">
-        <!-- Question Palette Section -->
-        <div class="question-palette">
-            <div class="palette-header">
-                <h3>
-                    <i class="fas fa-list"></i>
-                    Question Palette
-                </h3>
-                <div class="palette-legend">
-                    <div class="legend-item">
-                        <div class="legend-dot not-visited"></div>
-                        <span>Not Visited</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-dot current"></div>
-                        <span>Current</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-dot answered"></div>
-                        <span>Answered</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-dot marked"></div>
-                        <span>Marked for Review</span>
-                    </div>
-                </div>
+        <!-- Question Palette Section (Minimizable) -->
+        <div class="question-palette-wrapper" id="palette-wrapper">
+            <div class="palette-toggle-btn" id="palette-toggle">
+                <i class="fas fa-list"></i>
+                <span>Questions</span>
+                <i class="fas fa-chevron-right toggle-icon" id="toggle-icon"></i>
             </div>
             
-            <div class="palette-grid" id="palette-grid">
-                <!-- Question numbers will be dynamically generated -->
-            </div>
-            
-            <div class="palette-stats">
-                <div class="stat-item">
-                    <span class="stat-number" id="answered-count">0</span>
-                    <span class="stat-label">Answered</span>
+            <div class="question-palette collapsed" id="question-palette">
+                <div class="palette-header">
+                    <h3>
+                        <i class="fas fa-list"></i>
+                        Question Palette
+                    </h3>
+                    <div class="palette-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot not-visited"></div>
+                            <span>Not Visited</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot current"></div>
+                            <span>Current</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot answered"></div>
+                            <span>Answered</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot marked"></div>
+                            <span>Marked</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="marked-count">0</span>
-                    <span class="stat-label">Marked</span>
+                
+                <div class="palette-grid" id="palette-grid">
+                    <!-- Question numbers will be dynamically generated -->
                 </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="remaining-count">0</span>
-                    <span class="stat-label">Not Visited</span>
+                
+                <div class="palette-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="answered-count">0</span>
+                        <span class="stat-label">Answered</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="marked-count">0</span>
+                        <span class="stat-label">Marked</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="remaining-count">0</span>
+                        <span class="stat-label">Not Visited</span>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Quiz Content Section -->
         <div class="quiz-content">
-            <!-- Question Section -->
-            <div class="question-section">
-                <div class="question-header">
-                    <div class="question-counter">
+            <!-- Quiz Header -->
+            <div class="quiz-header">
+                <div class="quiz-title" id="quiz-title">General Knowledge Challenge 2024</div>
+                <div class="quiz-progress">
+                    <div class="progress-info">
                         <span>Question </span>
                         <span id="current-question-number">1</span>
                         <span> of </span>
                         <span id="total-questions">30</span>
                     </div>
-                    <div class="question-category" id="question-category">
-                        General Knowledge
+                    <div class="progress-bar-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="quiz-progress-fill"></div>
+                        </div>
+                        <span class="progress-percentage" id="progress-percentage">3%</span>
                     </div>
                 </div>
-                
+            </div>
+            
+            <!-- Question Section -->
+            <div class="question-section">
                 <div class="question-content">
                     <div class="question-text" id="question-text">
                         Loading question...
@@ -154,7 +171,7 @@
 
             <!-- Submit Section -->
             <div class="submit-section">
-                <button class="btn-submit" id="btn-submit">
+                <button class="btn-submit-quiz" id="btn-submit">
                     <i class="fas fa-paper-plane"></i>
                     Submit Quiz
                 </button>
@@ -166,7 +183,7 @@
             <div class="motivation-card">
                 <div class="motivation-header">
                     <div class="greeting" id="greeting-text">
-                        Keep going, Champion! 🌟
+                        Keep going! 🌟
                     </div>
                 </div>
                 <div class="motivational-quote">
@@ -180,10 +197,10 @@
                 </div>
                 <div class="progress-encouragement">
                     <div class="progress-bar">
-                        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                        <div class="progress-fill" id="motivation-progress-fill" style="width: 0%"></div>
                     </div>
                     <div class="progress-text">
-                        <span id="progress-text">You're doing great! Keep it up!</span>
+                        <span id="motivation-progress-text">You're doing great! Keep it up!</span>
                     </div>
                 </div>
             </div>
@@ -205,7 +222,10 @@
     <div class="submit-modal" id="submit-modal">
         <div class="submit-modal-content">
             <div class="submit-modal-header">
-                <h3>Submit Quiz?</h3>
+                <h3>
+                    <i class="fas fa-paper-plane"></i>
+                    Submit Quiz?
+                </h3>
                 <button class="modal-close" id="submit-modal-close">
                     <i class="fas fa-times"></i>
                 </button>
@@ -213,17 +233,32 @@
             
             <div class="submit-modal-body">
                 <div class="submit-stats">
-                    <div class="submit-stat">
-                        <span class="stat-label">Questions Answered:</span>
-                        <span class="stat-value" id="submit-answered">0</span>
+                    <div class="submit-stat answered">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Questions Answered</span>
+                            <span class="stat-value" id="submit-answered">0</span>
+                        </div>
                     </div>
-                    <div class="submit-stat">
-                        <span class="stat-label">Not Answered:</span>
-                        <span class="stat-value" id="submit-not-answered">0</span>
+                    <div class="submit-stat not-answered">
+                        <div class="stat-icon">
+                            <i class="fas fa-minus-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Not Answered</span>
+                            <span class="stat-value" id="submit-not-answered">0</span>
+                        </div>
                     </div>
-                    <div class="submit-stat">
-                        <span class="stat-label">Marked for Review:</span>
-                        <span class="stat-value" id="submit-marked">0</span>
+                    <div class="submit-stat marked">
+                        <div class="stat-icon">
+                            <i class="fas fa-bookmark"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-label">Marked for Review</span>
+                            <span class="stat-value" id="submit-marked">0</span>
+                        </div>
                     </div>
                 </div>
                 
