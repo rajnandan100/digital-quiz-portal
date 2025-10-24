@@ -464,6 +464,15 @@ body {
 }
 
 /* Single Header Row - Moves with data */
+
+
+
+
+
+
+
+
+/* Header inside scrollable container */
 .list-header {
     display: grid;
     grid-template-columns: 80px 220px 80px 80px 100px;
@@ -476,8 +485,15 @@ body {
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    min-width: 576px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
+
+
+
+
 
 /* Horizontal Scrollable Container */
 .leaderboard-items-wrapper {
