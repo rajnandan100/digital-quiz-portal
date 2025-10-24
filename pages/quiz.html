@@ -22,37 +22,35 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <!-- Navigation Header -->
-    <nav class="navbar quiz-nav" id="navbar">
-        <div class="nav-container">
-            <!-- Left: Logo -->
-            <div class="nav-logo-circle">
-                <div class="logo-circle">
-                    <i class="fas fa-brain"></i>
-                </div>
-                <span class="logo-text">DigiQuiz Portal</span>
-            </div>
-            
-            <!-- Center: Timer -->
-            <div class="quiz-timer-center" id="quiz-timer">
-                <div class="timer-container">
-                    <i class="fas fa-clock timer-icon"></i>
-                    <div class="timer-content">
-                        <span class="timer-label">Time Remaining</span>
-                        <span class="timer-display" id="timer-display">30:00</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Right: User Profile -->
-            <div class="nav-user-profile">
-                <div class="user-info" id="user-info">
-                    <img src="" alt="User" class="user-avatar-circle" id="user-avatar">
-                    <span class="user-name-nav" id="user-name"></span>
+    <!-- Minimal Quiz Header - Fixed Position -->
+    <div class="quiz-header-fixed" id="quiz-header">
+        <!-- Left: Static Timer -->
+        <div class="timer-static" id="quiz-timer">
+            <div class="timer-container">
+                <i class="fas fa-clock timer-icon"></i>
+                <div class="timer-content">
+                    <span class="timer-display" id="timer-display">30:00</span>
                 </div>
             </div>
         </div>
-    </nav>
+        
+        <!-- Right: User Profile -->
+        <div class="user-profile-static">
+            <div class="user-info" id="user-info">
+                <img src="" alt="User" class="user-avatar-static" id="user-avatar">
+                <div class="user-dropdown" id="user-dropdown">
+                    <div class="dropdown-item" onclick="window.location.href='../index.html'">
+                        <i class="fas fa-home"></i>
+                        Home
+                    </div>
+                    <div class="dropdown-item" onclick="firebase.auth().signOut()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Quiz Container -->
     <div class="quiz-container" id="quiz-container">
@@ -114,7 +112,7 @@
         <!-- Quiz Content Section -->
         <div class="quiz-content">
             <!-- Quiz Header -->
-            <div class="quiz-header">
+            <div class="quiz-info-header">
                 <div class="quiz-title" id="quiz-title">General Knowledge Challenge 2024</div>
                 <div class="quiz-progress">
                     <div class="progress-info">
@@ -295,3 +293,4 @@
     <script src="../js/quiz.js"></script>
 </body>
 </html>
+
