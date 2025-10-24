@@ -1311,3 +1311,92 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+
+
+
+
+
+/* Advertisement Section Styles */
+.advertisement-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.advertisement-card .card-header i,
+.advertisement-card .card-header h3 {
+    color: white;
+}
+
+.ad-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 200px;
+    justify-content: center;
+}
+
+.banner-ad {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 300ms ease;
+}
+
+.banner-ad:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.ad-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ad-image {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.ad-text h4 {
+    color: white;
+    margin-bottom: 4px;
+}
+
+.ad-text p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.ad-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.ad-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+
+
+
+
+
+
+
+
+
