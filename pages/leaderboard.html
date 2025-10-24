@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - DigiQuiz Portal</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/leaderboard.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK v8 Compatibility -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <div class="leaderboard-header">
+        <button class="back-btn" onclick="history.back()">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back</span>
+        </button>
+        
+        <div class="header-title">
+            <i class="fas fa-trophy"></i>
+            <h2>Leaderboard</h2>
+        </div>
+        
+        <div class="user-profile-small">
+            <img src="" alt="User" class="user-avatar-small" id="user-avatar">
+        </div>
+    </div>
+
+    <!-- Leaderboard Container -->
+    <div class="leaderboard-container">
+        <!-- Quiz Info -->
+        <div class="quiz-info-card">
+            <div class="quiz-title" id="quiz-title">General Knowledge Challenge 2024</div>
+            <div class="quiz-stats">
+                <div class="stat-item">
+                    <i class="fas fa-users"></i>
+                    <span id="total-participants">1,247 participants</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-chart-line"></i>
+                    <span id="avg-score">Avg Score: 72%</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-clock"></i>
+                    <span id="avg-time">Avg Time: 22:15</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 3 Podium -->
+        <div class="podium-section">
+            <div class="podium-container">
+                <!-- Second Place -->
+                <div class="podium-position second">
+                    <div class="position-number">2</div>
+                    <div class="podium-avatar">
+                        <img src="https://ui-avatars.com/api/?name=Sarah+Wilson&background=e5e7eb&color=374151" alt="Sarah Wilson">
+                    </div>
+                    <div class="podium-info">
+                        <div class="podium-name">Sarah Wilson</div>
+                        <div class="podium-score">96%</div>
+                        <div class="podium-time">18:45</div>
+                    </div>
+                </div>
+                
+                <!-- First Place -->
+                <div class="podium-position first">
+                    <div class="crown-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="position-number">1</div>
+                    <div class="podium-avatar">
+                        <img src="https://ui-avatars.com/api/?name=Alex+Johnson&background=fbbf24&color=92400e" alt="Alex Johnson">
+                    </div>
+                    <div class="podium-info">
+                        <div class="podium-name">Alex Johnson</div>
+                        <div class="podium-score">98%</div>
+                        <div class="podium-time">17:32</div>
+                    </div>
+                </div>
+                
+                <!-- Third Place -->
+                <div class="podium-position third">
+                    <div class="position-number">3</div>
+                    <div class="podium-avatar">
+                        <img src="https://ui-avatars.com/api/?name=Mike+Chen&background=f59e0b&color=92400e" alt="Mike Chen">
+                    </div>
+                    <div class="podium-info">
+                        <div class="podium-name">Mike Chen</div>
+                        <div class="podium-score">94%</div>
+                        <div class="podium-time">19:08</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Your Position -->
+        <div class="your-position-card" id="your-position">
+            <div class="your-position-header">
+                <i class="fas fa-user"></i>
+                <h3>Your Position</h3>
+            </div>
+            <div class="your-position-content">
+                <div class="position-rank">#23</div>
+                <div class="position-details">
+                    <div class="position-name" id="user-name">You</div>
+                    <div class="position-score" id="user-score">85%</div>
+                    <div class="position-time" id="user-time">18:32</div>
+                </div>
+                <div class="position-progress">
+                    <div class="progress-text">
+                        <span id="position-diff">12 spots away from top 10!</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="position-progress"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="leaderboard-filters">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">All Time</button>
+                <button class="filter-tab" data-filter="today">Today</button>
+                <button class="filter-tab" data-filter="week">This Week</button>
+                <button class="filter-tab" data-filter="month">This Month</button>
+            </div>
+            
+            <div class="sort-options">
+                <select class="sort-select" id="sort-select">
+                    <option value="score">Sort by Score</option>
+                    <option value="time">Sort by Time</option>
+                    <option value="date">Sort by Date</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Leaderboard List -->
+        <div class="leaderboard-list">
+            <div class="list-header">
+                <div class="header-rank">Rank</div>
+                <div class="header-player">Player</div>
+                <div class="header-score">Score</div>
+                <div class="header-time">Time</div>
+                <div class="header-date">Date</div>
+            </div>
+            
+            <div class="leaderboard-items" id="leaderboard-items">
+                <!-- Leaderboard items will be dynamically loaded -->
+            </div>
+        </div>
+
+        <!-- Load More -->
+        <div class="load-more-section">
+            <button class="load-more-btn" id="load-more-btn">
+                <i class="fas fa-chevron-down"></i>
+                Load More
+            </button>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="leaderboard-actions">
+            <button class="action-btn primary" onclick="window.location.href='../pages/quiz.html?id=gk-001'">
+                <i class="fas fa-play"></i>
+                Take This Quiz
+            </button>
+            
+            <button class="action-btn secondary" onclick="window.location.href='../pages/results.html'">
+                <i class="fas fa-chart-line"></i>
+                View My Results
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loading-spinner">
+        <div class="spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading leaderboard...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/leaderboard.js"></script>
+</body>
+</html>
