@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DigiQuiz Portal - Modern Quiz Platform</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Take interactive quizzes on DigiQuiz Portal. Test your knowledge in various subjects with our modern, mobile-friendly platform.">
+    <meta name="keywords" content="quiz, online quiz, test, knowledge, education, learning">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Particles.js for Background Effects -->
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js"></script>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-brain"></i>
+                <span>DigiQuiz Portal</span>
+            </div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <a href="#home" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#leaderboard" class="nav-link">
+                    <i class="fas fa-trophy"></i>
+                    <span>Leaderboard</span>
+                </a>
+                <a href="#about" class="nav-link">
+                    <i class="fas fa-info-circle"></i>
+                    <span>About</span>
+                </a>
+                <a href="#contact" class="nav-link">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact</span>
+                </a>
+            </div>
+            
+            <div class="nav-auth">
+                <div class="user-info" id="user-info" style="display: none;">
+                    <img src="" alt="User" class="user-avatar" id="user-avatar">
+                    <span class="user-name" id="user-name"></span>
+                    <button class="btn-logout" id="btn-logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+                <button class="btn-login" id="btn-login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
+                </button>
+            </div>
+            
+            <div class="nav-toggle" id="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section" id="home">
+            <div class="particles-background" id="particles-js"></div>
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        Test Your <span class="gradient-text">Knowledge</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Challenge yourself with our interactive quizzes and compete with thousands of users worldwide
+                    </p>
+                    <div class="hero-buttons">
+                        <button class="btn-primary" id="start-quiz-btn">
+                            <i class="fas fa-play"></i>
+                            Start Quiz
+                        </button>
+                        <button class="btn-secondary" id="view-leaderboard-btn">
+                            <i class="fas fa-trophy"></i>
+                            View Rankings
+                        </button>
+                    </div>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-users">5000+</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-quizzes">50+</div>
+                        <div class="stat-label">Quizzes Available</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-questions">1500+</div>
+                        <div class="stat-label">Questions</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quizzes Section -->
+        <section class="quizzes-section" id="quizzes">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Available Quizzes</h2>
+                    <p class="section-subtitle">Choose from our collection of engaging quizzes</p>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="quiz-filters">
+                    <div class="filter-group">
+                        <label for="subject-filter">
+                            <i class="fas fa-book"></i>
+                            Subject
+                        </label>
+                        <select id="subject-filter" class="filter-select">
+                            <option value="all">All Subjects</option>
+                            <option value="general-knowledge">General Knowledge</option>
+                            <option value="english">English</option>
+                            <option value="math">Mathematics</option>
+                            <option value="science">Science</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="date-filter">
+                            <i class="fas fa-calendar"></i>
+                            Date
+                        </label>
+                        <input type="date" id="date-filter" class="filter-input">
+                    </div>
+                    <button class="btn-filter" id="apply-filters">
+                        <i class="fas fa-filter"></i>
+                        Apply Filters
+                    </button>
+                </div>
+
+                <!-- Quiz Grid -->
+                <div class="quiz-grid" id="quiz-grid">
+                    <!-- Quiz cards will be dynamically loaded here -->
+                    <div class="quiz-loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading quizzes...</p>
+                    </div>
+                </div>
+
+                <!-- Load More Button -->
+                <div class="load-more-section">
+                    <button class="btn-load-more" id="load-more-btn">
+                        <i class="fas fa-chevron-down"></i>
+                        Load More Quizzes
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advertisement Banner -->
+        <section class="ad-banner">
+            <div class="container">
+                <div class="ad-content">
+                    <!-- Placeholder for rectangular banner ad -->
+                    <div class="ad-placeholder">
+                        <i class="fas fa-ad"></i>
+                        <p>Advertisement Space</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="fas fa-brain"></i>
+                        <span>DigiQuiz Portal</span>
+                    </div>
+                    <p class="footer-description">
+                        Empowering minds through interactive learning and competitive quizzes
+                    </p>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h4>Quick Links</h4>
+                        <a href="#home">Home</a>
+                        <a href="#leaderboard">Leaderboard</a>
+                        <a href="#about">About Us</a>
+                        <a href="#contact">Contact</a>
+                    </div>
+                    
+                    <div class="footer-section">
+                        <h4>Support</h4>
+                        <a href="#faq">FAQ</a>
+                        <a href="#privacy">Privacy Policy</a>
+                        <a href="#terms">Terms of Service</a>
+                    </div>
+                </div>
+                
+                <div class="footer-social">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="#" class="social-link">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 DigiQuiz Portal. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Authentication Modal -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-content">
+            <!-- Authentication content will be loaded here -->
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loading-spinner">
+        <div class="spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
