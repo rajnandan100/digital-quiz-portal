@@ -1,7 +1,6 @@
 // Firebase Configuration and Initialization
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+// Note: For GitHub Pages, we need to use the CDN version
+// Make sure to include the Firebase CDN scripts in your HTML
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -15,17 +14,14 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 
 // Initialize Firebase services
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-
-// Export the app instance
-export default app;
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 // Firestore Collections Structure
-export const COLLECTIONS = {
+const COLLECTIONS = {
   USERS: 'users',
   QUIZZES: 'quizzes', 
   QUIZ_RESULTS: 'quizResults',
@@ -34,7 +30,7 @@ export const COLLECTIONS = {
 };
 
 // Quiz Categories
-export const QUIZ_CATEGORIES = {
+const QUIZ_CATEGORIES = {
   'general-knowledge': {
     name: 'General Knowledge',
     color: '#4F46E5',
@@ -58,9 +54,18 @@ export const QUIZ_CATEGORIES = {
 };
 
 // Application Constants
-export const APP_CONSTANTS = {
+const APP_CONSTANTS = {
   DEFAULT_QUIZ_TIME: 30, // 30 minutes default
   QUESTIONS_PER_PAGE: 10,
   LEADERBOARD_PAGE_SIZE: 50,
   MAX_QUIZ_ATTEMPTS: 3
+};
+
+// Export for use in other files
+window.firebaseApp = {
+  auth,
+  db,
+  COLLECTIONS,
+  QUIZ_CATEGORIES,
+  APP_CONSTANTS
 };
