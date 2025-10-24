@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Results - DigiQuiz Portal</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/results.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Firebase SDK v8 Compatibility -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <!-- Minimal Header -->
+    <div class="results-header-fixed">
+        <!-- Left: Back Button -->
+        <button class="back-btn" onclick="window.location.href='../index.html'">
+            <i class="fas fa-arrow-left"></i>
+            <span>Home</span>
+        </button>
+        
+        <!-- Right: User Profile -->
+        <div class="user-profile-results">
+            <div class="user-info" id="user-info">
+                <img src="" alt="User" class="user-avatar-results" id="user-avatar">
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Container -->
+    <div class="results-container">
+        <!-- Score Card - Main Result -->
+        <div class="score-card">
+            <div class="score-header">
+                <div class="congratulations-text">
+                    <i class="fas fa-trophy trophy-icon"></i>
+                    <h1 id="congratulations-message">Congratulations!</h1>
+                    <p id="performance-message">You did amazing!</p>
+                </div>
+            </div>
+            
+            <div class="score-display">
+                <div class="score-circle">
+                    <canvas id="scoreChart" width="200" height="200"></canvas>
+                    <div class="score-content">
+                        <div class="score-number" id="score-percentage">85%</div>
+                        <div class="score-label">Score</div>
+                    </div>
+                </div>
+                
+                <div class="score-details">
+                    <div class="detail-item">
+                        <div class="detail-icon correct">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="detail-info">
+                            <span class="detail-number" id="correct-answers">17</span>
+                            <span class="detail-label">Correct</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-icon incorrect">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div class="detail-info">
+                            <span class="detail-number" id="incorrect-answers">3</span>
+                            <span class="detail-label">Incorrect</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-icon skipped">
+                            <i class="fas fa-minus"></i>
+                        </div>
+                        <div class="detail-info">
+                            <span class="detail-number" id="skipped-answers">10</span>
+                            <span class="detail-label">Skipped</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="time-stats">
+                <div class="time-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Time Taken: <strong id="time-taken">18:30</strong></span>
+                </div>
+                <div class="time-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>Date: <strong id="quiz-date">Oct 24, 2025</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Section -->
+        <div class="actions-section">
+            <div class="action-card share-card">
+                <h3>
+                    <i class="fas fa-share-alt"></i>
+                    Share Your Achievement
+                </h3>
+                <div class="share-buttons">
+                    <button class="share-btn whatsapp" onclick="shareResults('whatsapp')">
+                        <i class="fab fa-whatsapp"></i>
+                        WhatsApp
+                    </button>
+                    <button class="share-btn twitter" onclick="shareResults('twitter')">
+                        <i class="fab fa-twitter"></i>
+                        Twitter
+                    </button>
+                    <button class="share-btn facebook" onclick="shareResults('facebook')">
+                        <i class="fab fa-facebook"></i>
+                        Facebook
+                    </button>
+                    <button class="share-btn copy" onclick="copyResult()">
+                        <i class="fas fa-copy"></i>
+                        Copy Link
+                    </button>
+                </div>
+            </div>
+            
+            <div class="action-card certificate-card" id="certificate-card">
+                <h3>
+                    <i class="fas fa-award"></i>
+                    Download Certificate
+                </h3>
+                <p>You scored above 80%! Download your certificate.</p>
+                <button class="certificate-btn" onclick="downloadCertificate()">
+                    <i class="fas fa-download"></i>
+                    Download Certificate
+                </button>
+            </div>
+        </div>
+
+        <!-- Performance Analytics -->
+        <div class="analytics-section">
+            <div class="analytics-card">
+                <h3>
+                    <i class="fas fa-chart-line"></i>
+                    Performance Analytics
+                </h3>
+                <div class="analytics-content">
+                    <div class="category-breakdown">
+                        <h4>Category-wise Performance</h4>
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                    
+                    <div class="accuracy-stats">
+                        <div class="accuracy-item">
+                            <span class="accuracy-label">Overall Accuracy</span>
+                            <div class="accuracy-bar">
+                                <div class="accuracy-fill" id="overall-accuracy" style="width: 85%"></div>
+                            </div>
+                            <span class="accuracy-value">85%</span>
+                        </div>
+                        
+                        <div class="accuracy-item">
+                            <span class="accuracy-label">Speed</span>
+                            <div class="accuracy-bar">
+                                <div class="accuracy-fill speed" id="speed-accuracy" style="width: 72%"></div>
+                            </div>
+                            <span class="accuracy-value">72%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Review -->
+        <div class="review-section">
+            <div class="review-header">
+                <h3>
+                    <i class="fas fa-list-alt"></i>
+                    Detailed Review
+                </h3>
+                <button class="toggle-review-btn" id="toggle-review">
+                    Show Review
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            
+            <div class="review-content collapsed" id="review-content">
+                <div class="review-filters">
+                    <button class="filter-btn active" data-filter="all">All Questions</button>
+                    <button class="filter-btn" data-filter="correct">Correct</button>
+                    <button class="filter-btn" data-filter="incorrect">Incorrect</button>
+                    <button class="filter-btn" data-filter="skipped">Skipped</button>
+                </div>
+                
+                <div class="questions-review" id="questions-review">
+                    <!-- Questions will be dynamically loaded -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="leaderboard-section">
+            <div class="leaderboard-card">
+                <h3>
+                    <i class="fas fa-trophy"></i>
+                    Leaderboard
+                </h3>
+                <div class="leaderboard-content">
+                    <div class="your-rank">
+                        <div class="rank-info">
+                            <span class="rank-number" id="user-rank">#23</span>
+                            <span class="rank-text">Your Rank</span>
+                        </div>
+                        <div class="rank-score">
+                            <span id="user-leaderboard-score">85%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="top-performers">
+                        <div class="performer-item">
+                            <div class="performer-rank">1</div>
+                            <div class="performer-info">
+                                <div class="performer-name">Alex Johnson</div>
+                                <div class="performer-score">98%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="performer-item">
+                            <div class="performer-rank">2</div>
+                            <div class="performer-info">
+                                <div class="performer-name">Sarah Wilson</div>
+                                <div class="performer-score">96%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="performer-item">
+                            <div class="performer-rank">3</div>
+                            <div class="performer-info">
+                                <div class="performer-name">Mike Chen</div>
+                                <div class="performer-score">94%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="view-full-leaderboard">
+                        View Full Leaderboard
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Actions -->
+        <div class="next-actions">
+            <div class="action-button-group">
+                <button class="action-btn primary" onclick="window.location.href='../index.html'">
+                    <i class="fas fa-home"></i>
+                    Back to Home
+                </button>
+                
+                <button class="action-btn secondary" onclick="retakeQuiz()">
+                    <i class="fas fa-redo"></i>
+                    Retake Quiz
+                </button>
+                
+                <button class="action-btn tertiary" onclick="window.location.href='../pages/quiz-list.html'">
+                    <i class="fas fa-list"></i>
+                    More Quizzes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/results.js"></script>
+</body>
+</html>
