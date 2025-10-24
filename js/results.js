@@ -256,7 +256,8 @@ class ResultsManager {
     updateAnalyticsCards() {
         this.updateAccuracyCard();
         this.updateSpeedCard();
-        this.createCategoryChart();
+       this.setupAdvertisement();
+
     }
 
     updateAccuracyCard() {
@@ -281,50 +282,31 @@ class ResultsManager {
         document.getElementById('slowest-time').textContent = this.formatTime(slowestTime);
     }
 
-    createCategoryChart() {
-        const ctx = document.getElementById('categoryChart');
-        if (!ctx) return;
-        
-        const categories = Object.keys(this.quizResults.categoryBreakdown);
-        const accuracies = categories.map(cat => {
-            const data = this.quizResults.categoryBreakdown[cat];
-            return data.total > 0 ? Math.round((data.correct / data.total) * 100) : 0;
-        });
-        
-        const colors = [
-            '#4F46E5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'
-        ];
-        
-        if (this.chartInstances.categoryChart) {
-            this.chartInstances.categoryChart.destroy();
-        }
-        
-        this.chartInstances.categoryChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: categories,
-                datasets: [{
-                    data: accuracies,
-                    backgroundColor: colors,
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true
-                        }
-                    }
-                }
-            }
+
+
+
+
+
+
+
+    setupAdvertisement() {
+    const bannerAd = document.getElementById('banner-ad');
+    if (bannerAd) {
+        bannerAd.addEventListener('click', () => {
+            alert('Advertisement clicked! This would redirect to the advertiser.');
         });
     }
+}
 
+  
+
+
+
+
+
+
+
+    
     checkAchievements() {
         const { percentage } = this.quizResults;
         const achievementSection = document.getElementById('achievement-section');
