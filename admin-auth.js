@@ -1,41 +1,27 @@
-// Admin Authentication and Role Management System - Fixed for GitHub Pages
-
+// Admin Authentication - HARD CODED PATHS for GitHub Pages
 class AdminAuthManager {
     constructor() {
         this.currentAdmin = null;
-        this.adminRoles = {
-            SUPER_ADMIN: 'superAdmin',
-            ADMIN: 'admin',
-            MODERATOR: 'moderator'
-        };
-        // Get the correct base path for GitHub Pages
-        this.basePath = this.getBasePath();
         this.init();
     }
 
-    // Get the correct base path for your GitHub Pages site
-    getBasePath() {
-        const currentPath = window.location.pathname;
-        if (currentPath.includes('/digital-quiz-portal/')) {
-            return '/digital-quiz-portal/';
-        }
-        // Fallback for local development
-        return '/';
-    }
-
     init() {
+        console.log('🚀 Admin Auth Manager starting...');
         // Wait for Firebase to be ready
         if (typeof firebase !== 'undefined') {
             this.setupAdminAuth();
         } else {
+            console.log('⏳ Waiting for Firebase...');
             setTimeout(() => this.init(), 100);
         }
     }
 
     setupAdminAuth() {
+        console.log('🔐 Setting up admin authentication...');
         // Listen for authentication state changes
         firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
+                console.log('👤 User signed in:', user.email);
                 try {
                     // Check admin privileges from Firestore database
                     const adminDoc = await firebase.firestore()
@@ -47,8 +33,11 @@ class AdminAuthManager {
                         const adminData = adminDoc.data();
                         const roles = adminData.roles || {};
                         
+                        console.log('🎯 User roles:', roles);
+                        
                         // Check if user has any admin privileges
                         if (roles.admin || roles.superAdmin || roles.moderator) {
+                            console.log('✅ Admin access granted!');
                             this.currentAdmin = {
                                 uid: user.uid,
                                 email: user.email,
@@ -60,23 +49,21 @@ class AdminAuthManager {
                                 adminData: adminData
                             };
                             
-                            this.updateAdminUI(this.currentAdmin);
-                            this.logAdminLogin();
                             this.showAdminPanel();
                         } else {
-                            // User doesn't have admin privileges
+                            console.log('❌ No admin privileges found');
                             this.handleUnauthorizedAccess();
                         }
                     } else {
-                        // No admin record found
+                        console.log('❌ No admin record found for user');
                         this.handleUnauthorizedAccess();
                     }
                 } catch (error) {
-                    console.error('Error checking admin privileges:', error);
+                    console.error('💥 Error checking admin privileges:', error);
                     this.handleAuthError(error);
                 }
             } else {
-                // User is not signed in
+                console.log('👤 User not signed in');
                 this.currentAdmin = null;
                 this.redirectToLogin();
             }
@@ -85,6 +72,7 @@ class AdminAuthManager {
 
     // Show admin panel (hide loading screen)
     showAdminPanel() {
+        console.log('📊 Showing admin panel...');
         const loading = document.getElementById('admin-loading');
         const panel = document.getElementById('admin-panel');
         
@@ -97,168 +85,51 @@ class AdminAuthManager {
         }
     }
 
-    // Check if current user has specific admin role
-    hasRole(role) {
-        if (!this.currentAdmin) return false;
-        return this.currentAdmin.roles[role] === true;
-    }
-
-    // Check if current user can perform specific action
-    canPerform(action) {
-        const permissions = {
-            'manage_quizzes': ['admin', 'superAdmin'],
-            'manage_users': ['admin', 'superAdmin'],
-            'manage_admins': ['superAdmin'],
-            'view_analytics': ['admin', 'superAdmin', 'moderator'],
-            'manage_site_config': ['superAdmin'],
-            'manage_categories': ['admin', 'superAdmin'],
-            'moderate_content': ['moderator', 'admin', 'superAdmin'],
-            'export_data': ['admin', 'superAdmin'],
-            'delete_data': ['superAdmin']
-        };
-
-        if (!this.currentAdmin || !permissions[action]) return false;
-
-        return permissions[action].some(role => this.currentAdmin.roles[role]);
-    }
-
-    // Log admin actions for audit trail
-    async logAdminAction(action, data) {
-        try {
-            const logEntry = {
-                action: action,
-                adminId: this.currentAdmin?.uid || null,
-                adminEmail: this.currentAdmin?.email || null,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                data: data,
-                userAgent: navigator.userAgent
-            };
-
-            await firebase.firestore()
-                .collection('adminLogs')
-                .add(logEntry);
-        } catch (error) {
-            console.error('Error logging admin action:', error);
-        }
-    }
-
-    // Log admin login for security tracking
-    async logAdminLogin() {
-        await this.logAdminAction('admin_session_start', {
-            loginMethod: 'firestore_check',
-            roles: this.currentAdmin.roles
-        });
-    }
-
     // Handle unauthorized access attempts
     handleUnauthorizedAccess() {
-        console.log('Access denied: No admin privileges found');
+        console.log('🚫 Redirecting to login - unauthorized access');
         this.showMessage('Access denied. Admin privileges required.', 'error');
         setTimeout(() => {
-            // Fixed: Use correct GitHub Pages path
-            window.location.href = `${this.basePath}index.html?error=access_denied`;
+            // HARD CODED PATH - NO DYNAMIC DETECTION
+            window.location.href = '/digital-quiz-portal/index.html?error=access_denied';
         }, 2000);
     }
 
     // Handle authentication errors
     handleAuthError(error) {
-        console.error('Admin authentication error:', error);
+        console.error('💥 Admin authentication error:', error);
         this.showMessage('Authentication error. Please try again.', 'error');
         this.redirectToLogin();
     }
 
     // Redirect to login page
     redirectToLogin() {
-        // Fixed: Use correct GitHub Pages path
-        window.location.href = `${this.basePath}index.html?redirect=admin`;
-    }
-
-    // Update admin UI based on roles
-    updateAdminUI(admin) {
-        // Update admin info display
-        const adminInfo = document.getElementById('admin-info');
-        if (adminInfo) {
-            adminInfo.innerHTML = `
-                <div class="admin-profile">
-                    <img src="${admin.photoURL || this.generateAvatar(admin.email)}" alt="Admin Avatar" class="admin-avatar">
-                    <div class="admin-details">
-                        <span class="admin-name">${admin.displayName || admin.email}</span>
-                        <span class="admin-role">${this.getRoleDisplay(admin.roles)}</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        // Show/hide admin sections based on permissions
-        this.updateAdminMenu();
-    }
-
-    // Update admin menu based on permissions
-    updateAdminMenu() {
-        const menuItems = {
-            'dashboard': true, // All admins can view dashboard
-            'quiz-management': this.canPerform('manage_quizzes'),
-            'user-management': this.canPerform('manage_users'),
-            'admin-management': this.canPerform('manage_admins'),
-            'analytics': this.canPerform('view_analytics'),
-            'site-config': this.canPerform('manage_site_config'),
-            'categories': this.canPerform('manage_categories'),
-            'content-moderation': this.canPerform('moderate_content'),
-            'data-export': this.canPerform('export_data')
-        };
-
-        Object.entries(menuItems).forEach(([menuId, hasPermission]) => {
-            const menuElement = document.getElementById(`menu-${menuId}`);
-            if (menuElement) {
-                menuElement.style.display = hasPermission ? 'block' : 'none';
-            }
-        });
-    }
-
-    // Get role display name
-    getRoleDisplay(roles) {
-        if (roles.superAdmin) return 'Super Admin';
-        if (roles.admin) return 'Admin';
-        if (roles.moderator) return 'Moderator';
-        return 'User';
-    }
-
-    // Generate avatar for admin
-    generateAvatar(email) {
-        return `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=4F46E5&color=fff&size=40`;
+        console.log('🔄 Redirecting to login page');
+        // HARD CODED PATH - NO DYNAMIC DETECTION
+        window.location.href = '/digital-quiz-portal/index.html?redirect=admin';
     }
 
     // Admin logout with logging
     async adminLogout() {
         try {
-            await this.logAdminAction('admin_session_end', {
-                sessionDuration: Date.now() - (this.currentAdmin?.loginTime || Date.now())
-            });
-            
+            console.log('👋 Admin logging out...');
             await firebase.auth().signOut();
             this.showMessage('Logged out successfully!', 'success');
             
             setTimeout(() => {
-                // Fixed: Use correct GitHub Pages path
-                window.location.href = `${this.basePath}index.html`;
+                // HARD CODED PATH - NO DYNAMIC DETECTION
+                window.location.href = '/digital-quiz-portal/index.html';
             }, 1000);
         } catch (error) {
             this.showMessage('Error logging out: ' + error.message, 'error');
         }
     }
 
-    // Utility methods
-    showLoading(show) {
-        const loader = document.getElementById('admin-loading');
-        if (loader) {
-            loader.style.display = show ? 'flex' : 'none';
-        }
-    }
-
     showMessage(message, type = 'info') {
+        console.log(`📢 ${type.toUpperCase()}: ${message}`);
+        
         // Create toast notification
         const toast = document.createElement('div');
-        toast.className = `admin-toast toast-${type}`;
         toast.textContent = message;
         
         toast.style.cssText = `
@@ -295,5 +166,13 @@ class AdminAuthManager {
 
 // Initialize Admin Authentication
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🌟 Admin Auth Manager initializing...');
     window.adminAuth = new AdminAuthManager();
 });
+
+// Global logout function
+window.adminLogout = function() {
+    if (window.adminAuth) {
+        window.adminAuth.adminLogout();
+    }
+};
