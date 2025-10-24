@@ -260,27 +260,60 @@ class LeaderboardManager {
         }
     }
 
-    updateLeaderboardList() {
-        const container = document.getElementById('leaderboard-items');
-        if (!container) return;
-        
-        // Clear existing content
-        container.innerHTML = '';
-        
-        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-        const endIndex = Math.min(startIndex + this.itemsPerPage, this.filteredData.length);
-        const pageData = this.filteredData.slice(startIndex, endIndex);
-        
-        pageData.forEach((participant, index) => {
-            const actualIndex = startIndex + index;
-            const listItem = this.createParticipantItem(participant, actualIndex);
-            container.appendChild(listItem);
-        });
-        
-        // Update load more button
-        this.updateLoadMoreButton(endIndex);
-    }
 
+
+
+
+updateLeaderboardList() {
+    const container = document.getElementById('leaderboard-items');
+    if (!container) return;
+    
+    // Clear existing content
+    container.innerHTML = '';
+    
+    // Add header as first item inside the scrollable container
+    const headerItem = document.createElement('div');
+    headerItem.className = 'list-header';
+    headerItem.innerHTML = `
+        <div class="header-rank">Rank</div>
+        <div class="header-participant">Participant</div>
+        <div class="header-score">Score</div>
+        <div class="header-time">Time</div>
+        <div class="header-date">Date</div>
+    `;
+    container.appendChild(headerItem);
+    
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = Math.min(startIndex + this.itemsPerPage, this.filteredData.length);
+    const pageData = this.filteredData.slice(startIndex, endIndex);
+    
+    pageData.forEach((participant, index) => {
+        const actualIndex = startIndex + index;
+        const listItem = this.createParticipantItem(participant, actualIndex);
+        container.appendChild(listItem);
+    });
+    
+    // Update load more button
+    this.updateLoadMoreButton(endIndex);
+}
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+    
     // FIXED - Simplified Participant Item Creation
     createParticipantItem(participant, index) {
         const item = document.createElement('div');
