@@ -173,47 +173,51 @@
         </div>
 
         <!-- Simple & Clean Leaderboard List - Works for Desktop & Mobile -->
-        <div class="leaderboard-list">
-            <!-- Single Column Header Row -->
-            <div class="list-header">
-                <div class="header-rank">Rank</div>
-                <div class="header-participant">Participant</div>
-                <div class="header-score">Score</div>
-                <div class="header-time">Time</div>
-                <div class="header-date">Date</div>
-            </div>
+
+
+
+
+<!-- Simple & Clean Leaderboard List - Header Moves with Data -->
+<div class="leaderboard-list">
+    <!-- Horizontal Scrollable Container with Header Inside -->
+    <div class="leaderboard-items-wrapper">
+        <div class="leaderboard-items" id="leaderboard-items">
+            <!-- Header will be inserted here by JavaScript -->
             
-            <!-- Horizontal Scrollable Container -->
-            <div class="leaderboard-items-wrapper">
-                <div class="leaderboard-items" id="leaderboard-items">
-                    <!-- Real leaderboard items will be dynamically loaded here -->
-                    <div class="loading-placeholder">
-                        <div class="loading-item">
-                            <div class="loading-rank"></div>
-                            <div class="loading-participant"></div>
-                            <div class="loading-score"></div>
-                            <div class="loading-time"></div>
-                            <div class="loading-date"></div>
-                        </div>
-                        <div class="loading-item">
-                            <div class="loading-rank"></div>
-                            <div class="loading-participant"></div>
-                            <div class="loading-score"></div>
-                            <div class="loading-time"></div>
-                            <div class="loading-date"></div>
-                        </div>
-                        <div class="loading-item">
-                            <div class="loading-rank"></div>
-                            <div class="loading-participant"></div>
-                            <div class="loading-score"></div>
-                            <div class="loading-time"></div>
-                            <div class="loading-date"></div>
-                        </div>
-                    </div>
+            <!-- Real leaderboard items will be dynamically loaded here -->
+            <div class="loading-placeholder">
+                <div class="loading-item">
+                    <div class="loading-rank"></div>
+                    <div class="loading-participant"></div>
+                    <div class="loading-score"></div>
+                    <div class="loading-time"></div>
+                    <div class="loading-date"></div>
+                </div>
+                <div class="loading-item">
+                    <div class="loading-rank"></div>
+                    <div class="loading-participant"></div>
+                    <div class="loading-score"></div>
+                    <div class="loading-time"></div>
+                    <div class="loading-date"></div>
+                </div>
+                <div class="loading-item">
+                    <div class="loading-rank"></div>
+                    <div class="loading-participant"></div>
+                    <div class="loading-score"></div>
+                    <div class="loading-time"></div>
+                    <div class="loading-date"></div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
+
+
+        
+      
+
+        
         <!-- Simple Toast Advertisement Below Leaderboard - Removable -->
         <div class="simple-toast-ad" id="simple-toast-ad">
             <div class="toast-ad-close" onclick="closeSimpleToastAd()">
