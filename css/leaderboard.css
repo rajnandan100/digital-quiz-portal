@@ -1,4 +1,4 @@
-/* ===== LEADERBOARD PAGE STYLES - MOBILE FIRST ===== */
+/* ===== UPDATED LEADERBOARD PAGE STYLES - MOBILE FIRST ===== */
 
 /* Base Styles */
 * {
@@ -319,6 +319,121 @@ body {
     transition: width 1s ease;
 }
 
+/* Video Advertisement Toast - Below Your Position */
+.video-ad-toast {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 16px 0;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ad-toast-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    font-size: 0.8rem;
+    transition: all 200ms ease;
+}
+
+.ad-toast-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.video-ad-container {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.video-thumbnail {
+    position: relative;
+    width: 80px;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.video-thumbnail i {
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.video-overlay {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+}
+
+.video-ad-info {
+    flex: 1;
+    color: white;
+}
+
+.video-ad-info h4 {
+    font-size: 1rem;
+    margin-bottom: 6px;
+}
+
+.video-ad-info p {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    margin-bottom: 12px;
+}
+
+.watch-video-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 200ms ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.watch-video-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
 /* Filters */
 .leaderboard-filters {
     background: white;
@@ -389,18 +504,23 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
+/* Updated Column Headers with Background Color */
 .list-header {
     display: grid;
     grid-template-columns: 80px 1fr 80px 80px 80px;
     gap: 16px;
     align-items: center;
     padding: 16px 20px;
-    background: #f8fafc;
+    background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%); /* Blue gradient background */
+    color: white; /* White text for contrast */
     font-weight: 600;
-    color: #64748b;
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+.header-participant { /* Updated from header-player */
+    color: white;
 }
 
 .leaderboard-items {
@@ -435,7 +555,7 @@ body {
     color: #1a202c;
 }
 
-.item-player {
+.item-player { /* This will be used as item-participant in JS */
     display: flex;
     align-items: center;
     gap: 12px;
@@ -486,6 +606,157 @@ body {
     color: #64748b;
     font-size: 0.85rem;
     text-align: center;
+}
+
+/* Loading Placeholder Styles */
+.loading-placeholder {
+    display: flex;
+    flex-direction: column;
+}
+
+.loading-item {
+    display: grid;
+    grid-template-columns: 80px 1fr 80px 80px 80px;
+    gap: 16px;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.loading-rank,
+.loading-participant,
+.loading-score,
+.loading-time,
+.loading-date {
+    height: 20px;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s infinite;
+    border-radius: 4px;
+}
+
+.loading-participant {
+    height: 40px;
+    border-radius: 20px;
+}
+
+@keyframes loading-shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Banner Advertisement Toast - After 20th Rank */
+.banner-ad-toast {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    margin: 16px 20px;
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    animation: slideInUp 0.5s ease-out;
+    box-shadow: 0 8px 25px rgba(251, 191, 36, 0.3);
+}
+
+.ad-banner-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    font-size: 0.8rem;
+    transition: all 200ms ease;
+}
+
+.ad-banner-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.banner-ad-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.banner-ad-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.banner-ad-text {
+    flex: 1;
+    color: white;
+}
+
+.banner-ad-text h4 {
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+}
+
+.banner-ad-text p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.banner-ad-action {
+    flex-shrink: 0;
+}
+
+.upgrade-premium-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 200ms ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.upgrade-premium-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.banner-ad-features {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    color: white;
+    font-size: 0.8rem;
+}
+
+.banner-ad-features span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.9;
+}
+
+.banner-ad-features i {
+    font-size: 0.7rem;
 }
 
 /* Load More */
@@ -627,6 +898,36 @@ body {
     box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
 }
 
+/* Toast Notification */
+.toast-notification {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    z-index: 10001;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    max-width: 300px;
+}
+
+.toast-notification.show {
+    transform: translateX(0);
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toast-content i {
+    font-size: 1.2rem;
+}
+
 /* Loading Spinner */
 .loading-spinner {
     position: fixed;
@@ -724,6 +1025,27 @@ body {
         min-width: auto;
     }
     
+    .video-ad-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .video-thumbnail {
+        width: 100%;
+        height: 80px;
+    }
+    
+    .banner-ad-main {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .banner-ad-features {
+        justify-content: center;
+    }
+    
     .leaderboard-filters {
         flex-direction: column;
         align-items: stretch;
@@ -750,6 +1072,15 @@ body {
         display: none; /* Hide on mobile */
     }
     
+    .loading-item {
+        grid-template-columns: auto 1fr auto;
+    }
+    
+    .loading-time,
+    .loading-date {
+        display: none;
+    }
+    
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 16px;
@@ -764,6 +1095,11 @@ body {
         width: 100%;
         justify-content: center;
     }
+    
+    .toast-notification {
+        right: 10px;
+        max-width: calc(100vw - 20px);
+    }
 }
 
 @media (max-width: 480px) {
@@ -774,6 +1110,7 @@ body {
     .quiz-info-card,
     .podium-section,
     .your-position-card,
+    .video-ad-toast,
     .leaderboard-filters,
     .leaderboard-list,
     .leaderboard-stats {
@@ -822,5 +1159,14 @@ body {
     
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .banner-ad-toast {
+        margin: 16px 12px;
+        padding: 16px;
+    }
+    
+    .video-ad-toast {
+        padding: 16px;
     }
 }
