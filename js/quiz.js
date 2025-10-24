@@ -1,4 +1,4 @@
-// ===== QUIZ SYSTEM WITH TIMER & MOTIVATIONAL QUOTES =====
+// ===== UPDATED QUIZ SYSTEM WITH ALL REQUESTED FEATURES =====
 
 class QuizManager {
     constructor() {
@@ -11,7 +11,9 @@ class QuizManager {
         this.timer = null;
         this.timeRemaining = 0;
         this.quizStartTime = null;
-        this.currentQuote = null;
+        this.selectedQuote = null; // Store selected quote for entire quiz
+        this.userFirstName = '';
+        this.isPaletteExpanded = false; // Question palette starts minimized
         
         this.init();
     }
@@ -32,6 +34,7 @@ class QuizManager {
         firebase.auth().onAuthStateChanged((user) => {
             this.currentUser = user;
             if (user) {
+                this.extractUserFirstName(user);
                 this.updateUserUI(user);
                 this.loadQuizFromURL();
             } else {
@@ -42,11 +45,25 @@ class QuizManager {
 
         // Setup event listeners
         this.setupEventListeners();
-        this.showPersonalizedGreeting();
-        this.displayMotivationalQuote();
+        this.setupQuestionPaletteToggle();
+        this.selectMotivationalQuote(); // Select one quote for entire quiz
     }
 
-    // 100 Motivational Quotes Array
+    // Extract first name from user data
+    extractUserFirstName(user) {
+        if (user.displayName) {
+            // Extract first name from full name
+            this.userFirstName = user.displayName.split(' ')[0];
+        } else if (user.email) {
+            // Extract name from email (before @)
+            const emailName = user.email.split('@')[0];
+            this.userFirstName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+        } else {
+            this.userFirstName = 'Champion';
+        }
+    }
+
+    // 100 Motivational Quotes Array (same as before)
     getMotivationalQuotes() {
         return [
             { text: "The harder you work for something, the greater you'll feel when you achieve it.", author: "Anonymous" },
@@ -74,62 +91,60 @@ class QuizManager {
             { text: "Sometimes we're tested not to show our weaknesses, but to discover our strengths.", author: "Anonymous" },
             { text: "The key to success is to focus on goals, not obstacles.", author: "Anonymous" },
             { text: "Dream bigger. Do bigger.", author: "Anonymous" },
-            { text: "Don't be afraid to give up the good to go for the great.", author: "John D. Rockefeller" },
-            { text: "If you believe it will work out, you'll see opportunities. If you believe it won't, you will see obstacles.", author: "Wayne Dyer" },
+            { text: "Education is the most powerful weapon which you can use to change the world.", author: "Nelson Mandela" },
+            { text: "The expert in anything was once a beginner.", author: "Anonymous" },
+            { text: "Success is the sum of small efforts repeated day in and day out.", author: "Robert Collier" },
+            { text: "You learn more from failure than from success. Don't let it stop you.", author: "Anonymous" },
+            { text: "Knowledge is power, but enthusiasm pulls the switch.", author: "Ivern Ball" },
+            { text: "The beautiful thing about learning is nobody can take it away from you.", author: "B.B. King" },
+            { text: "Learning never exhausts the mind.", author: "Leonardo da Vinci" },
+            { text: "The more you learn, the more you earn.", author: "Frank Clark" },
+            { text: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
+            { text: "Live as if you were to die tomorrow. Learn as if you were to live forever.", author: "Mahatma Gandhi" },
+            { text: "In learning you will teach, and in teaching you will learn.", author: "Phil Collins" },
+            { text: "I am always doing that which I cannot do, in order that I may learn how to do it.", author: "Pablo Picasso" },
+            { text: "Your education is a gift that no one can take away from you.", author: "Anonymous" },
+            { text: "Knowing is not enough; we must apply. Wishing is not enough; we must do.", author: "Johann Wolfgang von Goethe" },
+            { text: "The difference between ordinary and extraordinary is that little extra.", author: "Jimmy Johnson" },
+            { text: "Champions keep playing until they get it right.", author: "Billie Jean King" },
+            { text: "What lies behind you and what lies in front of you, pales in comparison to what lies inside of you.", author: "Ralph Waldo Emerson" },
+            { text: "Success is liking yourself, liking what you do, and liking how you do it.", author: "Maya Angelou" },
+            { text: "A person who never made a mistake never tried anything new.", author: "Albert Einstein" },
+            { text: "The person who says it cannot be done should not interrupt the person who is doing it.", author: "Chinese Proverb" },
+            { text: "It is never too late to be what you might have been.", author: "George Eliot" },
+            { text: "You become what you believe.", author: "Oprah Winfrey" },
+            { text: "Build your own dreams, or someone else will hire you to build theirs.", author: "Farrah Gray" },
+            { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
             { text: "Challenges are what make life interesting and overcoming them is what makes life meaningful.", author: "Joshua J. Marine" },
+            // Adding 50 more quotes to reach 100...
+            { text: "Don't be afraid to give up the good to go for the great.", author: "John D. Rockefeller" },
+            { text: "If you believe it will work out, you'll see opportunities.", author: "Wayne Dyer" },
             { text: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
             { text: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
             { text: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs" },
             { text: "Life is what happens to you while you're busy making other plans.", author: "John Lennon" },
             { text: "The future belongs to those who prepare for it today.", author: "Malcolm X" },
-            { text: "It is never too late to be what you might have been.", author: "George Eliot" },
             { text: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky" },
             { text: "Whether you think you can or you think you can't, you're right.", author: "Henry Ford" },
-            { text: "I have learned throughout my life as a composer chiefly through my mistakes and pursuits of false assumptions, not by my exposure to founts of wisdom and knowledge.", author: "Igor Stravinsky" },
             { text: "The only person you are destined to become is the person you decide to be.", author: "Ralph Waldo Emerson" },
-            { text: "Go confidently in the direction of your dreams. Live the life you have imagined.", author: "Henry David Thoreau" },
-            { text: "When I was 5 years old, my mother always told me that happiness was the key to life. When I went to school, they asked me what I wanted to be when I grew up. I wrote down 'happy'. They told me I didn't understand the assignment, and I told them they didn't understand life.", author: "John Lennon" },
-            { text: "Thirty years from now, you will be more disappointed by the things that you didn't do than by the ones you did do.", author: "Mark Twain" },
+            { text: "Go confidently in the direction of your dreams.", author: "Henry David Thoreau" },
             { text: "Born to be real, not to be perfect.", author: "Anonymous" },
             { text: "Be yourself; everyone else is already taken.", author: "Oscar Wilde" },
             { text: "I'm not a product of my circumstances. I am a product of my decisions.", author: "Stephen Covey" },
             { text: "Every child is an artist. The problem is how to remain an artist once he grows up.", author: "Pablo Picasso" },
             { text: "You can never cross the ocean until you have the courage to lose sight of the shore.", author: "Christopher Columbus" },
-            { text: "I've learned that people will forget what you said, people will forget what you did, but people will never forget how you made them feel.", author: "Maya Angelou" },
             { text: "Either you run the day, or the day runs you.", author: "Jim Rohn" },
-            { text: "Whether you think you can or you think you can't, you're right.", author: "Henry Ford" },
             { text: "The two most important days in your life are the day you are born and the day you find out why.", author: "Mark Twain" },
-            { text: "Whatever you can do, or dream you can, begin it. Boldness has genius, power and magic in it.", author: "Johann Wolfgang von Goethe" },
-            { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
-            { text: "Your education is a gift that no one can take away from you.", author: "Anonymous" },
-            { text: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
-            { text: "I am always doing that which I cannot do, in order that I may learn how to do it.", author: "Pablo Picasso" },
-            { text: "Live as if you were to die tomorrow. Learn as if you were to live forever.", author: "Mahatma Gandhi" },
-            { text: "In learning you will teach, and in teaching you will learn.", author: "Phil Collins" },
-            { text: "The beautiful thing about learning is nobody can take it away from you.", author: "B.B. King" },
-            { text: "Learning never exhausts the mind.", author: "Leonardo da Vinci" },
-            { text: "The more you learn, the more you earn.", author: "Frank Clark" },
-            { text: "Education is the most powerful weapon which you can use to change the world.", author: "Nelson Mandela" },
-            { text: "The expert in anything was once a beginner.", author: "Anonymous" },
-            { text: "Success is the sum of small efforts repeated day in and day out.", author: "Robert Collier" },
-            { text: "Don't let yesterday take up too much of today.", author: "Will Rogers" },
-            { text: "You learn more from failure than from success. Don't let it stop you. Failure builds character.", author: "Anonymous" },
-            { text: "It's not whether you get knocked down, it's whether you get up.", author: "Vince Lombardi" },
-            { text: "If you are working on something that you really care about, you don't have to be pushed. The vision pulls you.", author: "Steve Jobs" },
-            { text: "People who are crazy enough to think they can change the world, are the ones who do.", author: "Rob Siltanen" },
+            { text: "Whatever you can do, or dream you can, begin it.", author: "Johann Wolfgang von Goethe" },
             { text: "Failure will never overtake me if my determination to succeed is strong enough.", author: "Og Mandino" },
-            { text: "Entrepreneurs are great at dealing with uncertainty and also very good at minimizing risk. That's the classic entrepreneur.", author: "Mohnish Pabrai" },
             { text: "We may encounter many defeats but we must not be defeated.", author: "Maya Angelou" },
-            { text: "Knowing is not enough; we must apply. Wishing is not enough; we must do.", author: "Johann Wolfgang von Goethe" },
             { text: "Imagine your life is perfect in every respect; what would it look like?", author: "Brian Tracy" },
             { text: "We generate fears while we sit. We overcome them by action.", author: "Dr. Henry Link" },
             { text: "What seems impossible today will one day become your warm-up.", author: "Anonymous" },
             { text: "Turn your wounds into wisdom.", author: "Oprah Winfrey" },
-            { text: "The difference between ordinary and extraordinary is that little extra.", author: "Jimmy Johnson" },
             { text: "The successful warrior is the average man with laser-like focus.", author: "Bruce Lee" },
             { text: "Developing excellence is a lifelong journey of continuous improvement.", author: "Anonymous" },
             { text: "There are no shortcuts to any place worth going.", author: "Beverly Sills" },
-            { text: "If you don't design your own life plan, chances are you'll fall into someone else's plan.", author: "Jim Rohn" },
             { text: "You are what you do, not what you say you'll do.", author: "Anonymous" },
             { text: "A goal is a dream with a deadline.", author: "Napoleon Hill" },
             { text: "You don't have to be great to get started, but you have to get started to be great.", author: "Les Brown" },
@@ -139,31 +154,41 @@ class QuizManager {
             { text: "The mind is everything. What you think you become.", author: "Buddha" },
             { text: "The best way to predict the future is to create it.", author: "Peter Drucker" },
             { text: "You can't fall if you don't climb. But there's no joy in living your whole life on the ground.", author: "Anonymous" },
-            { text: "We must believe that we are gifted for something, and that this thing, at whatever cost, must be attained.", author: "Marie Curie" },
+            { text: "We must believe that we are gifted for something.", author: "Marie Curie" },
             { text: "Too many of us are not living our dreams because we are living our fears.", author: "Les Brown" },
             { text: "The way to achieve your own success is to be willing to help somebody else get it first.", author: "Iyanla Vanzant" },
             { text: "Don't be pushed around by the fears in your mind. Be led by the dreams in your heart.", author: "Roy T. Bennett" },
-            { text: "Champions keep playing until they get it right.", author: "Billie Jean King" },
             { text: "The difference between a stumbling block and a stepping stone is how high you raise your foot.", author: "Benny Lewis" },
-            { text: "What lies behind you and what lies in front of you, pales in comparison to what lies inside of you.", author: "Ralph Waldo Emerson" },
-            { text: "Success is liking yourself, liking what you do, and liking how you do it.", author: "Maya Angelou" },
             { text: "As we look ahead into the next century, leaders will be those who empower others.", author: "Bill Gates" },
-            { text: "A person who never made a mistake never tried anything new.", author: "Albert Einstein" },
-            { text: "The person who says it cannot be done should not interrupt the person who is doing it.", author: "Chinese Proverb" },
             { text: "There are no traffic jams along the extra mile.", author: "Roger Staubach" },
-            { text: "It is never too late to be what you might have been.", author: "George Eliot" },
-            { text: "You become what you believe.", author: "Oprah Winfrey" },
             { text: "I would rather die of passion than of boredom.", author: "Vincent van Gogh" },
-            { text: "A truly rich man is one whose children run into his arms when his hands are empty.", author: "Anonymous" },
-            { text: "It is not what you do for your children, but what you have taught them to do for themselves, that will make them successful human beings.", author: "Ann Landers" },
-            { text: "Build your own dreams, or someone else will hire you to build theirs.", author: "Farrah Gray" },
-            { text: "The battles that count aren't the ones for gold medals. The struggles within yourself–the invisible battles inside all of us–that's where it's at.", author: "Jesse Owens" },
+            { text: "The battles that count aren't the ones for gold medals.", author: "Jesse Owens" },
             { text: "Education costs money. But then so does ignorance.", author: "Sir Claus Moser" },
-            { text: "I have not failed. I've just found 10,000 ways that won't work.", author: "Thomas A. Edison" }
+            { text: "I have not failed. I've just found 10,000 ways that won't work.", author: "Thomas A. Edison" },
+            { text: "Strive not to be a success, but rather to be of value.", author: "Albert Einstein" },
+            { text: "Two roads diverged in a wood, and I took the one less traveled by.", author: "Robert Frost" },
+            { text: "The only way to make sense out of change is to plunge into it, move with it, and join the dance.", author: "Alan Watts" },
+            { text: "Happiness is not something readymade. It comes from your own actions.", author: "Dalai Lama" },
+            { text: "If you want to lift yourself up, lift up someone else.", author: "Booker T. Washington" },
+            { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", author: "Nelson Mandela" },
+            { text: "If life were predictable it would cease to be life, and be without flavor.", author: "Eleanor Roosevelt" },
+            { text: "Life is really simple, but we insist on making it complicated.", author: "Confucius" },
+            { text: "May you live all the days of your life.", author: "Jonathan Swift" },
+            { text: "Life itself is the most wonderful fairy tale.", author: "Hans Christian Andersen" },
+            { text: "Do not go where the path may lead, go instead where there is no path and leave a trail.", author: "Ralph Waldo Emerson" }
         ];
     }
 
-    // Sample Quiz Data (This would normally come from Firebase)
+    // Select one motivational quote for the entire quiz session
+    selectMotivationalQuote() {
+        if (!this.selectedQuote) {
+            const quotes = this.getMotivationalQuotes();
+            this.selectedQuote = quotes[Math.floor(Math.random() * quotes.length)];
+        }
+        this.displaySelectedMotivationalQuote();
+    }
+
+    // Sample Quiz Data
     getSampleQuiz() {
         return {
             id: 'gk-001',
@@ -207,7 +232,6 @@ class QuizManager {
                     correctAnswer: 2,
                     category: "Science"
                 },
-                // Add more sample questions (we'll use 30 total)
                 {
                     id: 6,
                     text: "Who wrote 'Romeo and Juliet'?",
@@ -246,7 +270,7 @@ class QuizManager {
                 // Adding more questions to reach 30
                 ...Array.from({ length: 20 }, (_, i) => ({
                     id: i + 11,
-                    text: `Sample Question ${i + 11}: This is a placeholder question for testing the quiz system functionality.`,
+                    text: `Sample Question ${i + 11}: This is a placeholder question for testing the quiz system functionality with various topics and complexity levels.`,
                     options: [`Option A${i + 11}`, `Option B${i + 11}`, `Option C${i + 11}`, `Option D${i + 11}`],
                     correctAnswer: Math.floor(Math.random() * 4),
                     category: ["General Knowledge", "Science", "History", "Geography", "Literature"][Math.floor(Math.random() * 5)]
@@ -257,7 +281,6 @@ class QuizManager {
 
     loadQuizFromURL() {
         // In a real app, you'd get quiz ID from URL params and load from Firebase
-        // For now, we'll use sample data
         const urlParams = new URLSearchParams(window.location.search);
         const quizId = urlParams.get('id') || 'gk-001';
         
@@ -280,7 +303,7 @@ class QuizManager {
         this.markedQuestions = new Set();
         this.questionStates = {};
         
-        // Initialize question states
+        // Initialize question states - all start as not-visited except first one
         this.currentQuiz.questions.forEach((_, index) => {
             this.questionStates[index] = index === 0 ? 'current' : 'not-visited';
         });
@@ -290,11 +313,37 @@ class QuizManager {
         this.generateQuestionPalette();
         this.displayCurrentQuestion();
         this.startTimer();
-        this.updateProgressBar();
+        this.updateAllProgressBars();
+        this.showPersonalizedGreeting();
+    }
+
+    // Setup Question Palette Toggle
+    setupQuestionPaletteToggle() {
+        const toggleBtn = document.getElementById('palette-toggle');
+        const palette = document.getElementById('question-palette');
+        const toggleIcon = document.getElementById('toggle-icon');
+        
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                this.isPaletteExpanded = !this.isPaletteExpanded;
+                
+                if (this.isPaletteExpanded) {
+                    palette.classList.remove('collapsed');
+                    palette.classList.add('expanded');
+                    toggleBtn.classList.add('expanded');
+                    toggleIcon.style.transform = 'rotate(90deg)';
+                } else {
+                    palette.classList.remove('expanded');
+                    palette.classList.add('collapsed');
+                    toggleBtn.classList.remove('expanded');
+                    toggleIcon.style.transform = 'rotate(0deg)';
+                }
+            });
+        }
     }
 
     updateQuizHeader() {
-        document.getElementById('quiz-title-header').textContent = this.currentQuiz.title;
+        document.getElementById('quiz-title').textContent = this.currentQuiz.title;
         document.getElementById('total-questions').textContent = this.currentQuiz.totalQuestions;
         this.updateTimer();
     }
@@ -323,17 +372,18 @@ class QuizManager {
         const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         document.getElementById('timer-display').textContent = display;
         
-        // Change color based on time remaining
-        const timer = document.getElementById('timer-display').parentElement;
+        // Change timer color based on time remaining
+        const timerContainer = document.querySelector('.timer-container');
         if (this.timeRemaining <= 300) { // 5 minutes
-            timer.style.background = 'linear-gradient(135deg, #dc2626 0%, #ef4444 100%)';
+            timerContainer.style.background = 'rgba(220, 38, 38, 0.2)';
+            timerContainer.style.borderColor = 'rgba(220, 38, 38, 0.4)';
         } else if (this.timeRemaining <= 600) { // 10 minutes
-            timer.style.background = 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)';
+            timerContainer.style.background = 'rgba(245, 158, 11, 0.2)';
+            timerContainer.style.borderColor = 'rgba(245, 158, 11, 0.4)';
         }
     }
 
     showTimerWarning() {
-        // Show warning toast
         this.showToast('⚠️ Only 5 minutes remaining!', 'warning');
     }
 
@@ -355,11 +405,12 @@ class QuizManager {
     updatePaletteStats() {
         const answered = Object.keys(this.userAnswers).length;
         const marked = this.markedQuestions.size;
-        const notVisited = this.currentQuiz.totalQuestions - new Set([
+        const visited = new Set([
             ...Object.keys(this.userAnswers).map(Number),
             ...Array.from(this.markedQuestions),
             this.currentQuestionIndex
         ]).size;
+        const notVisited = this.currentQuiz.totalQuestions - visited;
         
         document.getElementById('answered-count').textContent = answered;
         document.getElementById('marked-count').textContent = marked;
@@ -371,10 +422,9 @@ class QuizManager {
         
         // Update question info
         document.getElementById('current-question-number').textContent = this.currentQuestionIndex + 1;
-        document.getElementById('question-category').textContent = question.category;
         document.getElementById('question-text').textContent = question.text;
         
-        // Create options
+        // Create options with click-anywhere functionality
         const optionsContainer = document.getElementById('options-container');
         optionsContainer.innerHTML = '';
         
@@ -393,10 +443,14 @@ class QuizManager {
                        value="${index}" 
                        id="option-${index}" 
                        class="option-input"
-                       ${isSelected ? 'checked' : ''}
-                       onchange="quizManager.selectAnswer(${index})">
+                       ${isSelected ? 'checked' : ''}>
                 <label for="option-${index}" class="option-text">${option}</label>
             `;
+            
+            // Add click event to entire option div
+            optionDiv.addEventListener('click', () => {
+                this.selectAnswer(index);
+            });
             
             optionsContainer.appendChild(optionDiv);
         });
@@ -414,14 +468,20 @@ class QuizManager {
             markBtn.innerHTML = '<i class="fas fa-bookmark"></i> Mark for Review';
         }
         
-        this.updateProgressBar();
+        this.updateAllProgressBars();
     }
 
     selectAnswer(optionIndex) {
         this.userAnswers[this.currentQuestionIndex] = optionIndex;
         this.questionStates[this.currentQuestionIndex] = 'answered';
         
-        // Update option styling
+        // Update radio button
+        const radio = document.getElementById(`option-${optionIndex}`);
+        if (radio) {
+            radio.checked = true;
+        }
+        
+        // Update option styling - Green for selected
         document.querySelectorAll('.option-item').forEach(item => {
             item.classList.remove('selected');
         });
@@ -430,7 +490,7 @@ class QuizManager {
         // Update palette
         this.updateQuestionPalette();
         this.updatePaletteStats();
-        this.updateProgressBar();
+        this.updateAllProgressBars();
     }
 
     updateQuestionPalette() {
@@ -457,12 +517,27 @@ class QuizManager {
         if (questionIndex >= 0 && questionIndex < this.currentQuiz.totalQuestions) {
             // Update previous question state
             if (this.questionStates[this.currentQuestionIndex] === 'current' && 
-                !this.userAnswers.hasOwnProperty(this.currentQuestionIndex)) {
+                !this.userAnswers.hasOwnProperty(this.currentQuestionIndex) &&
+                !this.markedQuestions.has(this.currentQuestionIndex)) {
                 this.questionStates[this.currentQuestionIndex] = 'not-visited';
+            } else if (this.questionStates[this.currentQuestionIndex] === 'current' &&
+                      this.userAnswers.hasOwnProperty(this.currentQuestionIndex)) {
+                this.questionStates[this.currentQuestionIndex] = 'answered';
+            } else if (this.questionStates[this.currentQuestionIndex] === 'current' &&
+                      this.markedQuestions.has(this.currentQuestionIndex)) {
+                this.questionStates[this.currentQuestionIndex] = 'marked';
             }
             
             this.currentQuestionIndex = questionIndex;
-            this.questionStates[this.currentQuestionIndex] = 'current';
+            
+            // Set current question state
+            if (this.userAnswers.hasOwnProperty(this.currentQuestionIndex)) {
+                this.questionStates[this.currentQuestionIndex] = 'answered';
+            } else if (this.markedQuestions.has(this.currentQuestionIndex)) {
+                this.questionStates[this.currentQuestionIndex] = 'marked';
+            } else {
+                this.questionStates[this.currentQuestionIndex] = 'current';
+            }
             
             this.displayCurrentQuestion();
             this.updateQuestionPalette();
@@ -492,11 +567,11 @@ class QuizManager {
             markBtn.classList.remove('active');
             markBtn.innerHTML = '<i class="fas fa-bookmark"></i> Mark for Review';
             
-            // Update state if not answered
-            if (!this.userAnswers.hasOwnProperty(this.currentQuestionIndex)) {
-                this.questionStates[this.currentQuestionIndex] = 'current';
-            } else {
+            // Update state
+            if (this.userAnswers.hasOwnProperty(this.currentQuestionIndex)) {
                 this.questionStates[this.currentQuestionIndex] = 'answered';
+            } else {
+                this.questionStates[this.currentQuestionIndex] = 'current';
             }
         } else {
             this.markedQuestions.add(this.currentQuestionIndex);
@@ -531,7 +606,7 @@ class QuizManager {
             
             this.updateQuestionPalette();
             this.updatePaletteStats();
-            this.updateProgressBar();
+            this.updateAllProgressBars();
         }
     }
 
@@ -604,12 +679,14 @@ class QuizManager {
             quizId: this.currentQuiz.id,
             userId: this.currentUser.uid,
             userName: this.currentUser.displayName,
+            userFirstName: this.userFirstName,
             score: correctAnswers,
             total: totalQuestions,
             percentage: percentage,
             timeTaken: this.currentQuiz.duration * 60 - this.timeRemaining,
             answers: this.userAnswers,
             markedQuestions: Array.from(this.markedQuestions),
+            selectedQuote: this.selectedQuote,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
     }
@@ -653,8 +730,8 @@ class QuizManager {
         
         adOverlay.innerHTML = `
             <div style="max-width: 400px; padding: 40px;">
-                <i class="fas fa-ad" style="font-size: 4rem; margin-bottom: 20px; opacity: 0.8;"></i>
-                <h2 style="margin-bottom: 16px;">Great Job! 🎉</h2>
+                <i class="fas fa-trophy" style="font-size: 4rem; margin-bottom: 20px; color: gold;"></i>
+                <h2 style="margin-bottom: 16px;">Congratulations ${this.userFirstName}! 🎉</h2>
                 <p style="margin-bottom: 30px; font-size: 1.1rem; opacity: 0.9;">
                     You've completed the quiz! Loading your results...
                 </p>
@@ -687,71 +764,66 @@ class QuizManager {
         }, 3000);
     }
 
-    updateProgressBar() {
+    updateAllProgressBars() {
         const answered = Object.keys(this.userAnswers).length;
         const progress = (answered / this.currentQuiz.totalQuestions) * 100;
-        document.getElementById('progress-fill').style.width = `${progress}%`;
         
-        // Update progress text
-        const progressText = document.getElementById('progress-text');
+        // Update main progress bar
+        document.getElementById('quiz-progress-fill').style.width = `${progress}%`;
+        document.getElementById('progress-percentage').textContent = `${Math.round(progress)}%`;
+        
+        // Update motivation progress bar
+        document.getElementById('motivation-progress-fill').style.width = `${progress}%`;
+        
+        // Update motivation progress text
+        const progressText = document.getElementById('motivation-progress-text');
         if (progress === 100) {
-            progressText.textContent = 'Amazing! You\'ve answered all questions! 🎉';
+            progressText.textContent = `Amazing ${this.userFirstName}! You've answered all questions! 🎉`;
         } else if (progress >= 75) {
-            progressText.textContent = 'You\'re almost there! Keep going! 💪';
+            progressText.textContent = `You're almost there ${this.userFirstName}! Keep going! 💪`;
         } else if (progress >= 50) {
-            progressText.textContent = 'Great progress! You\'re halfway there! 🚀';
+            progressText.textContent = `Great progress ${this.userFirstName}! You're halfway there! 🚀`;
         } else if (progress >= 25) {
-            progressText.textContent = 'You\'re doing great! Keep it up! ⭐';
+            progressText.textContent = `You're doing great ${this.userFirstName}! Keep it up! ⭐`;
         } else {
-            progressText.textContent = 'You\'re doing great! Keep it up!';
+            progressText.textContent = `You've got this ${this.userFirstName}! Keep going! 💪`;
         }
     }
 
-    displayMotivationalQuote() {
-        const quotes = this.getMotivationalQuotes();
-        const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-        this.currentQuote = randomQuote;
+    displaySelectedMotivationalQuote() {
+        if (this.selectedQuote) {
+            document.getElementById('motivational-text').textContent = `"${this.selectedQuote.text}"`;
+            document.getElementById('quote-author').textContent = `- ${this.selectedQuote.author}`;
+        }
         
-        document.getElementById('motivational-text').textContent = `"${randomQuote.text}"`;
-        document.getElementById('quote-author').textContent = `- ${randomQuote.author}`;
-        
-        // Change quote every 2 minutes
-        setTimeout(() => {
-            this.displayMotivationalQuote();
-        }, 120000);
+        // Note: This quote will NOT change during the entire quiz session
     }
 
     showPersonalizedGreeting() {
         if (!this.currentUser) return;
         
-        const userName = this.currentUser.displayName || 'Champion';
         const timeOfDay = new Date().getHours();
-        
         let greeting;
+        
         if (timeOfDay < 12) {
-            greeting = `Good morning, ${userName}! 🌅`;
+            greeting = `Good morning, ${this.userFirstName}! 🌅`;
         } else if (timeOfDay < 17) {
-            greeting = `Good afternoon, ${userName}! ☀️`;
+            greeting = `Good afternoon, ${this.userFirstName}! ☀️`;
         } else {
-            greeting = `Good evening, ${userName}! 🌙`;
+            greeting = `Good evening, ${this.userFirstName}! 🌙`;
         }
         
         const greetings = [
             `${greeting} You've got this!`,
-            `Keep going, ${userName}! 🌟`,
-            `You're amazing, ${userName}! ⭐`,
-            `Stay focused, ${userName}! 💪`,
-            `Believe in yourself, ${userName}! 🚀`,
-            `You're doing great, ${userName}! 🎯`
+            `Keep going, ${this.userFirstName}! 🌟`,
+            `You're amazing, ${this.userFirstName}! ⭐`,
+            `Stay focused, ${this.userFirstName}! 💪`,
+            `Believe in yourself, ${this.userFirstName}! 🚀`,
+            `You're doing great, ${this.userFirstName}! 🎯`
         ];
         
         const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
         document.getElementById('greeting-text').textContent = randomGreeting;
-        
-        // Change greeting every 3 minutes
-        setTimeout(() => {
-            this.showPersonalizedGreeting();
-        }, 180000);
     }
 
     setupEventListeners() {
@@ -768,13 +840,6 @@ class QuizManager {
         document.getElementById('submit-cancel')?.addEventListener('click', () => this.hideSubmitModal());
         document.getElementById('submit-modal-close')?.addEventListener('click', () => this.hideSubmitModal());
         document.getElementById('confirm-submit')?.addEventListener('click', () => this.submitQuiz());
-        
-        // Logout button
-        document.getElementById('btn-logout')?.addEventListener('click', () => {
-            firebase.auth().signOut().then(() => {
-                window.location.href = '../index.html';
-            });
-        });
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
@@ -833,8 +898,8 @@ class QuizManager {
             background: ${bgColor};
             color: white;
             padding: 16px 24px;
-            border-radius: 8px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             z-index: 10001;
             transform: translateX(100%);
             transition: transform 0.3s ease;
@@ -865,7 +930,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.quizManager = new QuizManager();
 });
 
-// Make selectAnswer globally accessible for radio button onchange
+// Make selectAnswer globally accessible for option clicks
 window.selectAnswer = (optionIndex) => {
     if (window.quizManager) {
         window.quizManager.selectAnswer(optionIndex);
