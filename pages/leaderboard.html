@@ -16,6 +16,10 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- jsPDF Library for PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    
     <!-- Firebase SDK v8 Compatibility -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -131,32 +135,18 @@
             </div>
         </div>
 
-        <!-- Video Advertisement Toast - Below Your Position -->
-        <div class="video-ad-toast" id="video-ad-toast">
-            <div class="ad-toast-content">
-                <div class="ad-toast-close" onclick="closeVideoAdToast()">
-                    <i class="fas fa-times"></i>
-                </div>
-                <div class="video-ad-container">
-                    <div class="video-thumbnail">
-                        <i class="fas fa-play-circle"></i>
-                        <div class="video-overlay">
-                            <span>Watch & Earn</span>
-                        </div>
-                    </div>
-                    <div class="video-ad-info">
-                        <h4>🎓 Boost Your Knowledge!</h4>
-                        <p>Watch this educational video and unlock premium quiz features</p>
-                        <button class="watch-video-btn" onclick="watchVideoAd()">
-                            <i class="fas fa-play"></i>
-                            Watch Video (30s)
-                        </button>
-                    </div>
+        <!-- Simple Video Advertisement Placeholder - Below Your Position -->
+        <div class="video-ad-placeholder" id="video-ad-placeholder">
+            <div class="video-ad-content">
+                <div class="video-placeholder-box">
+                    <i class="fas fa-play-circle"></i>
+                    <p>Video Advertisement Space</p>
+                    <small>Advertisement content will be displayed here</small>
                 </div>
             </div>
         </div>
 
-        <!-- Working Filters - Real Data Based -->
+        <!-- Working Filters with Download Button -->
         <div class="leaderboard-filters">
             <div class="filter-tabs">
                 <button class="filter-tab active" data-filter="all" onclick="applyTimeFilter('all')">All Time</button>
@@ -165,79 +155,94 @@
                 <button class="filter-tab" data-filter="month" onclick="applyTimeFilter('month')">This Month</button>
             </div>
             
-            <div class="sort-options">
-                <select class="sort-select" id="sort-select" onchange="applySorting(this.value)">
-                    <option value="score">Sort by Score</option>
-                    <option value="time">Sort by Time</option>
-                    <option value="date">Sort by Date</option>
-                </select>
+            <div class="filter-actions">
+                <div class="sort-options">
+                    <select class="sort-select" id="sort-select" onchange="applySorting(this.value)">
+                        <option value="score">Sort by Score</option>
+                        <option value="time">Sort by Time</option>
+                        <option value="date">Sort by Date</option>
+                    </select>
+                </div>
+                
+                <!-- PDF Download Button -->
+                <button class="download-pdf-btn" id="download-pdf-btn" onclick="downloadLeaderboardPDF()">
+                    <i class="fas fa-download"></i>
+                    <span>Download PDF</span>
+                </button>
             </div>
         </div>
 
-        <!-- Leaderboard List - Real Data Based -->
+        <!-- Mobile-Optimized Leaderboard List - Slidable on Mobile -->
         <div class="leaderboard-list">
-            <!-- Updated Column Headers with Background -->
+            <!-- Mobile: Always Visible Column Headers -->
             <div class="list-header">
                 <div class="header-rank">Rank</div>
-                <div class="header-participant">Participant</div> <!-- Changed from Player to Participant -->
+                <div class="header-participant">Participant</div>
                 <div class="header-score">Score</div>
                 <div class="header-time">Time</div>
                 <div class="header-date">Date</div>
             </div>
             
-            <div class="leaderboard-items" id="leaderboard-items">
-                <!-- Real leaderboard items will be dynamically loaded here -->
-                <div class="loading-placeholder">
-                    <div class="loading-item">
-                        <div class="loading-rank"></div>
-                        <div class="loading-participant"></div>
-                        <div class="loading-score"></div>
-                        <div class="loading-time"></div>
-                        <div class="loading-date"></div>
-                    </div>
-                    <!-- Repeat for visual loading effect -->
-                    <div class="loading-item">
-                        <div class="loading-rank"></div>
-                        <div class="loading-participant"></div>
-                        <div class="loading-score"></div>
-                        <div class="loading-time"></div>
-                        <div class="loading-date"></div>
-                    </div>
-                    <div class="loading-item">
-                        <div class="loading-rank"></div>
-                        <div class="loading-participant"></div>
-                        <div class="loading-score"></div>
-                        <div class="loading-time"></div>
-                        <div class="loading-date"></div>
+            <!-- Mobile: Horizontal Scrollable Container -->
+            <div class="leaderboard-items-wrapper">
+                <div class="leaderboard-items" id="leaderboard-items">
+                    <!-- Real leaderboard items will be dynamically loaded here -->
+                    <div class="loading-placeholder">
+                        <div class="loading-item">
+                            <div class="loading-rank"></div>
+                            <div class="loading-participant"></div>
+                            <div class="loading-score"></div>
+                            <div class="loading-time"></div>
+                            <div class="loading-date"></div>
+                        </div>
+                        <div class="loading-item">
+                            <div class="loading-rank"></div>
+                            <div class="loading-participant"></div>
+                            <div class="loading-score"></div>
+                            <div class="loading-time"></div>
+                            <div class="loading-date"></div>
+                        </div>
+                        <div class="loading-item">
+                            <div class="loading-rank"></div>
+                            <div class="loading-participant"></div>
+                            <div class="loading-score"></div>
+                            <div class="loading-time"></div>
+                            <div class="loading-date"></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Toast Banner Advertisement - After 20 participants -->
-            <div class="banner-ad-toast" id="banner-ad-toast" style="display: none;">
-                <div class="banner-toast-content">
-                    <div class="ad-banner-close" onclick="closeBannerAdToast()">
+            <div class="toast-banner-ad" id="toast-banner-ad" style="display: none;">
+                <div class="toast-banner-content">
+                    <div class="banner-close-btn" onclick="closeToastBannerAd()">
                         <i class="fas fa-times"></i>
                     </div>
-                    <div class="banner-ad-main">
-                        <div class="banner-ad-icon">
-                            <i class="fas fa-star"></i>
+                    
+                    <div class="toast-banner-main">
+                        <div class="toast-banner-icon">
+                            <i class="fas fa-gift"></i>
                         </div>
-                        <div class="banner-ad-text">
-                            <h4>🚀 Level Up Your Quiz Game!</h4>
-                            <p>Join Premium and access 500+ exclusive quizzes with detailed analytics</p>
+                        <div class="toast-banner-text">
+                            <h4>🎁 Special Offer: 50% OFF Premium!</h4>
+                            <p>Limited time offer - Unlock unlimited quizzes, detailed analytics and certificates</p>
                         </div>
-                        <div class="banner-ad-action">
-                            <button class="upgrade-premium-btn" onclick="upgradeToPremium()">
-                                <i class="fas fa-crown"></i>
-                                Go Premium
+                        <div class="toast-banner-action">
+                            <button class="toast-upgrade-btn" onclick="claimSpecialOffer()">
+                                <i class="fas fa-bolt"></i>
+                                Claim Offer
                             </button>
                         </div>
                     </div>
-                    <div class="banner-ad-features">
-                        <span><i class="fas fa-check"></i> Unlimited Quizzes</span>
-                        <span><i class="fas fa-check"></i> Detailed Analytics</span>
-                        <span><i class="fas fa-check"></i> Custom Certificates</span>
+                    
+                    <div class="toast-banner-timer">
+                        <div class="timer-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="timer-text">
+                            <span>Offer expires in: <strong id="offer-timer">23:59:45</strong></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -326,11 +331,33 @@
         </div>
     </div>
 
-    <!-- Success Toast for Ads -->
+    <!-- Success Toast for Notifications -->
     <div class="toast-notification" id="toast-notification">
         <div class="toast-content">
             <i class="fas fa-check-circle"></i>
             <span id="toast-message">Action completed!</span>
+        </div>
+    </div>
+
+    <!-- PDF Generation Progress Modal -->
+    <div class="pdf-modal" id="pdf-modal">
+        <div class="pdf-modal-content">
+            <div class="pdf-modal-header">
+                <h3>
+                    <i class="fas fa-file-pdf"></i>
+                    Generating PDF...
+                </h3>
+            </div>
+            <div class="pdf-modal-body">
+                <div class="pdf-progress">
+                    <div class="pdf-progress-bar">
+                        <div class="pdf-progress-fill" id="pdf-progress-fill"></div>
+                    </div>
+                    <div class="pdf-progress-text">
+                        <span id="pdf-progress-text">Preparing data...</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
