@@ -11,6 +11,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize scroll effects
     initScrollEffects();
+    
+    // Initialize filters
+    initFilters();
 });
 
 // Particles.js Configuration
@@ -163,48 +166,78 @@ function initQuizLoading() {
 }
 
 // Load sample quizzes
+let allQuizzes = [];
+
 function loadSampleQuizzes() {
     const quizGrid = document.getElementById('quiz-grid');
     
     const sampleQuizzes = [
         {
             id: 1,
-            title: "General Knowledge Challenge",
-            description: "Test your knowledge across various topics and see how well you perform against other quiz takers.",
+            title: "General Knowledge Challenge 2024",
+            description: "Test your knowledge across various topics including current affairs, history, geography, and science.",
             category: "general-knowledge",
-            difficulty: "medium",
             questions: 30,
             duration: 30,
-            participants: 1250,
             date: "2024-10-25"
         },
         {
             id: 2,
             title: "English Grammar Mastery",
-            description: "Perfect your English grammar skills with comprehensive questions covering all major topics.",
+            description: "Perfect your English grammar skills with comprehensive questions covering tenses, vocabulary, and sentence structure.",
             category: "english",
-            difficulty: "hard",
             questions: 25,
             duration: 25,
-            participants: 890,
             date: "2024-10-24"
         },
         {
             id: 3,
-            title: "Mathematics Fundamentals",
-            description: "Challenge yourself with mathematical problems ranging from basic arithmetic to advanced concepts.",
-            category: "math",
-            difficulty: "easy",
+            title: "World Knowledge Quiz",
+            description: "Explore fascinating facts about countries, cultures, landmarks, and global events in this comprehensive quiz.",
+            category: "general-knowledge",
+            questions: 35,
+            duration: 35,
+            date: "2024-10-26"
+        },
+        {
+            id: 4,
+            title: "English Literature & Comprehension",
+            description: "Dive deep into English literature, reading comprehension, and advanced language skills.",
+            category: "english",
+            questions: 40,
+            duration: 40,
+            date: "2024-10-23"
+        },
+        {
+            id: 5,
+            title: "Current Affairs 2024",
+            description: "Stay updated with the latest happenings around the world with our current affairs quiz.",
+            category: "general-knowledge",
             questions: 20,
             duration: 20,
-            participants: 650,
-            date: "2024-10-26"
+            date: "2024-10-27"
         }
     ];
     
+    allQuizzes = sampleQuizzes;
+    displayQuizzes(allQuizzes);
+}
+
+function displayQuizzes(quizzes) {
+    const quizGrid = document.getElementById('quiz-grid');
     quizGrid.innerHTML = '';
     
-    sampleQuizzes.forEach((quiz, index) => {
+    if (quizzes.length === 0) {
+        quizGrid.innerHTML = `
+            <div class="quiz-loading">
+                <i class="fas fa-search"></i>
+                <p>No quizzes found matching your criteria</p>
+            </div>
+        `;
+        return;
+    }
+    
+    quizzes.forEach((quiz, index) => {
         const quizCard = createQuizCard(quiz);
         quizCard.style.animationDelay = `${index * 0.1}s`;
         quizCard.classList.add('animate-fadeInUp');
@@ -218,20 +251,42 @@ function createQuizCard(quiz) {
     card.className = 'quiz-card';
     card.setAttribute('data-category', quiz.category);
     
-    const category = window.firebaseApp?.QUIZ_CATEGORIES?.[quiz.category] || {
+    const category = {
+        'general-knowledge': {
+            name: 'General Knowledge',
+            color: '#4F46E5',
+            icon: 'fas fa-globe'
+        },
+        'english': {
+            name: 'English',
+            color: '#059669', 
+            icon: 'fas fa-language'
+        }
+    };
+    
+    const categoryInfo = category[quiz.category] || {
         name: quiz.category,
         color: '#4F46E5',
         icon: 'fas fa-question'
     };
     
+    // Format date
+    const dateObj = new Date(quiz.date);
+    const formattedDate = dateObj.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        year: 'numeric'
+    });
+    
     card.innerHTML = `
         <div class="quiz-header">
             <div class="quiz-category">
-                <i class="${category.icon}"></i>
-                <span>${category.name}</span>
+                <i class="${categoryInfo.icon}"></i>
+                <span>${categoryInfo.name}</span>
             </div>
-            <div class="quiz-difficulty difficulty-${quiz.difficulty}">
-                ${quiz.difficulty.charAt(0).toUpperCase() + quiz.difficulty.slice(1)}
+            <div class="quiz-date">
+                <i class="fas fa-calendar-alt"></i>
+                <span>${formattedDate}</span>
             </div>
         </div>
         
@@ -248,10 +303,6 @@ function createQuizCard(quiz) {
                     <i class="fas fa-clock"></i>
                     <span>${quiz.duration} min</span>
                 </div>
-                <div class="info-item">
-                    <i class="fas fa-users"></i>
-                    <span>${quiz.participants} taken</span>
-                </div>
             </div>
         </div>
         
@@ -267,6 +318,37 @@ function createQuizCard(quiz) {
     `;
     
     return card;
+}
+
+// Initialize filters
+function initFilters() {
+    const applyFiltersBtn = document.getElementById('apply-filters');
+    const subjectFilter = document.getElementById('subject-filter');
+    const dateFilter = document.getElementById('date-filter');
+    
+    if (applyFiltersBtn) {
+        applyFiltersBtn.addEventListener('click', applyFilters);
+    }
+}
+
+// Apply filters function
+function applyFilters() {
+    const subjectFilter = document.getElementById('subject-filter').value;
+    const dateFilter = document.getElementById('date-filter').value;
+    
+    let filteredQuizzes = [...allQuizzes];
+    
+    // Filter by subject
+    if (subjectFilter && subjectFilter !== 'all') {
+        filteredQuizzes = filteredQuizzes.filter(quiz => quiz.category === subjectFilter);
+    }
+    
+    // Filter by date
+    if (dateFilter) {
+        filteredQuizzes = filteredQuizzes.filter(quiz => quiz.date === dateFilter);
+    }
+    
+    displayQuizzes(filteredQuizzes);
 }
 
 // Scroll effects
