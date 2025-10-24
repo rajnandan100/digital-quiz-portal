@@ -1,4 +1,4 @@
-// Admin Authentication - HARD CODED PATHS for GitHub Pages
+// Admin Authentication - NO REDIRECT ISSUES
 class AdminAuthManager {
     constructor() {
         this.currentAdmin = null;
@@ -7,7 +7,6 @@ class AdminAuthManager {
 
     init() {
         console.log('🚀 Admin Auth Manager starting...');
-        // Wait for Firebase to be ready
         if (typeof firebase !== 'undefined') {
             this.setupAdminAuth();
         } else {
@@ -18,12 +17,10 @@ class AdminAuthManager {
 
     setupAdminAuth() {
         console.log('🔐 Setting up admin authentication...');
-        // Listen for authentication state changes
         firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
                 console.log('👤 User signed in:', user.email);
                 try {
-                    // Check admin privileges from Firestore database
                     const adminDoc = await firebase.firestore()
                         .collection('adminUsers')
                         .doc(user.uid)
@@ -35,7 +32,6 @@ class AdminAuthManager {
                         
                         console.log('🎯 User roles:', roles);
                         
-                        // Check if user has any admin privileges
                         if (roles.admin || roles.superAdmin || roles.moderator) {
                             console.log('✅ Admin access granted!');
                             this.currentAdmin = {
@@ -70,7 +66,6 @@ class AdminAuthManager {
         });
     }
 
-    // Show admin panel (hide loading screen)
     showAdminPanel() {
         console.log('📊 Showing admin panel...');
         const loading = document.getElementById('admin-loading');
@@ -79,37 +74,30 @@ class AdminAuthManager {
         if (loading) loading.style.display = 'none';
         if (panel) panel.style.display = 'flex';
         
-        // Initialize admin dashboard
         if (window.adminDashboard) {
             window.adminDashboard.init();
         }
     }
 
-    // Handle unauthorized access attempts
     handleUnauthorizedAccess() {
         console.log('🚫 Redirecting to login - unauthorized access');
         this.showMessage('Access denied. Admin privileges required.', 'error');
         setTimeout(() => {
-            // HARD CODED PATH - NO DYNAMIC DETECTION
             window.location.href = '/digital-quiz-portal/index.html?error=access_denied';
         }, 2000);
     }
 
-    // Handle authentication errors
     handleAuthError(error) {
         console.error('💥 Admin authentication error:', error);
         this.showMessage('Authentication error. Please try again.', 'error');
         this.redirectToLogin();
     }
 
-    // Redirect to login page
     redirectToLogin() {
         console.log('🔄 Redirecting to login page');
-        // HARD CODED PATH - NO DYNAMIC DETECTION
         window.location.href = '/digital-quiz-portal/index.html?redirect=admin';
     }
 
-    // Admin logout with logging
     async adminLogout() {
         try {
             console.log('👋 Admin logging out...');
@@ -117,7 +105,6 @@ class AdminAuthManager {
             this.showMessage('Logged out successfully!', 'success');
             
             setTimeout(() => {
-                // HARD CODED PATH - NO DYNAMIC DETECTION
                 window.location.href = '/digital-quiz-portal/index.html';
             }, 1000);
         } catch (error) {
@@ -128,7 +115,6 @@ class AdminAuthManager {
     showMessage(message, type = 'info') {
         console.log(`📢 ${type.toUpperCase()}: ${message}`);
         
-        // Create toast notification
         const toast = document.createElement('div');
         toast.textContent = message;
         
