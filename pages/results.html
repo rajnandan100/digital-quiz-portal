@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Results - DigiQuiz Portal</title>
+    <title>Leaderboard - DigiQuiz Portal</title>
     
     <!-- CSS Files -->
     <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/results.css">
+    <link rel="stylesheet" href="../css/leaderboard.css">
     <link rel="stylesheet" href="../css/responsive.css">
     
     <!-- Google Fonts -->
@@ -16,273 +16,239 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Chart.js for Analytics -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <!-- Firebase SDK v8 Compatibility -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <!-- Minimal Header -->
-    <div class="results-header-fixed">
-        <!-- Left: Back Button -->
-        <button class="back-btn" onclick="window.location.href='../index.html'">
+    <!-- Header -->
+    <div class="leaderboard-header">
+        <button class="back-btn" onclick="history.back()">
             <i class="fas fa-arrow-left"></i>
-            <span>Home</span>
+            <span>Back</span>
         </button>
         
-        <!-- Right: User Profile -->
-        <div class="user-profile-results">
-            <div class="user-info" id="user-info">
-                <img src="" alt="User" class="user-avatar-results" id="user-avatar">
-            </div>
+        <div class="header-title">
+            <i class="fas fa-trophy"></i>
+            <h2>Leaderboard</h2>
+        </div>
+        
+        <div class="user-profile-small">
+            <img src="" alt="User" class="user-avatar-small" id="user-avatar">
         </div>
     </div>
 
-    <!-- Results Container -->
-    <div class="results-container">
-        <!-- Score Card - Main Result -->
-        <div class="score-card">
-            <div class="score-header">
-                <div class="congratulations-text">
-                    <i class="fas fa-trophy trophy-icon"></i>
-                    <h1 id="congratulations-message">Congratulations!</h1>
-                    <p id="performance-message">You did amazing!</p>
+    <!-- Leaderboard Container -->
+    <div class="leaderboard-container">
+        <!-- Quiz Info -->
+        <div class="quiz-info-card">
+            <div class="quiz-title" id="quiz-title">General Knowledge Challenge 2024</div>
+            <div class="quiz-stats">
+                <div class="stat-item">
+                    <i class="fas fa-users"></i>
+                    <span id="total-participants">1,247 participants</span>
                 </div>
-            </div>
-            
-            <div class="score-display">
-                <div class="score-circle">
-                    <canvas id="scoreChart" width="200" height="200"></canvas>
-                    <div class="score-content">
-                        <div class="score-number" id="score-percentage">85%</div>
-                        <div class="score-label">Score</div>
-                    </div>
-                </div>
-                
-                <div class="score-details">
-                    <div class="detail-item">
-                        <div class="detail-icon correct">
-                            <i class="fas fa-check"></i>
-                        </div>
-                        <div class="detail-info">
-                            <span class="detail-number" id="correct-answers">17</span>
-                            <span class="detail-label">Correct</span>
-                        </div>
-                    </div>
-                    
-                    <div class="detail-item">
-                        <div class="detail-icon incorrect">
-                            <i class="fas fa-times"></i>
-                        </div>
-                        <div class="detail-info">
-                            <span class="detail-number" id="incorrect-answers">3</span>
-                            <span class="detail-label">Incorrect</span>
-                        </div>
-                    </div>
-                    
-                    <div class="detail-item">
-                        <div class="detail-icon skipped">
-                            <i class="fas fa-minus"></i>
-                        </div>
-                        <div class="detail-info">
-                            <span class="detail-number" id="skipped-answers">10</span>
-                            <span class="detail-label">Skipped</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="time-stats">
-                <div class="time-item">
-                    <i class="fas fa-clock"></i>
-                    <span>Time Taken: <strong id="time-taken">18:30</strong></span>
-                </div>
-                <div class="time-item">
-                    <i class="fas fa-calendar"></i>
-                    <span>Date: <strong id="quiz-date">Oct 24, 2025</strong></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Actions Section -->
-        <div class="actions-section">
-            <div class="action-card share-card">
-                <h3>
-                    <i class="fas fa-share-alt"></i>
-                    Share Your Achievement
-                </h3>
-                <div class="share-buttons">
-                    <button class="share-btn whatsapp" onclick="shareResults('whatsapp')">
-                        <i class="fab fa-whatsapp"></i>
-                        WhatsApp
-                    </button>
-                    <button class="share-btn twitter" onclick="shareResults('twitter')">
-                        <i class="fab fa-twitter"></i>
-                        Twitter
-                    </button>
-                    <button class="share-btn facebook" onclick="shareResults('facebook')">
-                        <i class="fab fa-facebook"></i>
-                        Facebook
-                    </button>
-                    <button class="share-btn copy" onclick="copyResult()">
-                        <i class="fas fa-copy"></i>
-                        Copy Link
-                    </button>
-                </div>
-            </div>
-            
-            <div class="action-card certificate-card" id="certificate-card">
-                <h3>
-                    <i class="fas fa-award"></i>
-                    Download Certificate
-                </h3>
-                <p>You scored above 80%! Download your certificate.</p>
-                <button class="certificate-btn" onclick="downloadCertificate()">
-                    <i class="fas fa-download"></i>
-                    Download Certificate
-                </button>
-            </div>
-        </div>
-
-        <!-- Performance Analytics -->
-        <div class="analytics-section">
-            <div class="analytics-card">
-                <h3>
+                <div class="stat-item">
                     <i class="fas fa-chart-line"></i>
-                    Performance Analytics
-                </h3>
-                <div class="analytics-content">
-                    <div class="category-breakdown">
-                        <h4>Category-wise Performance</h4>
-                        <canvas id="categoryChart"></canvas>
+                    <span id="avg-score">Avg Score: 72%</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-clock"></i>
+                    <span id="avg-time">Avg Time: 22:15</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top 3 Podium -->
+        <div class="podium-section">
+            <div class="podium-container">
+                <!-- Second Place -->
+                <div class="podium-position second">
+                    <div class="position-number">2</div>
+                    <div class="podium-avatar">
+                        <img src="https://ui-avatars.com/api/?name=Sarah+Wilson&background=e5e7eb&color=374151" alt="Sarah Wilson">
                     </div>
-                    
-                    <div class="accuracy-stats">
-                        <div class="accuracy-item">
-                            <span class="accuracy-label">Overall Accuracy</span>
-                            <div class="accuracy-bar">
-                                <div class="accuracy-fill" id="overall-accuracy" style="width: 85%"></div>
-                            </div>
-                            <span class="accuracy-value">85%</span>
-                        </div>
-                        
-                        <div class="accuracy-item">
-                            <span class="accuracy-label">Speed</span>
-                            <div class="accuracy-bar">
-                                <div class="accuracy-fill speed" id="speed-accuracy" style="width: 72%"></div>
-                            </div>
-                            <span class="accuracy-value">72%</span>
-                        </div>
+                    <div class="podium-info">
+                        <div class="podium-name">Sarah Wilson</div>
+                        <div class="podium-score">96%</div>
+                        <div class="podium-time">18:45</div>
+                    </div>
+                </div>
+                
+                <!-- First Place -->
+                <div class="podium-position first">
+                    <div class="crown-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="position-number">1</div>
+                    <div class="podium-avatar">
+                        <img src="https://ui-avatars.com/api/?name=Alex+Johnson&background=fbbf24&color=92400e" alt="Alex Johnson">
+                    </div>
+                    <div class="podium-info">
+                        <div class="podium-name">Alex Johnson</div>
+                        <div class="podium-score">98%</div>
+                        <div class="podium-time">17:32</div>
+                    </div>
+                </div>
+                
+                <!-- Third Place -->
+                <div class="podium-position third">
+                    <div class="position-number">3</div>
+                    <div class="podium-avatar">
+                        <img src="https://ui-avatars.com/api/?name=Mike+Chen&background=f59e0b&color=92400e" alt="Mike Chen">
+                    </div>
+                    <div class="podium-info">
+                        <div class="podium-name">Mike Chen</div>
+                        <div class="podium-score">94%</div>
+                        <div class="podium-time">19:08</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Detailed Review -->
-        <div class="review-section">
-            <div class="review-header">
-                <h3>
-                    <i class="fas fa-list-alt"></i>
-                    Detailed Review
-                </h3>
-                <button class="toggle-review-btn" id="toggle-review">
-                    Show Review
-                    <i class="fas fa-chevron-down"></i>
-                </button>
+        <!-- Your Position -->
+        <div class="your-position-card" id="your-position">
+            <div class="your-position-header">
+                <i class="fas fa-user"></i>
+                <h3>Your Position</h3>
+            </div>
+            <div class="your-position-content">
+                <div class="position-rank">#23</div>
+                <div class="position-details">
+                    <div class="position-name" id="user-name">You</div>
+                    <div class="position-score" id="user-score">85%</div>
+                    <div class="position-time" id="user-time">18:32</div>
+                </div>
+                <div class="position-progress">
+                    <div class="progress-text">
+                        <span id="position-diff">12 spots away from top 10!</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="position-progress"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="leaderboard-filters">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">All Time</button>
+                <button class="filter-tab" data-filter="today">Today</button>
+                <button class="filter-tab" data-filter="week">This Week</button>
+                <button class="filter-tab" data-filter="month">This Month</button>
             </div>
             
-            <div class="review-content collapsed" id="review-content">
-                <div class="review-filters">
-                    <button class="filter-btn active" data-filter="all">All Questions</button>
-                    <button class="filter-btn" data-filter="correct">Correct</button>
-                    <button class="filter-btn" data-filter="incorrect">Incorrect</button>
-                    <button class="filter-btn" data-filter="skipped">Skipped</button>
-                </div>
-                
-                <div class="questions-review" id="questions-review">
-                    <!-- Questions will be dynamically loaded -->
+            <div class="sort-options">
+                <select class="sort-select" id="sort-select">
+                    <option value="score">Sort by Score</option>
+                    <option value="time">Sort by Time</option>
+                    <option value="date">Sort by Date</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Leaderboard List -->
+        <div class="leaderboard-list">
+            <div class="list-header">
+                <div class="header-rank">Rank</div>
+                <div class="header-player">Player</div>
+                <div class="header-score">Score</div>
+                <div class="header-time">Time</div>
+                <div class="header-date">Date</div>
+            </div>
+            
+            <div class="leaderboard-items" id="leaderboard-items">
+                <!-- Leaderboard items will be dynamically loaded -->
+            </div>
+        </div>
+
+        <!-- Load More -->
+        <div class="load-more-section">
+            <button class="load-more-btn" id="load-more-btn">
+                <i class="fas fa-chevron-down"></i>
+                Load More
+            </button>
+        </div>
+
+        <!-- Statistics -->
+        <div class="leaderboard-stats">
+            <div class="stats-card">
+                <h4>Competition Statistics</h4>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">98%</div>
+                            <div class="stat-label">Highest Score</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">15:22</div>
+                            <div class="stat-label">Fastest Time</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">1,247</div>
+                            <div class="stat-label">Total Attempts</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number">72%</div>
+                            <div class="stat-label">Average Score</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Leaderboard -->
-        <div class="leaderboard-section">
-            <div class="leaderboard-card">
-                <h3>
-                    <i class="fas fa-trophy"></i>
-                    Leaderboard
-                </h3>
-                <div class="leaderboard-content">
-                    <div class="your-rank">
-                        <div class="rank-info">
-                            <span class="rank-number" id="user-rank">#23</span>
-                            <span class="rank-text">Your Rank</span>
-                        </div>
-                        <div class="rank-score">
-                            <span id="user-leaderboard-score">85%</span>
-                        </div>
-                    </div>
-                    
-                    <div class="top-performers">
-                        <div class="performer-item">
-                            <div class="performer-rank">1</div>
-                            <div class="performer-info">
-                                <div class="performer-name">Alex Johnson</div>
-                                <div class="performer-score">98%</div>
-                            </div>
-                        </div>
-                        
-                        <div class="performer-item">
-                            <div class="performer-rank">2</div>
-                            <div class="performer-info">
-                                <div class="performer-name">Sarah Wilson</div>
-                                <div class="performer-score">96%</div>
-                            </div>
-                        </div>
-                        
-                        <div class="performer-item">
-                            <div class="performer-rank">3</div>
-                            <div class="performer-info">
-                                <div class="performer-name">Mike Chen</div>
-                                <div class="performer-score">94%</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button class="view-full-leaderboard">
-                        View Full Leaderboard
-                        <i class="fas fa-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
+        <!-- Action Buttons -->
+        <div class="leaderboard-actions">
+            <button class="action-btn primary" onclick="window.location.href='../pages/quiz.html?id=gk-001'">
+                <i class="fas fa-play"></i>
+                Take This Quiz
+            </button>
+            
+            <button class="action-btn secondary" onclick="window.location.href='../pages/results.html'">
+                <i class="fas fa-chart-line"></i>
+                View My Results
+            </button>
+            
+            <button class="action-btn tertiary" onclick="shareLeaderboard()">
+                <i class="fas fa-share-alt"></i>
+                Share Leaderboard
+            </button>
         </div>
+    </div>
 
-        <!-- Next Actions -->
-        <div class="next-actions">
-            <div class="action-button-group">
-                <button class="action-btn primary" onclick="window.location.href='../index.html'">
-                    <i class="fas fa-home"></i>
-                    Back to Home
-                </button>
-                
-                <button class="action-btn secondary" onclick="retakeQuiz()">
-                    <i class="fas fa-redo"></i>
-                    Retake Quiz
-                </button>
-                
-                <button class="action-btn tertiary" onclick="window.location.href='../pages/quiz-list.html'">
-                    <i class="fas fa-list"></i>
-                    More Quizzes
-                </button>
-            </div>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loading-spinner">
+        <div class="spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading leaderboard...</p>
         </div>
     </div>
 
     <!-- JavaScript Files -->
     <script src="../js/firebase-config.js"></script>
-    <script src="../js/results.js"></script>
+    <script src="../js/leaderboard.js"></script>
 </body>
 </html>
