@@ -1,4 +1,4 @@
-// ===== LEADERBOARD PAGE - COMPLETE FUNCTIONALITY WITH MOBILE-OPTIMIZED TABLE =====
+// ===== LEADERBOARD PAGE - FIXED STRUCTURE FOR DESKTOP & MOBILE =====
 
 class LeaderboardManager {
     constructor() {
@@ -281,6 +281,7 @@ class LeaderboardManager {
         this.updateLoadMoreButton(endIndex);
     }
 
+    // FIXED - Simplified Participant Item Creation
     createParticipantItem(participant, index) {
         const item = document.createElement('div');
         item.className = `leaderboard-item ${participant.isCurrentUser ? 'current-user' : ''}`;
@@ -291,24 +292,21 @@ class LeaderboardManager {
             day: 'numeric' 
         });
         
+        // Simple grid structure - matches the CSS
         item.innerHTML = `
-            <div class="item-fixed">
-                <div class="item-rank">
-                    ${medal || `#${participant.rank}`}
-                </div>
-                <div class="item-player">
-                    <img src="${participant.avatar}" alt="${participant.name}" class="player-avatar">
-                    <div class="player-info">
-                        <div class="player-name" title="${participant.name}">${participant.name}</div>
-                        ${participant.isCurrentUser ? '<div class="current-user-badge">You</div>' : ''}
-                    </div>
+            <div class="item-rank">
+                ${medal || `#${participant.rank}`}
+            </div>
+            <div class="item-player">
+                <img src="${participant.avatar}" alt="${participant.name}" class="player-avatar">
+                <div class="player-info">
+                    <div class="player-name" title="${participant.name}">${participant.name}</div>
+                    ${participant.isCurrentUser ? '<div class="current-user-badge">You</div>' : ''}
                 </div>
             </div>
-            <div class="item-scrollable">
-                <div class="item-score">${participant.score}%</div>
-                <div class="item-time">${this.formatTime(participant.time)}</div>
-                <div class="item-date">${date}</div>
-            </div>
+            <div class="item-score">${participant.score}%</div>
+            <div class="item-time">${this.formatTime(participant.time)}</div>
+            <div class="item-date">${date}</div>
         `;
         
         return item;
@@ -688,3 +686,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
