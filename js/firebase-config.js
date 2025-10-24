@@ -1,7 +1,4 @@
-// Firebase Configuration and Initialization
-// Note: For GitHub Pages, we need to use the CDN version
-// Make sure to include the Firebase CDN scripts in your HTML
-
+// Firebase Configuration and Initialization (v8 Compatibility)
 // Your Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyBiS1wFqB5dHjn6UiRhheSLhOekkLBlfmw",
@@ -40,16 +37,6 @@ const QUIZ_CATEGORIES = {
     name: 'English',
     color: '#059669', 
     icon: 'fas fa-language'
-  },
-  'math': {
-    name: 'Mathematics',
-    color: '#DC2626',
-    icon: 'fas fa-calculator'
-  },
-  'science': {
-    name: 'Science',
-    color: '#7C2D12',
-    icon: 'fas fa-flask'
   }
 };
 
@@ -61,7 +48,7 @@ const APP_CONSTANTS = {
   MAX_QUIZ_ATTEMPTS: 3
 };
 
-// Export for use in other files
+// Export for use in other files (global variables)
 window.firebaseApp = {
   auth,
   db,
@@ -69,3 +56,5 @@ window.firebaseApp = {
   QUIZ_CATEGORIES,
   APP_CONSTANTS
 };
+
+console.log('Firebase initialized successfully!');
