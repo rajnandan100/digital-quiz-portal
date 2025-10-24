@@ -1,4 +1,4 @@
-// Admin Authentication and Role Management System
+// Admin Authentication and Role Management System - Updated for Firestore
 
 class AdminAuthManager {
     constructor() {
@@ -25,26 +25,38 @@ class AdminAuthManager {
         firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
                 try {
-                    // Get fresh ID token to check custom claims
-                    const tokenResult = await user.getIdTokenResult();
-                    const customClaims = tokenResult.claims;
+                    // Check admin privileges from Firestore database
+                    const adminDoc = await firebase.firestore()
+                        .collection('adminUsers')
+                        .doc(user.uid)
+                        .get();
                     
-                    // Check if user has admin privileges
-                    if (customClaims.admin || customClaims.superAdmin || customClaims.moderator) {
-                        this.currentAdmin = {
-                            uid: user.uid,
-                            email: user.email,
-                            displayName: user.displayName,
-                            roles: customClaims,
-                            isSuperAdmin: customClaims.superAdmin || false,
-                            isAdmin: customClaims.admin || false,
-                            isModerator: customClaims.moderator || false
-                        };
+                    if (adminDoc.exists) {
+                        const adminData = adminDoc.data();
+                        const roles = adminData.roles || {};
                         
-                        this.updateAdminUI(this.currentAdmin);
-                        this.logAdminLogin();
+                        // Check if user has any admin privileges
+                        if (roles.admin || roles.superAdmin || roles.moderator) {
+                            this.currentAdmin = {
+                                uid: user.uid,
+                                email: user.email,
+                                displayName: user.displayName || adminData.displayName || user.email,
+                                roles: roles,
+                                isSuperAdmin: roles.superAdmin || false,
+                                isAdmin: roles.admin || false,
+                                isModerator: roles.moderator || false,
+                                adminData: adminData
+                            };
+                            
+                            this.updateAdminUI(this.currentAdmin);
+                            this.logAdminLogin();
+                            this.showAdminPanel();
+                        } else {
+                            // User doesn't have admin privileges
+                            this.handleUnauthorizedAccess();
+                        }
                     } else {
-                        // User doesn't have admin privileges
+                        // No admin record found
                         this.handleUnauthorizedAccess();
                     }
                 } catch (error) {
@@ -57,6 +69,20 @@ class AdminAuthManager {
                 this.redirectToLogin();
             }
         });
+    }
+
+    // Show admin panel (hide loading screen)
+    showAdminPanel() {
+        const loading = document.getElementById('admin-loading');
+        const panel = document.getElementById('admin-panel');
+        
+        if (loading) loading.style.display = 'none';
+        if (panel) panel.style.display = 'flex';
+        
+        // Initialize admin dashboard
+        if (window.adminDashboard) {
+            window.adminDashboard.init();
+        }
     }
 
     // Check if current user has specific admin role
@@ -84,131 +110,6 @@ class AdminAuthManager {
         return permissions[action].some(role => this.currentAdmin.roles[role]);
     }
 
-    // Admin login with enhanced security
-    async adminLogin(email, password) {
-        try {
-            this.showLoading(true);
-            
-            // Basic email/password authentication
-            const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-            const user = userCredential.user;
-            
-            // Get ID token to check custom claims
-            const tokenResult = await user.getIdTokenResult();
-            const customClaims = tokenResult.claims;
-            
-            // Verify admin privileges
-            if (!customClaims.admin && !customClaims.superAdmin && !customClaims.moderator) {
-                await firebase.auth().signOut();
-                throw new Error('Access denied. Admin privileges required.');
-            }
-            
-            // Log successful admin login
-            await this.logAdminAction('admin_login', {
-                adminId: user.uid,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                ip: await this.getClientIP(),
-                userAgent: navigator.userAgent
-            });
-            
-            this.showMessage('Admin login successful!', 'success');
-            return user;
-            
-        } catch (error) {
-            this.showMessage(this.getErrorMessage(error.code || error.message), 'error');
-            
-            // Log failed login attempt
-            await this.logAdminAction('admin_login_failed', {
-                email: email,
-                error: error.message,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                ip: await this.getClientIP()
-            });
-            
-            throw error;
-        } finally {
-            this.showLoading(false);
-        }
-    }
-
-    // Request admin privileges for existing user
-    async requestAdminAccess(justification) {
-        if (!firebase.auth().currentUser) {
-            throw new Error('Must be logged in to request admin access');
-        }
-
-        const request = {
-            userId: firebase.auth().currentUser.uid,
-            email: firebase.auth().currentUser.email,
-            displayName: firebase.auth().currentUser.displayName,
-            justification: justification,
-            status: 'pending',
-            requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            ip: await this.getClientIP()
-        };
-
-        await firebase.firestore().collection('adminRequests').add(request);
-        this.showMessage('Admin access request submitted for review.', 'info');
-    }
-
-    // Grant admin privileges (Super Admin only)
-    async grantAdminAccess(userId, roles = {}) {
-        if (!this.hasRole(this.adminRoles.SUPER_ADMIN)) {
-            throw new Error('Only super admins can grant admin access');
-        }
-
-        try {
-            // This would typically be done via a Cloud Function
-            // For now, we'll create an admin user record
-            const adminUserData = {
-                uid: userId,
-                roles: roles,
-                grantedBy: this.currentAdmin.uid,
-                grantedAt: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            await firebase.firestore()
-                .collection('adminUsers')
-                .doc(userId)
-                .set(adminUserData);
-
-            await this.logAdminAction('admin_access_granted', {
-                targetUserId: userId,
-                roles: roles,
-                grantedBy: this.currentAdmin.uid
-            });
-
-            this.showMessage('Admin access granted successfully!', 'success');
-        } catch (error) {
-            this.showMessage('Error granting admin access: ' + error.message, 'error');
-            throw error;
-        }
-    }
-
-    // Revoke admin privileges (Super Admin only)
-    async revokeAdminAccess(userId) {
-        if (!this.hasRole(this.adminRoles.SUPER_ADMIN)) {
-            throw new Error('Only super admins can revoke admin access');
-        }
-
-        try {
-            await firebase.firestore()
-                .collection('adminUsers')
-                .doc(userId)
-                .delete();
-
-            await this.logAdminAction('admin_access_revoked', {
-                targetUserId: userId,
-                revokedBy: this.currentAdmin.uid
-            });
-
-            this.showMessage('Admin access revoked successfully!', 'success');
-        } catch (error) {
-            this.showMessage('Error revoking admin access: ' + error.message, 'error');
-            throw error;
-        }
-    }
-
     // Log admin actions for audit trail
     async logAdminAction(action, data) {
         try {
@@ -218,7 +119,6 @@ class AdminAuthManager {
                 adminEmail: this.currentAdmin?.email || null,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 data: data,
-                ip: await this.getClientIP(),
                 userAgent: navigator.userAgent
             };
 
@@ -233,16 +133,17 @@ class AdminAuthManager {
     // Log admin login for security tracking
     async logAdminLogin() {
         await this.logAdminAction('admin_session_start', {
-            loginMethod: 'email_password',
+            loginMethod: 'firestore_check',
             roles: this.currentAdmin.roles
         });
     }
 
     // Handle unauthorized access attempts
     handleUnauthorizedAccess() {
+        console.log('Access denied: No admin privileges found');
         this.showMessage('Access denied. Admin privileges required.', 'error');
         setTimeout(() => {
-            window.location.href = '/login.html?redirect=admin';
+            window.location.href = '/index.html?error=access_denied';
         }, 2000);
     }
 
@@ -255,7 +156,7 @@ class AdminAuthManager {
 
     // Redirect to login page
     redirectToLogin() {
-        window.location.href = '/login.html?redirect=admin';
+        window.location.href = '/index.html?redirect=admin';
     }
 
     // Update admin UI based on roles
@@ -313,17 +214,6 @@ class AdminAuthManager {
         return `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=4F46E5&color=fff&size=40`;
     }
 
-    // Get client IP (for logging purposes)
-    async getClientIP() {
-        try {
-            const response = await fetch('https://api.ipify.org?format=json');
-            const data = await response.json();
-            return data.ip;
-        } catch (error) {
-            return 'unknown';
-        }
-    }
-
     // Admin logout with logging
     async adminLogout() {
         try {
@@ -335,7 +225,7 @@ class AdminAuthManager {
             this.showMessage('Logged out successfully!', 'success');
             
             setTimeout(() => {
-                window.location.href = '/login.html';
+                window.location.href = '/index.html';
             }, 1000);
         } catch (error) {
             this.showMessage('Error logging out: ' + error.message, 'error');
@@ -380,22 +270,11 @@ class AdminAuthManager {
         setTimeout(() => {
             toast.style.transform = 'translateX(100%)';
             setTimeout(() => {
-                document.body.removeChild(toast);
+                if (document.body.contains(toast)) {
+                    document.body.removeChild(toast);
+                }
             }, 300);
         }, 4000);
-    }
-
-    getErrorMessage(errorCode) {
-        const errorMessages = {
-            'auth/user-not-found': 'No admin account found with this email',
-            'auth/wrong-password': 'Incorrect password',
-            'auth/invalid-email': 'Please enter a valid email address',
-            'auth/too-many-requests': 'Too many failed attempts. Please try again later',
-            'auth/network-request-failed': 'Network error. Please check your connection',
-            'Access denied. Admin privileges required.': 'Access denied. This account does not have admin privileges.',
-            'default': 'An error occurred. Please try again'
-        };
-        return errorMessages[errorCode] || errorMessages.default;
     }
 }
 
