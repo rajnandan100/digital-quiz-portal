@@ -8,7 +8,19 @@ class AdminAuthManager {
             ADMIN: 'admin',
             MODERATOR: 'moderator'
         };
+        // Get the correct base path for GitHub Pages
+        this.basePath = this.getBasePath();
         this.init();
+    }
+
+    // Get the correct base path for your GitHub Pages site
+    getBasePath() {
+        const currentPath = window.location.pathname;
+        if (currentPath.includes('/digital-quiz-portal/')) {
+            return '/digital-quiz-portal/';
+        }
+        // Fallback for local development
+        return '/';
     }
 
     init() {
@@ -143,8 +155,8 @@ class AdminAuthManager {
         console.log('Access denied: No admin privileges found');
         this.showMessage('Access denied. Admin privileges required.', 'error');
         setTimeout(() => {
-            // Fixed: Use relative path for GitHub Pages
-            window.location.href = 'index.html?error=access_denied';
+            // Fixed: Use correct GitHub Pages path
+            window.location.href = `${this.basePath}index.html?error=access_denied`;
         }, 2000);
     }
 
@@ -157,8 +169,8 @@ class AdminAuthManager {
 
     // Redirect to login page
     redirectToLogin() {
-        // Fixed: Use relative path for GitHub Pages
-        window.location.href = 'index.html?redirect=admin';
+        // Fixed: Use correct GitHub Pages path
+        window.location.href = `${this.basePath}index.html?redirect=admin`;
     }
 
     // Update admin UI based on roles
@@ -227,8 +239,8 @@ class AdminAuthManager {
             this.showMessage('Logged out successfully!', 'success');
             
             setTimeout(() => {
-                // Fixed: Use relative path for GitHub Pages
-                window.location.href = 'index.html';
+                // Fixed: Use correct GitHub Pages path
+                window.location.href = `${this.basePath}index.html`;
             }, 1000);
         } catch (error) {
             this.showMessage('Error logging out: ' + error.message, 'error');
