@@ -1,6 +1,6 @@
-/* ===== UPDATED QUIZ PAGE STYLES ===== */
+/* ===== UPDATED QUIZ PAGE STYLES - MOBILE OPTIMIZED ===== */
 
-/* Quiz Navigation */
+/* Quiz Navigation - Mobile Optimized */
 .quiz-nav {
     background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
     backdrop-filter: blur(10px);
@@ -16,21 +16,22 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 24px;
+    padding: 12px 20px; /* Reduced padding for thinner nav */
     max-width: 100%;
 }
 
-/* Left: Circular Logo */
+/* Left: Circular Logo - Compact */
 .nav-logo-circle {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px; /* Reduced gap */
     color: white;
+    min-width: fit-content;
 }
 
 .logo-circle {
-    width: 50px;
-    height: 50px;
+    width: 36px; /* Reduced from 50px */
+    height: 36px; /* Reduced from 50px */
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(10px);
@@ -47,60 +48,67 @@
 }
 
 .logo-circle i {
-    font-size: 1.5rem;
+    font-size: 1.2rem; /* Reduced from 1.5rem */
     color: white;
 }
 
 .logo-text {
-    font-size: 1.1rem;
+    font-size: 0.95rem; /* Reduced from 1.1rem */
     font-weight: 600;
     color: white;
 }
 
-/* Center: Timer */
+/* Center: Timer - Compact */
 .quiz-timer-center {
     flex: 1;
     display: flex;
     justify-content: center;
+    max-width: 200px; /* Limit maximum width */
+    margin: 0 16px; /* Add margin for breathing room */
 }
 
 .timer-container {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px; /* Reduced gap */
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
-    padding: 12px 24px;
-    border-radius: 25px;
+    padding: 8px 16px; /* Reduced padding */
+    border-radius: 20px; /* Reduced border radius */
     border: 2px solid rgba(255, 255, 255, 0.2);
     animation: pulse-timer 2s infinite;
+    min-width: 0; /* Allow shrinking */
 }
 
 .timer-icon {
-    font-size: 1.5rem;
+    font-size: 1.1rem; /* Reduced from 1.5rem */
     color: rgba(255, 255, 255, 0.9);
+    flex-shrink: 0; /* Don't shrink the icon */
 }
 
 .timer-content {
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-width: 0; /* Allow shrinking */
 }
 
 .timer-label {
-    font-size: 0.7rem;
+    font-size: 0.6rem; /* Reduced from 0.7rem */
     color: rgba(255, 255, 255, 0.8);
     font-weight: 500;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px; /* Reduced letter spacing */
+    line-height: 1;
 }
 
 .timer-display {
-    font-size: 1.8rem;
+    font-size: 1.3rem; /* Reduced from 1.8rem */
     font-weight: 700;
     color: white;
     font-family: 'Courier New', monospace;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px; /* Reduced letter spacing */
+    line-height: 1;
 }
 
 @keyframes pulse-timer {
@@ -108,18 +116,19 @@
     50% { transform: scale(1.02); }
 }
 
-/* Right: User Profile */
+/* Right: User Profile - Compact */
 .nav-user-profile {
     display: flex;
     align-items: center;
+    min-width: fit-content;
 }
 
 .user-avatar-circle {
-    width: 50px;
-    height: 50px;
+    width: 36px; /* Reduced from 50px */
+    height: 36px; /* Reduced from 50px */
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3); /* Thinner border */
     transition: all 300ms ease;
 }
 
@@ -131,7 +140,8 @@
 .user-name-nav {
     color: white;
     font-weight: 500;
-    margin-left: 12px;
+    margin-left: 8px; /* Reduced margin */
+    font-size: 0.9rem; /* Reduced font size */
 }
 
 /* Main Quiz Layout */
@@ -139,7 +149,7 @@
     display: grid;
     grid-template-columns: auto 1fr 300px;
     gap: 24px;
-    padding: 100px 24px 24px;
+    padding: 80px 24px 24px; /* Reduced from 100px */
     min-height: 100vh;
     background: #f9fafb;
 }
@@ -147,7 +157,7 @@
 /* Question Palette - Minimizable */
 .question-palette-wrapper {
     position: sticky;
-    top: 120px;
+    top: 100px; /* Adjusted for thinner nav */
     height: fit-content;
 }
 
@@ -592,7 +602,7 @@
 /* Motivational Section */
 .motivation-section {
     position: sticky;
-    top: 120px;
+    top: 100px; /* Adjusted for thinner nav */
 }
 
 .motivation-card {
@@ -921,7 +931,7 @@
     color: #6b7280;
 }
 
-/* Responsive Design */
+/* MOBILE RESPONSIVE DESIGN - OPTIMIZED */
 @media (max-width: 1200px) {
     .quiz-container {
         grid-template-columns: auto 1fr 250px;
@@ -932,7 +942,7 @@
 @media (max-width: 1024px) {
     .quiz-container {
         grid-template-columns: 1fr;
-        padding: 100px 16px 16px;
+        padding: 70px 16px 16px; /* Reduced top padding */
     }
     
     .question-palette-wrapper,
@@ -950,37 +960,57 @@
         height: 35px;
         font-size: 0.9rem;
     }
-    
-    .quiz-nav .nav-container {
-        flex-wrap: wrap;
-        gap: 12px;
-    }
-    
-    .timer-container {
-        padding: 8px 16px;
-    }
-    
-    .timer-display {
-        font-size: 1.5rem;
-    }
 }
 
 @media (max-width: 768px) {
     .quiz-nav .nav-container {
-        flex-direction: column;
-        padding: 12px;
+        padding: 8px 16px; /* Even thinner on mobile */
+        gap: 8px;
     }
     
     .logo-text {
-        display: none;
+        display: none; /* Hide logo text on mobile */
     }
     
     .user-name-nav {
-        display: none;
+        display: none; /* Hide user name on mobile */
     }
     
+    .timer-container {
+        padding: 6px 12px; /* Thinner padding on mobile */
+        gap: 6px;
+        max-width: 140px; /* Limit width on mobile */
+    }
+    
+    .timer-display {
+        font-size: 1.1rem; /* Smaller timer on mobile */
+    }
+    
+    .timer-label {
+        font-size: 0.55rem; /* Smaller label on mobile */
+    }
+    
+    .timer-icon {
+        font-size: 1rem; /* Smaller icon on mobile */
+    }
+    
+    .logo-circle {
+        width: 32px; /* Smaller logo on mobile */
+        height: 32px;
+    }
+    
+    .logo-circle i {
+        font-size: 1rem; /* Smaller icon on mobile */
+    }
+    
+    .user-avatar-circle {
+        width: 32px; /* Smaller avatar on mobile */
+        height: 32px;
+    }
+    
+    /* Adjust main content padding to account for thinner nav */
     .quiz-container {
-        padding-top: 140px;
+        padding-top: 60px; /* Much less padding on mobile */
     }
     
     .quiz-content {
@@ -1027,9 +1057,43 @@
 }
 
 @media (max-width: 480px) {
+    .quiz-nav .nav-container {
+        padding: 6px 12px; /* Ultra-thin on small mobile */
+    }
+    
+    .timer-container {
+        padding: 5px 10px;
+        max-width: 120px;
+    }
+    
+    .timer-display {
+        font-size: 1rem;
+    }
+    
+    .timer-label {
+        font-size: 0.5rem;
+    }
+    
+    .logo-circle,
+    .user-avatar-circle {
+        width: 28px; /* Ultra-compact on small screens */
+        height: 28px;
+    }
+    
+    .logo-circle i {
+        font-size: 0.9rem;
+    }
+    
+    .timer-icon {
+        font-size: 0.9rem;
+    }
+    
+    /* Adjust main content padding */
     .quiz-container {
+        padding-top: 50px; /* Minimal padding on small mobile */
         gap: 12px;
-        padding: 120px 12px 12px;
+        padding-left: 12px;
+        padding-right: 12px;
     }
     
     .quiz-content,
@@ -1067,5 +1131,67 @@
     .submit-modal-body,
     .submit-modal-footer {
         padding: 16px;
+    }
+}
+
+/* Landscape Mobile Optimization */
+@media (max-width: 768px) and (orientation: landscape) {
+    .quiz-nav .nav-container {
+        padding: 4px 12px; /* Ultra-thin in landscape */
+    }
+    
+    .timer-container {
+        padding: 4px 8px;
+    }
+    
+    .timer-display {
+        font-size: 0.95rem;
+    }
+    
+    .timer-label {
+        display: none; /* Hide label in landscape for space */
+    }
+    
+    .logo-circle,
+    .user-avatar-circle {
+        width: 26px;
+        height: 26px;
+    }
+    
+    .quiz-container {
+        padding-top: 45px; /* Minimal padding in landscape */
+    }
+}
+
+/* Very Large Screens - Keep Normal Size */
+@media (min-width: 1200px) {
+    .quiz-nav .nav-container {
+        padding: 16px 32px; /* Larger padding on desktop */
+    }
+    
+    .logo-circle {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .user-avatar-circle {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .timer-container {
+        padding: 12px 20px;
+    }
+    
+    .timer-display {
+        font-size: 1.6rem;
+    }
+    
+    .timer-label {
+        font-size: 0.75rem;
+    }
+    
+    .quiz-container {
+        padding-top: 100px; /* Normal padding on desktop */
     }
 }
