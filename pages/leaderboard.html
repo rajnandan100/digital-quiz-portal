@@ -41,38 +41,38 @@
 
     <!-- Leaderboard Container -->
     <div class="leaderboard-container">
-        <!-- Quiz Info -->
+        <!-- Quiz Info - Real Data Based -->
         <div class="quiz-info-card">
-            <div class="quiz-title" id="quiz-title">General Knowledge Challenge 2024</div>
+            <div class="quiz-title" id="quiz-title">Loading Quiz...</div>
             <div class="quiz-stats">
                 <div class="stat-item">
                     <i class="fas fa-users"></i>
-                    <span id="total-participants">1,247 participants</span>
+                    <span id="total-participants">Loading...</span>
                 </div>
                 <div class="stat-item">
                     <i class="fas fa-chart-line"></i>
-                    <span id="avg-score">Avg Score: 72%</span>
+                    <span id="avg-score">Loading...</span>
                 </div>
                 <div class="stat-item">
                     <i class="fas fa-clock"></i>
-                    <span id="avg-time">Avg Time: 22:15</span>
+                    <span id="avg-time">Loading...</span>
                 </div>
             </div>
         </div>
 
-        <!-- Top 3 Podium -->
+        <!-- Top 3 Podium - Real Data Based -->
         <div class="podium-section">
             <div class="podium-container">
                 <!-- Second Place -->
                 <div class="podium-position second">
                     <div class="position-number">2</div>
                     <div class="podium-avatar">
-                        <img src="https://ui-avatars.com/api/?name=Sarah+Wilson&background=e5e7eb&color=374151" alt="Sarah Wilson">
+                        <img src="" alt="Second Place" id="second-avatar">
                     </div>
                     <div class="podium-info">
-                        <div class="podium-name">Sarah Wilson</div>
-                        <div class="podium-score">96%</div>
-                        <div class="podium-time">18:45</div>
+                        <div class="podium-name" id="second-name">Loading...</div>
+                        <div class="podium-score" id="second-score">--%</div>
+                        <div class="podium-time" id="second-time">--:--</div>
                     </div>
                 </div>
                 
@@ -83,12 +83,12 @@
                     </div>
                     <div class="position-number">1</div>
                     <div class="podium-avatar">
-                        <img src="https://ui-avatars.com/api/?name=Alex+Johnson&background=fbbf24&color=92400e" alt="Alex Johnson">
+                        <img src="" alt="First Place" id="first-avatar">
                     </div>
                     <div class="podium-info">
-                        <div class="podium-name">Alex Johnson</div>
-                        <div class="podium-score">98%</div>
-                        <div class="podium-time">17:32</div>
+                        <div class="podium-name" id="first-name">Loading...</div>
+                        <div class="podium-score" id="first-score">--%</div>
+                        <div class="podium-time" id="first-time">--:--</div>
                     </div>
                 </div>
                 
@@ -96,52 +96,77 @@
                 <div class="podium-position third">
                     <div class="position-number">3</div>
                     <div class="podium-avatar">
-                        <img src="https://ui-avatars.com/api/?name=Mike+Chen&background=f59e0b&color=92400e" alt="Mike Chen">
+                        <img src="" alt="Third Place" id="third-avatar">
                     </div>
                     <div class="podium-info">
-                        <div class="podium-name">Mike Chen</div>
-                        <div class="podium-score">94%</div>
-                        <div class="podium-time">19:08</div>
+                        <div class="podium-name" id="third-name">Loading...</div>
+                        <div class="podium-score" id="third-score">--%</div>
+                        <div class="podium-time" id="third-time">--:--</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Your Position -->
+        <!-- Your Position - Real Data Based -->
         <div class="your-position-card" id="your-position">
             <div class="your-position-header">
                 <i class="fas fa-user"></i>
                 <h3>Your Position</h3>
             </div>
             <div class="your-position-content">
-                <div class="position-rank">#23</div>
+                <div class="position-rank" id="user-rank">--</div>
                 <div class="position-details">
-                    <div class="position-name" id="user-name">You</div>
-                    <div class="position-score" id="user-score">85%</div>
-                    <div class="position-time" id="user-time">18:32</div>
+                    <div class="position-name" id="user-name">Loading...</div>
+                    <div class="position-score" id="user-score">--%</div>
+                    <div class="position-time" id="user-time">--:--</div>
                 </div>
                 <div class="position-progress">
                     <div class="progress-text">
-                        <span id="position-diff">12 spots away from top 10!</span>
+                        <span id="position-diff">Loading progress...</span>
                     </div>
                     <div class="progress-bar">
-                        <div class="progress-fill" id="position-progress"></div>
+                        <div class="progress-fill" id="position-progress" style="width: 0%"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Filters -->
+        <!-- Video Advertisement Toast - Below Your Position -->
+        <div class="video-ad-toast" id="video-ad-toast">
+            <div class="ad-toast-content">
+                <div class="ad-toast-close" onclick="closeVideoAdToast()">
+                    <i class="fas fa-times"></i>
+                </div>
+                <div class="video-ad-container">
+                    <div class="video-thumbnail">
+                        <i class="fas fa-play-circle"></i>
+                        <div class="video-overlay">
+                            <span>Watch & Earn</span>
+                        </div>
+                    </div>
+                    <div class="video-ad-info">
+                        <h4>🎓 Boost Your Knowledge!</h4>
+                        <p>Watch this educational video and unlock premium quiz features</p>
+                        <button class="watch-video-btn" onclick="watchVideoAd()">
+                            <i class="fas fa-play"></i>
+                            Watch Video (30s)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Working Filters - Real Data Based -->
         <div class="leaderboard-filters">
             <div class="filter-tabs">
-                <button class="filter-tab active" data-filter="all">All Time</button>
-                <button class="filter-tab" data-filter="today">Today</button>
-                <button class="filter-tab" data-filter="week">This Week</button>
-                <button class="filter-tab" data-filter="month">This Month</button>
+                <button class="filter-tab active" data-filter="all" onclick="applyTimeFilter('all')">All Time</button>
+                <button class="filter-tab" data-filter="today" onclick="applyTimeFilter('today')">Today</button>
+                <button class="filter-tab" data-filter="week" onclick="applyTimeFilter('week')">This Week</button>
+                <button class="filter-tab" data-filter="month" onclick="applyTimeFilter('month')">This Month</button>
             </div>
             
             <div class="sort-options">
-                <select class="sort-select" id="sort-select">
+                <select class="sort-select" id="sort-select" onchange="applySorting(this.value)">
                     <option value="score">Sort by Score</option>
                     <option value="time">Sort by Time</option>
                     <option value="date">Sort by Date</option>
@@ -149,39 +174,146 @@
             </div>
         </div>
 
-        <!-- Leaderboard List -->
+        <!-- Leaderboard List - Real Data Based -->
         <div class="leaderboard-list">
+            <!-- Updated Column Headers with Background -->
             <div class="list-header">
                 <div class="header-rank">Rank</div>
-                <div class="header-player">Player</div>
+                <div class="header-participant">Participant</div> <!-- Changed from Player to Participant -->
                 <div class="header-score">Score</div>
                 <div class="header-time">Time</div>
                 <div class="header-date">Date</div>
             </div>
             
             <div class="leaderboard-items" id="leaderboard-items">
-                <!-- Leaderboard items will be dynamically loaded -->
+                <!-- Real leaderboard items will be dynamically loaded here -->
+                <div class="loading-placeholder">
+                    <div class="loading-item">
+                        <div class="loading-rank"></div>
+                        <div class="loading-participant"></div>
+                        <div class="loading-score"></div>
+                        <div class="loading-time"></div>
+                        <div class="loading-date"></div>
+                    </div>
+                    <!-- Repeat for visual loading effect -->
+                    <div class="loading-item">
+                        <div class="loading-rank"></div>
+                        <div class="loading-participant"></div>
+                        <div class="loading-score"></div>
+                        <div class="loading-time"></div>
+                        <div class="loading-date"></div>
+                    </div>
+                    <div class="loading-item">
+                        <div class="loading-rank"></div>
+                        <div class="loading-participant"></div>
+                        <div class="loading-score"></div>
+                        <div class="loading-time"></div>
+                        <div class="loading-date"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Toast Banner Advertisement - After 20 participants -->
+            <div class="banner-ad-toast" id="banner-ad-toast" style="display: none;">
+                <div class="banner-toast-content">
+                    <div class="ad-banner-close" onclick="closeBannerAdToast()">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    <div class="banner-ad-main">
+                        <div class="banner-ad-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="banner-ad-text">
+                            <h4>🚀 Level Up Your Quiz Game!</h4>
+                            <p>Join Premium and access 500+ exclusive quizzes with detailed analytics</p>
+                        </div>
+                        <div class="banner-ad-action">
+                            <button class="upgrade-premium-btn" onclick="upgradeToPremium()">
+                                <i class="fas fa-crown"></i>
+                                Go Premium
+                            </button>
+                        </div>
+                    </div>
+                    <div class="banner-ad-features">
+                        <span><i class="fas fa-check"></i> Unlimited Quizzes</span>
+                        <span><i class="fas fa-check"></i> Detailed Analytics</span>
+                        <span><i class="fas fa-check"></i> Custom Certificates</span>
+                    </div>
+                </div>
             </div>
         </div>
 
         <!-- Load More -->
         <div class="load-more-section">
-            <button class="load-more-btn" id="load-more-btn">
+            <button class="load-more-btn" id="load-more-btn" onclick="loadMoreParticipants()">
                 <i class="fas fa-chevron-down"></i>
-                Load More
+                <span>Load More</span>
             </button>
+        </div>
+
+        <!-- Real-time Statistics -->
+        <div class="leaderboard-stats">
+            <div class="stats-card">
+                <h4>Competition Statistics</h4>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="highest-score">--%</div>
+                            <div class="stat-label">Highest Score</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="fastest-time">--:--</div>
+                            <div class="stat-label">Fastest Time</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-attempts">--</div>
+                            <div class="stat-label">Total Attempts</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="average-score">--%</div>
+                            <div class="stat-label">Average Score</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Action Buttons -->
         <div class="leaderboard-actions">
-            <button class="action-btn primary" onclick="window.location.href='../pages/quiz.html?id=gk-001'">
+            <button class="action-btn primary" onclick="takeQuizAgain()">
                 <i class="fas fa-play"></i>
                 Take This Quiz
             </button>
             
-            <button class="action-btn secondary" onclick="window.location.href='../pages/results.html'">
+            <button class="action-btn secondary" onclick="viewMyResults()">
                 <i class="fas fa-chart-line"></i>
                 View My Results
+            </button>
+            
+            <button class="action-btn tertiary" onclick="shareLeaderboard()">
+                <i class="fas fa-share-alt"></i>
+                Share Leaderboard
             </button>
         </div>
     </div>
@@ -191,6 +323,14 @@
         <div class="spinner">
             <i class="fas fa-spinner fa-spin"></i>
             <p>Loading leaderboard...</p>
+        </div>
+    </div>
+
+    <!-- Success Toast for Ads -->
+    <div class="toast-notification" id="toast-notification">
+        <div class="toast-content">
+            <i class="fas fa-check-circle"></i>
+            <span id="toast-message">Action completed!</span>
         </div>
     </div>
 
