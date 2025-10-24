@@ -4,24 +4,20 @@ class AdminDashboard {
     constructor() {
         this.realTimeListeners = [];
         this.statsCache = {};
-        // Don't initialize immediately - wait for user interaction
     }
 
-    // Initialize only when called
     init() {
-        console.log('Initializing Admin Dashboard...');
+        console.log('📊 Initializing Admin Dashboard...');
         
         this.setupEventListeners();
         this.setupNavigation();
         
-        // Try to load data, but don't fail if Firebase isn't ready
         setTimeout(() => {
             this.loadDashboardDataSafely();
         }, 1000);
     }
 
     setupEventListeners() {
-        // Sidebar toggle
         const sidebarToggle = document.getElementById('sidebar-toggle');
         const sidebar = document.getElementById('admin-sidebar');
         
@@ -31,7 +27,6 @@ class AdminDashboard {
             });
         }
 
-        // Search functionality
         const adminSearch = document.getElementById('admin-search');
         if (adminSearch) {
             adminSearch.addEventListener('input', (e) => {
@@ -39,7 +34,6 @@ class AdminDashboard {
             });
         }
 
-        // Profile dropdown
         const profileBtn = document.getElementById('admin-profile-btn');
         const dropdown = document.getElementById('admin-dropdown');
         
@@ -64,7 +58,6 @@ class AdminDashboard {
                 const sectionId = item.dataset.section;
                 this.switchSection(sectionId);
                 
-                // Update active menu item
                 menuItems.forEach(mi => mi.classList.remove('active'));
                 item.classList.add('active');
             });
@@ -72,20 +65,16 @@ class AdminDashboard {
     }
 
     switchSection(sectionId) {
-        // Hide all sections
         const sections = document.querySelectorAll('.admin-section');
         sections.forEach(section => section.classList.remove('active'));
         
-        // Show target section
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
             targetSection.classList.add('active');
         }
     }
 
-    // Safe data loading with proper error handling
     async loadDashboardDataSafely() {
-        // Check if Firebase is available
         if (typeof firebase === 'undefined' || !firebase.apps.length) {
             console.warn('Firebase not available, showing placeholder data');
             this.showPlaceholderData();
@@ -106,11 +95,9 @@ class AdminDashboard {
         }
     }
 
-    // Show placeholder data when Firebase isn't working
     showPlaceholderData() {
         console.log('Showing placeholder data...');
         
-        // Set placeholder stats
         const stats = [
             { id: 'total-users', value: '---' },
             { id: 'total-quizzes', value: '---' },
@@ -131,7 +118,6 @@ class AdminDashboard {
             }
         });
         
-        // Show placeholder activities
         const activitiesContainer = document.getElementById('recent-activities');
         if (activitiesContainer) {
             activitiesContainer.innerHTML = `
@@ -157,7 +143,7 @@ class AdminDashboard {
             
             const usersChangeEl = document.getElementById('users-change');
             if (usersChangeEl) {
-                usersChangeEl.textContent = '+10%'; // Placeholder growth
+                usersChangeEl.textContent = '+10%';
             }
             
         } catch (error) {
@@ -183,7 +169,7 @@ class AdminDashboard {
             
             const quizzesChangeEl = document.getElementById('quizzes-change');
             if (quizzesChangeEl) {
-                quizzesChangeEl.textContent = '+5%'; // Placeholder growth
+                quizzesChangeEl.textContent = '+5%';
             }
             
         } catch (error) {
@@ -204,12 +190,12 @@ class AdminDashboard {
             
             const avgScoreEl = document.getElementById('avg-score');
             if (avgScoreEl) {
-                avgScoreEl.textContent = '75%'; // Placeholder average
+                avgScoreEl.textContent = '75%';
             }
             
             const attemptsChangeEl = document.getElementById('attempts-change');
             if (attemptsChangeEl) {
-                attemptsChangeEl.textContent = '+25%'; // Placeholder growth
+                attemptsChangeEl.textContent = '+25%';
             }
             
             const scoreChangeEl = document.getElementById('score-change');
@@ -229,7 +215,6 @@ class AdminDashboard {
             
             activitiesContainer.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Loading activities...</p>';
             
-            // Try to get recent data, but provide fallback
             const recentResults = await firebase.firestore()
                 .collection('quizResults')
                 .orderBy('completedAt', 'desc')
@@ -314,9 +299,7 @@ window.exportAllData = function() {
     alert('Data export feature coming soon!');
 };
 
-// Initialize when everything is ready
 window.addEventListener('load', () => {
-    // Wait a bit more for Firebase to load
     setTimeout(() => {
         if (window.adminAuth && window.adminAuth.currentAdmin) {
             window.adminDashboard = new AdminDashboard();
@@ -324,4 +307,3 @@ window.addEventListener('load', () => {
         }
     }, 1500);
 });
-
