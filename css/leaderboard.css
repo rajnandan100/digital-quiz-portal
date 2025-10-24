@@ -319,122 +319,48 @@ body {
     transition: width 1s ease;
 }
 
-/* Video Advertisement Toast - Below Your Position */
-.video-ad-toast {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 16px;
-    padding: 20px;
+/* Simple Video Advertisement Placeholder */
+.video-ad-placeholder {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
     margin: 16px 0;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-    animation: slideInUp 0.5s ease-out;
 }
 
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.ad-toast-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 24px;
-    height: 24px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
+.video-ad-content {
     display: flex;
-    align-items: center;
     justify-content: center;
-    cursor: pointer;
-    color: white;
-    font-size: 0.8rem;
-    transition: all 200ms ease;
 }
 
-.ad-toast-close:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.video-ad-container {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-}
-
-.video-thumbnail {
-    position: relative;
-    width: 80px;
-    height: 60px;
-    background: rgba(0, 0, 0, 0.3);
+.video-placeholder-box {
+    background: rgba(108, 117, 125, 0.1);
     border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    flex-shrink: 0;
+    padding: 32px;
+    max-width: 300px;
+    width: 100%;
 }
 
-.video-thumbnail i {
-    font-size: 2rem;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.video-overlay {
-    position: absolute;
-    bottom: 4px;
-    right: 4px;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.7rem;
-}
-
-.video-ad-info {
-    flex: 1;
-    color: white;
-}
-
-.video-ad-info h4 {
-    font-size: 1rem;
-    margin-bottom: 6px;
-}
-
-.video-ad-info p {
-    font-size: 0.85rem;
-    opacity: 0.9;
+.video-placeholder-box i {
+    font-size: 3rem;
+    color: #6c757d;
     margin-bottom: 12px;
 }
 
-.watch-video-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 200ms ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.85rem;
-    font-weight: 500;
+.video-placeholder-box p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
 }
 
-.watch-video-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-1px);
+.video-placeholder-box small {
+    color: #6c757d;
+    font-size: 0.9rem;
 }
 
-/* Filters */
+/* Enhanced Filters with PDF Download Button */
 .leaderboard-filters {
     background: white;
     border-radius: 12px;
@@ -450,6 +376,7 @@ body {
 .filter-tabs {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .filter-tab {
@@ -475,6 +402,12 @@ body {
     color: white;
 }
 
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .sort-options {
     display: flex;
     align-items: center;
@@ -496,7 +429,33 @@ body {
     border-color: #4F46E5;
 }
 
-/* Leaderboard List */
+/* PDF Download Button */
+.download-pdf-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 300ms ease;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.download-pdf-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+.download-pdf-btn i {
+    font-size: 1rem;
+}
+
+/* Mobile-Optimized Leaderboard List - Always Scrollable */
 .leaderboard-list {
     background: white;
     border-radius: 16px;
@@ -504,34 +463,59 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
 
-/* Updated Column Headers with Background Color */
+/* Always Visible Column Headers */
 .list-header {
     display: grid;
-    grid-template-columns: 80px 1fr 80px 80px 80px;
-    gap: 16px;
+    grid-template-columns: 80px 1fr 80px 80px 100px;
+    gap: 12px;
     align-items: center;
     padding: 16px 20px;
-    background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%); /* Blue gradient background */
-    color: white; /* White text for contrast */
+    background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%);
+    color: white;
     font-weight: 600;
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    min-width: 500px; /* Ensure minimum width for all columns */
 }
 
-.header-participant { /* Updated from header-player */
-    color: white;
+/* Horizontal Scrollable Container for Mobile */
+.leaderboard-items-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+/* Custom Scrollbar for WebKit browsers */
+.leaderboard-items-wrapper::-webkit-scrollbar {
+    height: 8px;
+}
+
+.leaderboard-items-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.leaderboard-items-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.leaderboard-items-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 .leaderboard-items {
     display: flex;
     flex-direction: column;
+    min-width: 500px; /* Match header width */
 }
 
 .leaderboard-item {
     display: grid;
-    grid-template-columns: 80px 1fr 80px 80px 80px;
-    gap: 16px;
+    grid-template-columns: 80px 1fr 80px 80px 100px;
+    gap: 12px;
     align-items: center;
     padding: 16px 20px;
     border-bottom: 1px solid #f1f5f9;
@@ -555,36 +539,42 @@ body {
     color: #1a202c;
 }
 
-.item-player { /* This will be used as item-participant in JS */
+.item-player {
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0; /* Allow text truncation */
 }
 
 .player-avatar {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #e2e8f0;
+    flex-shrink: 0;
 }
 
 .player-info {
     display: flex;
     flex-direction: column;
+    min-width: 0; /* Allow text truncation */
 }
 
 .player-name {
     font-weight: 600;
     color: #1a202c;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .current-user-badge {
     background: #4F46E5;
     color: white;
-    padding: 2px 8px;
-    border-radius: 10px;
+    padding: 2px 6px;
+    border-radius: 8px;
     font-size: 0.7rem;
     font-weight: 600;
     width: fit-content;
@@ -598,14 +588,15 @@ body {
 
 .item-time {
     color: #64748b;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     text-align: center;
 }
 
 .item-date {
     color: #64748b;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     text-align: center;
+    white-space: nowrap;
 }
 
 /* Loading Placeholder Styles */
@@ -616,8 +607,8 @@ body {
 
 .loading-item {
     display: grid;
-    grid-template-columns: 80px 1fr 80px 80px 80px;
-    gap: 16px;
+    grid-template-columns: 80px 1fr 80px 80px 100px;
+    gap: 12px;
     align-items: center;
     padding: 16px 20px;
     border-bottom: 1px solid #f1f5f9;
@@ -636,8 +627,8 @@ body {
 }
 
 .loading-participant {
-    height: 40px;
-    border-radius: 20px;
+    height: 36px;
+    border-radius: 18px;
 }
 
 @keyframes loading-shimmer {
@@ -649,24 +640,35 @@ body {
     }
 }
 
-/* Banner Advertisement Toast - After 20th Rank */
-.banner-ad-toast {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    margin: 16px 20px;
-    border-radius: 12px;
-    padding: 20px;
+/* Toast Banner Advertisement - After 20th Rank */
+.toast-banner-ad {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    margin: 20px;
+    border-radius: 16px;
+    padding: 24px;
     position: relative;
     overflow: hidden;
-    animation: slideInUp 0.5s ease-out;
-    box-shadow: 0 8px 25px rgba(251, 191, 36, 0.3);
+    animation: slideInUp 0.6s ease-out;
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
 }
 
-.ad-banner-close {
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.banner-close-btn {
     position: absolute;
     top: 12px;
     right: 12px;
-    width: 24px;
-    height: 24px;
+    width: 28px;
+    height: 28px;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     display: flex;
@@ -674,89 +676,101 @@ body {
     justify-content: center;
     cursor: pointer;
     color: white;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     transition: all 200ms ease;
 }
 
-.ad-banner-close:hover {
+.banner-close-btn:hover {
     background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
 }
 
-.banner-ad-main {
+.toast-banner-main {
     display: flex;
     align-items: center;
     gap: 16px;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
 }
 
-.banner-ad-icon {
-    width: 50px;
-    height: 50px;
+.toast-banner-icon {
+    width: 56px;
+    height: 56px;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     color: white;
     flex-shrink: 0;
+    animation: pulse 2s infinite;
 }
 
-.banner-ad-text {
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.toast-banner-text {
     flex: 1;
     color: white;
 }
 
-.banner-ad-text h4 {
-    font-size: 1.1rem;
-    margin-bottom: 6px;
+.toast-banner-text h4 {
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    font-weight: 700;
 }
 
-.banner-ad-text p {
+.toast-banner-text p {
     font-size: 0.9rem;
-    opacity: 0.9;
+    opacity: 0.95;
+    line-height: 1.4;
 }
 
-.banner-ad-action {
+.toast-banner-action {
     flex-shrink: 0;
 }
 
-.upgrade-premium-btn {
+.toast-upgrade-btn {
     background: rgba(255, 255, 255, 0.2);
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.4);
     color: white;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border-radius: 8px;
     cursor: pointer;
     transition: all 200ms ease;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 0.9rem;
 }
 
-.upgrade-premium-btn:hover {
+.toast-upgrade-btn:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.banner-ad-features {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    color: white;
-    font-size: 0.8rem;
-}
-
-.banner-ad-features span {
+.toast-banner-timer {
     display: flex;
     align-items: center;
-    gap: 4px;
-    opacity: 0.9;
+    justify-content: center;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 0.85rem;
 }
 
-.banner-ad-features i {
-    font-size: 0.7rem;
+.timer-icon {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.timer-text strong {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
 }
 
 /* Load More */
@@ -928,6 +942,86 @@ body {
     font-size: 1.2rem;
 }
 
+/* PDF Generation Modal */
+.pdf-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 300ms ease;
+}
+
+.pdf-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.pdf-modal-content {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    padding: 32px;
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 300ms ease;
+}
+
+.pdf-modal.show .pdf-modal-content {
+    transform: scale(1);
+}
+
+.pdf-modal-header h3 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 1.3rem;
+    color: #1a202c;
+    margin-bottom: 24px;
+}
+
+.pdf-modal-header i {
+    color: #ef4444;
+    font-size: 1.5rem;
+}
+
+.pdf-progress {
+    width: 100%;
+}
+
+.pdf-progress-bar {
+    width: 100%;
+    height: 12px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.pdf-progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    border-radius: 6px;
+    transition: width 500ms ease;
+    width: 0%;
+}
+
+.pdf-progress-text {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
 /* Loading Spinner */
 .loading-spinner {
     position: fixed;
@@ -1025,25 +1119,12 @@ body {
         min-width: auto;
     }
     
-    .video-ad-container {
-        flex-direction: column;
-        text-align: center;
-        gap: 12px;
+    .video-placeholder-box {
+        padding: 24px;
     }
     
-    .video-thumbnail {
-        width: 100%;
-        height: 80px;
-    }
-    
-    .banner-ad-main {
-        flex-direction: column;
-        text-align: center;
-        gap: 12px;
-    }
-    
-    .banner-ad-features {
-        justify-content: center;
+    .video-placeholder-box i {
+        font-size: 2.5rem;
     }
     
     .leaderboard-filters {
@@ -1057,28 +1138,38 @@ body {
         flex-wrap: wrap;
     }
     
-    .list-header {
-        display: none; /* Hide header on mobile */
-    }
-    
-    .leaderboard-item {
-        grid-template-columns: auto 1fr auto;
+    .filter-actions {
+        justify-content: center;
+        flex-wrap: wrap;
         gap: 12px;
-        padding: 16px;
     }
     
-    .item-time,
-    .item-date {
-        display: none; /* Hide on mobile */
+    .download-pdf-btn {
+        flex: 1;
+        justify-content: center;
     }
     
-    .loading-item {
-        grid-template-columns: auto 1fr auto;
+    /* Mobile: Show horizontal scroll hint */
+    .leaderboard-items-wrapper::after {
+        content: '← Swipe to see all columns →';
+        display: block;
+        text-align: center;
+        padding: 12px;
+        font-size: 0.8rem;
+        color: #64748b;
+        background: #f8fafc;
+        font-style: italic;
     }
     
-    .loading-time,
-    .loading-date {
-        display: none;
+    .toast-banner-main {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .toast-banner-timer {
+        flex-direction: column;
+        gap: 4px;
     }
     
     .stats-grid {
@@ -1100,6 +1191,10 @@ body {
         right: 10px;
         max-width: calc(100vw - 20px);
     }
+    
+    .pdf-modal-content {
+        padding: 24px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1110,7 +1205,7 @@ body {
     .quiz-info-card,
     .podium-section,
     .your-position-card,
-    .video-ad-toast,
+    .video-ad-placeholder,
     .leaderboard-filters,
     .leaderboard-list,
     .leaderboard-stats {
@@ -1148,25 +1243,42 @@ body {
         font-size: 0.85rem;
     }
     
+    .download-pdf-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .list-header {
+        padding: 12px 16px;
+        font-size: 0.8rem;
+    }
+    
     .leaderboard-item {
-        padding: 12px;
+        padding: 12px 16px;
     }
     
     .player-avatar {
-        width: 35px;
-        height: 35px;
+        width: 32px;
+        height: 32px;
     }
     
     .stats-grid {
         grid-template-columns: 1fr;
     }
     
-    .banner-ad-toast {
+    .toast-banner-ad {
         margin: 16px 12px;
         padding: 16px;
     }
     
-    .video-ad-toast {
-        padding: 16px;
+    .toast-banner-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
+    }
+    
+    .toast-upgrade-btn {
+        padding: 10px 20px;
+        font-size: 0.85rem;
     }
 }
