@@ -4,6 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DigiQuiz Admin Panel</title>
+
+
+
+
+
+
+
+
+
+
+    <script>
+// Override any inline redirects
+const originalRedirect = window.location.href;
+if (window.location.replace) {
+    const oldReplace = window.location.replace;
+    window.location.replace = function(url) {
+        if (url.includes('/index.html') && !url.includes('/digital-quiz-portal/')) {
+            url = '/digital-quiz-portal' + url;
+        }
+        return oldReplace.call(this, url);
+    };
+}
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
