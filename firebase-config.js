@@ -1,4 +1,4 @@
-
+// Firebase Configuration and Initialization
 const firebaseConfig = {
   apiKey: "AIzaSyBiS1wFqB5dHjn6UiRhheSLhOekkLBlfmw",
   authDomain: "digi-quiz-portal.firebaseapp.com",
@@ -9,5 +9,51 @@ const firebaseConfig = {
   measurementId: "G-78W1YHEG93"
 };
 
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-console.log('Firebase initialized successfully!');
+
+// Initialize Firebase services
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Collections structure
+const COLLECTIONS = {
+  USERS: 'users',
+  QUIZZES: 'quizzes',
+  QUIZ_RESULTS: 'quizResults',
+  LEADERBOARD: 'leaderboard',
+  ADMIN_USERS: 'adminUsers'
+};
+
+// Quiz categories
+const QUIZ_CATEGORIES = {
+  'general-knowledge': {
+    name: 'General Knowledge',
+    color: '#4F46E5',
+    icon: 'fas fa-globe'
+  },
+  'english': {
+    name: 'English',
+    color: '#059669',
+    icon: 'fas fa-language'
+  },
+  'science': {
+    name: 'Science',
+    color: '#DC2626',
+    icon: 'fas fa-flask'
+  },
+  'mathematics': {
+    name: 'Mathematics',
+    color: '#7C3AED',
+    icon: 'fas fa-calculator'
+  }
+};
+
+// Export for use in other files
+if (typeof window !== 'undefined') {
+  window.firebaseConfig = firebaseConfig;
+  window.COLLECTIONS = COLLECTIONS;
+  window.QUIZ_CATEGORIES = QUIZ_CATEGORIES;
+}
+
+console.log('🔥 Firebase initialized successfully!');
