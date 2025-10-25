@@ -1304,6 +1304,183 @@ body {
 
 
 
+/* ===== BULK ACTIONS PANEL STYLES ===== */
+.bulk-actions-panel {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.bulk-actions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.bulk-actions-header h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #1e293b;
+    font-size: 1.2rem;
+}
+
+.bulk-counter {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: normal;
+}
+
+.bulk-toggles {
+    display: flex;
+    gap: 10px;
+}
+
+.bulk-actions-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.action-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.action-group select {
+    min-width: 150px;
+    padding: 6px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.bulk-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.stats-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+.stats-label {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.stats-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+/* Quiz Checkbox Styles */
+.quiz-checkbox {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+}
+
+.quiz-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.quiz-checkbox label {
+    margin: 0;
+    cursor: pointer;
+}
+
+/* Update quiz header to accommodate checkbox */
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 15px;
+}
+
+/* Button disabled states */
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .bulk-actions-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+    
+    .bulk-actions-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .action-group {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+    
+    .action-group select {
+        width: 100%;
+    }
+    
+    .bulk-stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
