@@ -109,42 +109,76 @@ class ResultsManager {
         }
     }
 
-    // Load latest result for specific quiz
+    // Load latest result for specific quiz - Fixed to avoid index requirement
     async loadLatestResultByQuiz(quizId) {
-        const resultsQuery = await firebase.firestore()
-            .collection('quizResults')
-            .where('userId', '==', this.currentUser.uid)
-            .where('quizId', '==', quizId)
-            .orderBy('completedAt', 'desc')
-            .limit(1)
-            .get();
+        try {
+            // First get all results for this user
+            const userResultsQuery = await firebase.firestore()
+                .collection('quizResults')
+                .where('userId', '==', this.currentUser.uid)
+                .get();
 
-        if (!resultsQuery.empty) {
-            const resultDoc = resultsQuery.docs[0];
-            this.quizResults = {
-                id: resultDoc.id,
-                ...resultDoc.data()
-            };
-            this.resultId = resultDoc.id;
+            // Filter and sort client-side to avoid index requirement
+            const userQuizResults = [];
+            userResultsQuery.docs.forEach(doc => {
+                const data = doc.data();
+                if (data.quizId === quizId) {
+                    userQuizResults.push({
+                        id: doc.id,
+                        ...data
+                    });
+                }
+            });
+
+            // Sort by completedAt client-side
+            if (userQuizResults.length > 0) {
+                userQuizResults.sort((a, b) => {
+                    const timeA = a.completedAt && a.completedAt.seconds ? a.completedAt.seconds : Date.now() / 1000;
+                    const timeB = b.completedAt && b.completedAt.seconds ? b.completedAt.seconds : Date.now() / 1000;
+                    return timeB - timeA; // Descending order (latest first)
+                });
+
+                this.quizResults = userQuizResults[0];
+                this.resultId = userQuizResults[0].id;
+            }
+        } catch (error) {
+            console.error('Error loading quiz results:', error);
+            throw error;
         }
     }
 
-    // Load latest result by current user
+    // Load latest result by current user - Fixed to avoid index requirement
     async loadLatestResultByUser() {
-        const resultsQuery = await firebase.firestore()
-            .collection('quizResults')
-            .where('userId', '==', this.currentUser.uid)
-            .orderBy('completedAt', 'desc')
-            .limit(1)
-            .get();
+        try {
+            // Get all results for this user
+            const userResultsQuery = await firebase.firestore()
+                .collection('quizResults')
+                .where('userId', '==', this.currentUser.uid)
+                .get();
 
-        if (!resultsQuery.empty) {
-            const resultDoc = resultsQuery.docs[0];
-            this.quizResults = {
-                id: resultDoc.id,
-                ...resultDoc.data()
-            };
-            this.resultId = resultDoc.id;
+            // Sort client-side to avoid index requirement
+            const userResults = [];
+            userResultsQuery.docs.forEach(doc => {
+                userResults.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
+            });
+
+            // Sort by completedAt client-side
+            if (userResults.length > 0) {
+                userResults.sort((a, b) => {
+                    const timeA = a.completedAt && a.completedAt.seconds ? a.completedAt.seconds : Date.now() / 1000;
+                    const timeB = b.completedAt && b.completedAt.seconds ? b.completedAt.seconds : Date.now() / 1000;
+                    return timeB - timeA; // Descending order (latest first)
+                });
+
+                this.quizResults = userResults[0];
+                this.resultId = userResults[0].id;
+            }
+        } catch (error) {
+            console.error('Error loading user results:', error);
+            throw error;
         }
     }
 
