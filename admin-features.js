@@ -1213,6 +1213,171 @@ async function clearAllQuizzes() {
 
 
 
+// ===== REAL-TIME NOTIFICATION SYSTEM =====
+class NotificationSystem {
+    constructor() {
+        this.notifications = [];
+        this.container = null;
+        this.init();
+    }
+
+    init() {
+        this.createNotificationContainer();
+        this.setupRealTimeNotifications();
+    }
+
+    createNotificationContainer() {
+        if (document.getElementById('notification-container')) return;
+
+        const container = document.createElement('div');
+        container.id = 'notification-container';
+        container.className = 'notification-container';
+        document.body.appendChild(container);
+        this.container = container;
+    }
+
+    setupRealTimeNotifications() {
+        if (typeof firebase === 'undefined' || !firebase.apps.length) return;
+
+        try {
+            // Listen for new quiz results
+            firebase.firestore()
+                .collection('quizResults')
+                .where('completedAt', '>', new Date(Date.now() - 60000)) // Last minute
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const result = change.doc.data();
+                            this.showNotification({
+                                type: 'success',
+                                title: 'New Quiz Completed!',
+                                message: `${result.userName || 'User'} scored ${result.score || 0}%`,
+                                duration: 5000
+                            });
+                        }
+                    });
+                });
+
+            // Listen for new user registrations
+            firebase.firestore()
+                .collection('users')
+                .where('createdAt', '>', new Date(Date.now() - 300000)) // Last 5 minutes
+                .onSnapshot(snapshot => {
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const user = change.doc.data();
+                            this.showNotification({
+                                type: 'info',
+                                title: 'New User Registered!',
+                                message: `${user.displayName || user.email} joined the platform`,
+                                duration: 4000
+                            });
+                        }
+                    });
+                });
+
+        } catch (error) {
+            console.error('Error setting up notifications:', error);
+        }
+    }
+
+    showNotification({ type = 'info', title, message, duration = 3000 }) {
+        const id = Date.now() + Math.random();
+        const notification = {
+            id,
+            type,
+            title,
+            message,
+            timestamp: new Date()
+        };
+
+        this.notifications.push(notification);
+        this.renderNotification(notification);
+
+        // Auto remove
+        setTimeout(() => {
+            this.removeNotification(id);
+        }, duration);
+    }
+
+    renderNotification(notification) {
+        const icons = {
+            success: 'fas fa-check-circle',
+            error: 'fas fa-times-circle', 
+            warning: 'fas fa-exclamation-triangle',
+            info: 'fas fa-info-circle'
+        };
+
+        const notificationEl = document.createElement('div');
+        notificationEl.className = `notification notification-${notification.type}`;
+        notificationEl.setAttribute('data-id', notification.id);
+
+        notificationEl.innerHTML = `
+            <div class="notification-icon">
+                <i class="${icons[notification.type]}"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">${notification.title}</div>
+                <div class="notification-message">${notification.message}</div>
+            </div>
+            <button class="notification-close" onclick="window.notificationSystem.removeNotification(${notification.id})">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        this.container.appendChild(notificationEl);
+
+        // Animate in
+        setTimeout(() => {
+            notificationEl.classList.add('show');
+        }, 100);
+    }
+
+    removeNotification(id) {
+        const notificationEl = document.querySelector(`[data-id="${id}"]`);
+        if (notificationEl) {
+            notificationEl.classList.add('hide');
+            setTimeout(() => {
+                if (notificationEl.parentNode) {
+                    notificationEl.parentNode.removeChild(notificationEl);
+                }
+            }, 300);
+        }
+
+        this.notifications = this.notifications.filter(n => n.id !== id);
+    }
+
+    showSuccess(title, message) {
+        this.showNotification({ type: 'success', title, message });
+    }
+
+    showError(title, message) {
+        this.showNotification({ type: 'error', title, message });
+    }
+
+    showWarning(title, message) {
+        this.showNotification({ type: 'warning', title, message });
+    }
+
+    showInfo(title, message) {
+        this.showNotification({ type: 'info', title, message });
+    }
+}
+
+// Initialize notification system
+window.addEventListener('DOMContentLoaded', () => {
+    window.notificationSystem = new NotificationSystem();
+});
+
+
+
+
+
+
+
+
+
+
 
 
 
