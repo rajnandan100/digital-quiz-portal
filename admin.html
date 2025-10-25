@@ -150,12 +150,45 @@
         <main class="admin-main">
             
             <!-- Dashboard Section -->
+            
             <section id="dashboard" class="admin-section active">
                 <div class="section-header">
                     <h1>Admin Dashboard</h1>
                     <p>Welcome to the DigiQuiz Admin Panel. Monitor and manage your quiz platform.</p>
                 </div>
 
+
+
+
+
+<!-- Add this anywhere in your dashboard section -->
+<div style="margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+    <h4>🧪 Notification Test Panel</h4>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+        <button class="btn-sm btn-success" onclick="window.notificationSystem.showSuccess('Success!', 'Everything is working perfectly!')">
+            ✅ Test Success
+        </button>
+        
+        <button class="btn-sm btn-danger" onclick="window.notificationSystem.showError('Error!', 'Something went wrong!')">
+            ❌ Test Error  
+        </button>
+        
+        <button class="btn-sm btn-warning" onclick="window.notificationSystem.showNotification({type: 'warning', title: 'Warning!', message: 'This is a warning message'})">
+            ⚠️ Test Warning
+        </button>
+        
+        <button class="btn-sm btn-info" onclick="window.notificationSystem.showNotification({type: 'info', title: 'Info!', message: 'This is an info message', duration: 8000})">
+            ℹ️ Test Info (8s)
+        </button>
+    </div>
+</div>
+
+
+
+
+
+
+                
                 <!-- Stats Grid -->
                 <div class="stats-grid">
                     <div class="stat-card">
