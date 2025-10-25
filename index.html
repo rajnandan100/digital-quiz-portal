@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="css/responsive.css">
     
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -30,12 +30,12 @@
 </head>
 <body>
     <!-- Enhanced Top Navigation Header -->
-    <nav class="navbar" id="navbar">
+    <nav class="navbar fixed-top" id="navbar">
         <div class="nav-container">
             <!-- Logo Section (Left) -->
             <div class="nav-logo">
-                <i class="fas fa-brain"></i>
-                <span>DigiQuiz Portal</span>
+                <i class="fas fa-brain logo-icon"></i>
+                <span class="logo-text">DigiQuiz Portal</span>
             </div>
             
             <!-- Desktop Menu (Center) -->
@@ -65,7 +65,7 @@
                     <div class="user-profile" onclick="toggleProfileMenu()">
                         <img src="" alt="User" class="user-avatar" id="user-avatar">
                         <span class="user-name" id="user-name"></span>
-                        <i class="fas fa-chevron-down profile-arrow"></i>
+                        <i class="fas fa-chevron-down profile-arrow" id="profile-arrow"></i>
                     </div>
                     <!-- Profile Dropdown -->
                     <div class="profile-dropdown" id="profile-dropdown">
@@ -98,11 +98,8 @@
         </div>
     </nav>
 
-    <!-- Mobile Bottom Navigation -->
+    <!-- Minimal Mobile Bottom Navigation -->
     <nav class="mobile-bottom-nav" id="mobile-nav">
-        <div class="mobile-nav-toggle" onclick="toggleMobileNav()">
-            <i class="fas fa-chevron-up" id="mobile-nav-icon"></i>
-        </div>
         <div class="mobile-nav-content" id="mobile-nav-content">
             <a href="#home" class="mobile-nav-item active">
                 <i class="fas fa-home"></i>
@@ -121,6 +118,11 @@
                 <span>Contact</span>
             </a>
         </div>
+        
+        <!-- Ultra Minimal Toggle Button -->
+        <div class="mobile-nav-toggle-minimal" onclick="toggleMobileNav()">
+            <div class="toggle-line" id="mobile-nav-indicator"></div>
+        </div>
     </nav>
 
     <!-- Main Content -->
@@ -132,57 +134,76 @@
             
             <div class="hero-content">
                 <div class="hero-text">
-                    <h1 class="hero-title">
+                    <h1 class="hero-title mobile-visible">
                         Test Your <span class="gradient-text">Knowledge</span>
                     </h1>
-                    <p class="hero-subtitle">
+                    <p class="hero-subtitle mobile-visible">
                         Challenge yourself with our interactive quizzes and compete with thousands of users worldwide
                     </p>
                 </div>
                 
                 <div class="hero-buttons">
-                    <button class="btn-primary hero-btn" id="start-quiz-btn">
+                    <button class="btn-primary hero-btn pulse-effect" id="start-quiz-btn">
                         <i class="fas fa-play"></i>
-                        Start Quiz
+                        <span>Start Quiz</span>
                     </button>
-                    <button class="btn-secondary hero-btn" id="view-leaderboard-btn">
+                    <button class="btn-secondary hero-btn glow-effect" id="view-leaderboard-btn">
                         <i class="fas fa-trophy"></i>
-                        View Rankings
+                        <span>View Rankings</span>
                     </button>
                 </div>
                 
-                <!-- Enhanced Stats Cards -->
+                <!-- Enhanced Stats Cards with Animations -->
                 <div class="hero-stats">
-                    <div class="stat-card">
+                    <div class="stat-card floating-card" data-float-delay="0">
                         <div class="stat-icon">
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="stat-content">
-                            <div class="stat-number" id="total-users">5000+</div>
+                            <div class="stat-number counter" id="total-users">5000+</div>
                             <div class="stat-label">Active Users</div>
                         </div>
+                        <div class="stat-glow"></div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card floating-card" data-float-delay="0.5">
                         <div class="stat-icon">
                             <i class="fas fa-book-open"></i>
                         </div>
                         <div class="stat-content">
-                            <div class="stat-number" id="total-quizzes">50+</div>
+                            <div class="stat-number counter" id="total-quizzes">50+</div>
                             <div class="stat-label">Quizzes Available</div>
                         </div>
+                        <div class="stat-glow"></div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card floating-card" data-float-delay="1">
                         <div class="stat-icon">
                             <i class="fas fa-question-circle"></i>
                         </div>
                         <div class="stat-content">
-                            <div class="stat-number" id="total-questions">1500+</div>
+                            <div class="stat-number counter" id="total-questions">1500+</div>
                             <div class="stat-label">Questions</div>
                         </div>
+                        <div class="stat-glow"></div>
                     </div>
                 </div>
             </div>
         </section>
+
+        <!-- Beautiful Curved Separator -->
+        <div class="section-separator">
+            <svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="curveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:0.1" />
+                        <stop offset="50%" style="stop-color:#7C3AED;stop-opacity:0.05" />
+                        <stop offset="100%" style="stop-color:#4F46E5;stop-opacity:0.1" />
+                    </linearGradient>
+                </defs>
+                <path d="M0,60 C300,120 900,0 1200,60 L1200,120 L0,120 Z" fill="url(#curveGradient)"/>
+                <path d="M0,80 C300,140 900,20 1200,80 L1200,120 L0,120 Z" fill="white" opacity="0.95"/>
+                <path d="M0,90 C300,130 900,30 1200,90 L1200,120 L0,120 Z" fill="white"/>
+            </svg>
+        </div>
 
         <!-- Enhanced Quizzes Section -->
         <section class="quizzes-section" id="quizzes">
@@ -192,14 +213,15 @@
                     <p class="section-subtitle">Choose from our collection of engaging quizzes</p>
                 </div>
 
-                <!-- Compact Filter Section -->
-                <div class="quiz-filters-compact">
-                    <div class="filter-row">
-                        <div class="filter-group">
-                            <label for="subject-filter">
-                                <i class="fas fa-book"></i> Subject
+                <!-- Ultra Compact Filter Section -->
+                <div class="quiz-filters-ultra-compact">
+                    <div class="filter-row-compact">
+                        <div class="filter-group-compact">
+                            <label for="subject-filter" class="filter-label-compact">
+                                <i class="fas fa-book"></i>
+                                Subject
                             </label>
-                            <select id="subject-filter" class="filter-select">
+                            <select id="subject-filter" class="filter-select-compact">
                                 <option value="all">All Subjects</option>
                                 <option value="general-knowledge">General Knowledge</option>
                                 <option value="english">English</option>
@@ -210,23 +232,24 @@
                             </select>
                         </div>
                         
-                        <div class="filter-group">
-                            <label for="date-filter">
-                                <i class="fas fa-calendar"></i> Date
+                        <div class="filter-group-compact">
+                            <label for="date-filter" class="filter-label-compact">
+                                <i class="fas fa-calendar"></i>
+                                Date
                             </label>
-                            <input type="date" id="date-filter" class="filter-input">
+                            <input type="date" id="date-filter" class="filter-input-compact">
                         </div>
                         
-                        <button class="btn-filter" id="apply-filters">
+                        <button class="btn-filter-compact" id="apply-filters">
                             <i class="fas fa-filter"></i>
                             Apply
                         </button>
                     </div>
                 </div>
 
-                <!-- Quiz Grid with Pagination -->
-                <div class="quiz-container">
-                    <div class="quiz-grid" id="quiz-grid">
+                <!-- Quiz Grid with Perfect Spacing -->
+                <div class="quiz-container-spaced">
+                    <div class="quiz-grid-spaced" id="quiz-grid">
                         <!-- Quiz cards will be dynamically loaded here -->
                         <div class="quiz-loading">
                             <i class="fas fa-spinner fa-spin"></i>
@@ -235,13 +258,14 @@
                     </div>
                     
                     <!-- Pagination Controls -->
-                    <div class="pagination-controls" id="pagination-controls" style="display: none;">
+                    <div class="pagination-controls-enhanced" id="pagination-controls" style="display: none;">
                         <div class="pagination-info">
+                            <i class="fas fa-info-circle"></i>
                             Showing <span id="current-count">2</span> of <span id="total-count">0</span> quizzes
                         </div>
-                        <button class="btn-load-more" id="load-more-btn">
+                        <button class="btn-load-more-enhanced" id="load-more-btn">
                             <i class="fas fa-plus"></i>
-                            Load More Quizzes
+                            <span>Load More Quizzes</span>
                         </button>
                     </div>
                 </div>
@@ -252,7 +276,6 @@
         <section class="ad-banner">
             <div class="container">
                 <div class="ad-content">
-                    <!-- Placeholder for rectangular banner ad -->
                     <div class="ad-placeholder">
                         <i class="fas fa-ad"></i>
                         <p>Advertisement Space</p>
