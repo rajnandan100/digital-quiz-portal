@@ -479,10 +479,20 @@ function addQuestion() {
                 </select>
             </div>
             
+                        <div class="form-group">
+                <label>Explanation</label>
+                <textarea class="form-control" placeholder="Explain why this is the correct answer..." required rows="4" name="explanation-${questionNumber}"></textarea>
+                <small class="form-text text-muted">
+                    <i class="fas fa-info-circle"></i> 
+                    Write a clear explanation to help students understand the correct answer.
+                </small>
+            </div>
+            
             <div class="form-group">
-                <label>Points:</label>
+                <label>Points</label>
                 <input type="number" class="form-control" value="1" min="1" max="10" required>
             </div>
+
         </div>
     `;
     
@@ -534,7 +544,9 @@ async function createQuiz() {
             const questionType = block.querySelector('select').value;
             const options = Array.from(block.querySelectorAll('.options-section input')).map(input => input.value.trim());
             const correctAnswer = parseInt(block.querySelector('.form-group:last-child select').value);
-            const points = parseInt(block.querySelector('input[type="number"]').value);
+                        const points = parseInt(block.querySelector('input[type="number"]').value);
+            const explanation = block.querySelector('textarea[name*="explanation"]').value.trim();
+
 
             if (!questionText) {
                 throw new Error(`Question ${index + 1} is missing text`);
@@ -544,13 +556,22 @@ async function createQuiz() {
                 throw new Error(`Question ${index + 1} has empty options`);
             }
 
-            questions.push({
+ if (!explanation) {
+                throw new Error(`Question ${index + 1} is missing explanation`);
+            }
+
+
+            
+
+             questions.push({
                 question: questionText,
                 type: questionType,
                 options: questionType === 'true-false' ? ['True', 'False'] : options,
                 correct: correctAnswer,
+                explanation: explanation,
                 points: points
             });
+
         });
 
         // Create quiz object
@@ -586,6 +607,8 @@ async function createQuiz() {
 }
 
 // Upload quiz from JSON
+
+
 async function uploadJSON() {
     const jsonInput = document.getElementById('jsonInput').value.trim();
     
@@ -602,6 +625,17 @@ async function uploadJSON() {
             throw new Error('Invalid JSON format. Missing title or questions array.');
         }
 
+// Validate each question has explanation
+        for (let i = 0; i < quizData.questions.length; i++) {
+            const question = quizData.questions[i];
+            if (!question.explanation) {
+                throw new Error(`Question ${i + 1}: Explanation is required for all questions.`);
+            }
+        }
+
+
+
+        
         // Add metadata
         quizData.status = 'active';
         quizData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
