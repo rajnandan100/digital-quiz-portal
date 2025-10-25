@@ -1213,17 +1213,19 @@ async function clearAllQuizzes() {
 
 
 
-// ===== REAL-TIME NOTIFICATION SYSTEM =====
-class NotificationSystem {
+
+
+
+// ===== SIMPLIFIED NOTIFICATION SYSTEM (FIXED) =====
+class SimpleNotificationSystem {
     constructor() {
-        this.notifications = [];
         this.container = null;
         this.init();
     }
 
     init() {
         this.createNotificationContainer();
-        this.setupRealTimeNotifications();
+        // Don't auto-setup real-time notifications to avoid permission errors
     }
 
     createNotificationContainer() {
@@ -1236,71 +1238,9 @@ class NotificationSystem {
         this.container = container;
     }
 
-    setupRealTimeNotifications() {
-        if (typeof firebase === 'undefined' || !firebase.apps.length) return;
-
-        try {
-            // Listen for new quiz results
-            firebase.firestore()
-                .collection('quizResults')
-                .where('completedAt', '>', new Date(Date.now() - 60000)) // Last minute
-                .onSnapshot(snapshot => {
-                    snapshot.docChanges().forEach(change => {
-                        if (change.type === 'added') {
-                            const result = change.doc.data();
-                            this.showNotification({
-                                type: 'success',
-                                title: 'New Quiz Completed!',
-                                message: `${result.userName || 'User'} scored ${result.score || 0}%`,
-                                duration: 5000
-                            });
-                        }
-                    });
-                });
-
-            // Listen for new user registrations
-            firebase.firestore()
-                .collection('users')
-                .where('createdAt', '>', new Date(Date.now() - 300000)) // Last 5 minutes
-                .onSnapshot(snapshot => {
-                    snapshot.docChanges().forEach(change => {
-                        if (change.type === 'added') {
-                            const user = change.doc.data();
-                            this.showNotification({
-                                type: 'info',
-                                title: 'New User Registered!',
-                                message: `${user.displayName || user.email} joined the platform`,
-                                duration: 4000
-                            });
-                        }
-                    });
-                });
-
-        } catch (error) {
-            console.error('Error setting up notifications:', error);
-        }
-    }
-
     showNotification({ type = 'info', title, message, duration = 3000 }) {
         const id = Date.now() + Math.random();
-        const notification = {
-            id,
-            type,
-            title,
-            message,
-            timestamp: new Date()
-        };
 
-        this.notifications.push(notification);
-        this.renderNotification(notification);
-
-        // Auto remove
-        setTimeout(() => {
-            this.removeNotification(id);
-        }, duration);
-    }
-
-    renderNotification(notification) {
         const icons = {
             success: 'fas fa-check-circle',
             error: 'fas fa-times-circle', 
@@ -1309,18 +1249,18 @@ class NotificationSystem {
         };
 
         const notificationEl = document.createElement('div');
-        notificationEl.className = `notification notification-${notification.type}`;
-        notificationEl.setAttribute('data-id', notification.id);
+        notificationEl.className = `notification notification-${type}`;
+        notificationEl.setAttribute('data-id', id);
 
         notificationEl.innerHTML = `
             <div class="notification-icon">
-                <i class="${icons[notification.type]}"></i>
+                <i class="${icons[type]}"></i>
             </div>
             <div class="notification-content">
-                <div class="notification-title">${notification.title}</div>
-                <div class="notification-message">${notification.message}</div>
+                <div class="notification-title">${title}</div>
+                <div class="notification-message">${message}</div>
             </div>
-            <button class="notification-close" onclick="window.notificationSystem.removeNotification(${notification.id})">
+            <button class="notification-close" onclick="window.notificationSystem.removeNotification(${id})">
                 <i class="fas fa-times"></i>
             </button>
         `;
@@ -1331,6 +1271,11 @@ class NotificationSystem {
         setTimeout(() => {
             notificationEl.classList.add('show');
         }, 100);
+
+        // Auto remove
+        setTimeout(() => {
+            this.removeNotification(id);
+        }, duration);
     }
 
     removeNotification(id) {
@@ -1343,8 +1288,6 @@ class NotificationSystem {
                 }
             }, 300);
         }
-
-        this.notifications = this.notifications.filter(n => n.id !== id);
     }
 
     showSuccess(title, message) {
@@ -1354,21 +1297,12 @@ class NotificationSystem {
     showError(title, message) {
         this.showNotification({ type: 'error', title, message });
     }
-
-    showWarning(title, message) {
-        this.showNotification({ type: 'warning', title, message });
-    }
-
-    showInfo(title, message) {
-        this.showNotification({ type: 'info', title, message });
-    }
 }
 
-// Initialize notification system
+// Initialize simple notification system
 window.addEventListener('DOMContentLoaded', () => {
-    window.notificationSystem = new NotificationSystem();
+    window.notificationSystem = new SimpleNotificationSystem();
 });
-
 
 
 
