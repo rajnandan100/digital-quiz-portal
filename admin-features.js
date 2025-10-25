@@ -156,6 +156,18 @@ async function loadQuizzes() {
         quizList.innerHTML = quizzesHtml;
         console.log(`Loaded ${currentQuizzes.length} quizzes`);
 
+
+ // ADD THESE NEW LINES:
+        // Add checkboxes to quiz items
+        setTimeout(() => {
+            addCheckboxesToQuizItems();
+            updateQuizStats();
+        }, 100);
+
+
+
+
+        
     } catch (error) {
         console.error('Error loading quizzes:', error);
         quizList.innerHTML = `
@@ -826,6 +838,389 @@ async function clearAllData() {
         alert('❌ Error clearing data. Please try again.');
     }
 }
+
+
+
+
+
+
+
+
+// ===== BULK ACTIONS SYSTEM =====
+
+let selectedQuizzes = new Set(); // Track selected quiz IDs
+
+// Update quiz display to include checkboxes
+function addCheckboxesToQuizItems() {
+    const quizItems = document.querySelectorAll('.quiz-item');
+    quizItems.forEach(item => {
+        const quizId = item.dataset.quizId;
+        
+        // Check if checkbox already exists
+        if (!item.querySelector('.quiz-checkbox')) {
+            const checkboxHtml = `
+                <div class="quiz-checkbox">
+                    <input type="checkbox" id="quiz-${quizId}" data-quiz-id="${quizId}" 
+                           onchange="toggleQuizSelection('${quizId}')">
+                    <label for="quiz-${quizId}"></label>
+                </div>
+            `;
+            
+            // Add checkbox to the beginning of quiz header
+            const header = item.querySelector('.quiz-header');
+            header.insertAdjacentHTML('afterbegin', checkboxHtml);
+        }
+    });
+    
+    updateBulkActionButtons();
+}
+
+// Toggle individual quiz selection
+function toggleQuizSelection(quizId) {
+    const checkbox = document.getElementById(`quiz-${quizId}`);
+    
+    if (checkbox.checked) {
+        selectedQuizzes.add(quizId);
+    } else {
+        selectedQuizzes.delete(quizId);
+    }
+    
+    updateSelectionCount();
+    updateBulkActionButtons();
+}
+
+// Select all quizzes
+function selectAllQuizzes() {
+    const checkboxes = document.querySelectorAll('.quiz-checkbox input[type="checkbox"]');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+        selectedQuizzes.add(checkbox.dataset.quizId);
+    });
+    
+    updateSelectionCount();
+    updateBulkActionButtons();
+}
+
+// Clear all selections
+function clearSelection() {
+    const checkboxes = document.querySelectorAll('.quiz-checkbox input[type="checkbox"]');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    selectedQuizzes.clear();
+    updateSelectionCount();
+    updateBulkActionButtons();
+}
+
+// Update selection counter
+function updateSelectionCount() {
+    const count = selectedQuizzes.size;
+    document.getElementById('selected-count').textContent = count;
+    document.getElementById('selected-quiz-count').textContent = count;
+}
+
+// Update bulk action button states
+function updateBulkActionButtons() {
+    const hasSelection = selectedQuizzes.size > 0;
+    
+    // Enable/disable buttons based on selection
+    const bulkButtons = [
+        'bulk-activate', 'bulk-deactivate', 'bulk-export', 
+        'bulk-delete', 'bulk-category', 'bulk-category-btn'
+    ];
+    
+    bulkButtons.forEach(buttonId => {
+        const button = document.getElementById(buttonId);
+        if (button) {
+            button.disabled = !hasSelection;
+        }
+    });
+}
+
+// Update quiz statistics
+function updateQuizStats() {
+    const totalQuizzes = currentQuizzes.length;
+    const activeQuizzes = currentQuizzes.filter(q => (q.status || 'active') === 'active').length;
+    const inactiveQuizzes = totalQuizzes - activeQuizzes;
+    
+    document.getElementById('total-quiz-count').textContent = totalQuizzes;
+    document.getElementById('active-quiz-count').textContent = activeQuizzes;
+    document.getElementById('inactive-quiz-count').textContent = inactiveQuizzes;
+}
+
+// ===== BULK OPERATIONS =====
+
+// Bulk activate quizzes
+async function bulkActivateQuizzes() {
+    if (selectedQuizzes.size === 0) {
+        alert('Please select quizzes to activate');
+        return;
+    }
+    
+    if (!confirm(`Activate ${selectedQuizzes.size} selected quiz(es)?`)) return;
+    
+    try {
+        const batch = firebase.firestore().batch();
+        
+        selectedQuizzes.forEach(quizId => {
+            const quizRef = firebase.firestore().collection('quizzes').doc(quizId);
+            batch.update(quizRef, {
+                status: 'active',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
+        
+        await batch.commit();
+        
+        alert(`✅ ${selectedQuizzes.size} quiz(es) activated successfully!`);
+        clearSelection();
+        loadQuizzes();
+        
+    } catch (error) {
+        console.error('Error bulk activating quizzes:', error);
+        alert('❌ Error activating quizzes. Please try again.');
+    }
+}
+
+// Bulk deactivate quizzes
+async function bulkDeactivateQuizzes() {
+    if (selectedQuizzes.size === 0) {
+        alert('Please select quizzes to deactivate');
+        return;
+    }
+    
+    if (!confirm(`Deactivate ${selectedQuizzes.size} selected quiz(es)?`)) return;
+    
+    try {
+        const batch = firebase.firestore().batch();
+        
+        selectedQuizzes.forEach(quizId => {
+            const quizRef = firebase.firestore().collection('quizzes').doc(quizId);
+            batch.update(quizRef, {
+                status: 'inactive',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
+        
+        await batch.commit();
+        
+        alert(`✅ ${selectedQuizzes.size} quiz(es) deactivated successfully!`);
+        clearSelection();
+        loadQuizzes();
+        
+    } catch (error) {
+        console.error('Error bulk deactivating quizzes:', error);
+        alert('❌ Error deactivating quizzes. Please try again.');
+    }
+}
+
+// Bulk update category
+async function bulkUpdateCategory() {
+    if (selectedQuizzes.size === 0) {
+        alert('Please select quizzes to update');
+        return;
+    }
+    
+    const newCategory = document.getElementById('bulk-category').value;
+    if (!newCategory) {
+        alert('Please select a category');
+        return;
+    }
+    
+    if (!confirm(`Update category to "${newCategory}" for ${selectedQuizzes.size} selected quiz(es)?`)) return;
+    
+    try {
+        const batch = firebase.firestore().batch();
+        
+        selectedQuizzes.forEach(quizId => {
+            const quizRef = firebase.firestore().collection('quizzes').doc(quizId);
+            batch.update(quizRef, {
+                category: newCategory,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        });
+        
+        await batch.commit();
+        
+        alert(`✅ Category updated for ${selectedQuizzes.size} quiz(es)!`);
+        clearSelection();
+        loadQuizzes();
+        
+        // Reset category selector
+        document.getElementById('bulk-category').value = '';
+        
+    } catch (error) {
+        console.error('Error bulk updating category:', error);
+        alert('❌ Error updating category. Please try again.');
+    }
+}
+
+// Bulk export quizzes
+async function bulkExportQuizzes() {
+    if (selectedQuizzes.size === 0) {
+        alert('Please select quizzes to export');
+        return;
+    }
+    
+    try {
+        const exportData = {
+            exportedAt: new Date().toISOString(),
+            exportedBy: 'Admin',
+            exportType: 'bulk_selection',
+            totalQuizzes: selectedQuizzes.size,
+            quizzes: []
+        };
+        
+        // Get selected quiz data
+        for (const quizId of selectedQuizzes) {
+            const doc = await firebase.firestore().collection('quizzes').doc(quizId).get();
+            if (doc.exists) {
+                exportData.quizzes.push({
+                    id: quizId,
+                    ...doc.data()
+                });
+            }
+        }
+        
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = `bulk-quizzes-export-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        alert(`✅ ${selectedQuizzes.size} quiz(es) exported successfully!`);
+        
+    } catch (error) {
+        console.error('Error bulk exporting quizzes:', error);
+        alert('❌ Error exporting quizzes. Please try again.');
+    }
+}
+
+// Export all quizzes
+async function exportAllQuizzes() {
+    if (currentQuizzes.length === 0) {
+        alert('No quizzes to export');
+        return;
+    }
+    
+    if (!confirm(`Export all ${currentQuizzes.length} quizzes?`)) return;
+    
+    try {
+        const exportData = {
+            exportedAt: new Date().toISOString(),
+            exportedBy: 'Admin',
+            exportType: 'all_quizzes',
+            totalQuizzes: currentQuizzes.length,
+            quizzes: currentQuizzes
+        };
+        
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = `all-quizzes-export-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        
+        alert(`✅ All ${currentQuizzes.length} quizzes exported successfully!`);
+        
+    } catch (error) {
+        console.error('Error exporting all quizzes:', error);
+        alert('❌ Error exporting quizzes. Please try again.');
+    }
+}
+
+// Bulk delete quizzes
+async function bulkDeleteQuizzes() {
+    if (selectedQuizzes.size === 0) {
+        alert('Please select quizzes to delete');
+        return;
+    }
+    
+    if (!confirm(`⚠️ DELETE ${selectedQuizzes.size} selected quiz(es)?\n\nThis action cannot be undone!`)) return;
+    
+    const confirmation = prompt(`Type "DELETE" to confirm deletion of ${selectedQuizzes.size} quizzes:`);
+    if (confirmation !== 'DELETE') {
+        alert('Deletion cancelled.');
+        return;
+    }
+    
+    try {
+        const batch = firebase.firestore().batch();
+        
+        selectedQuizzes.forEach(quizId => {
+            const quizRef = firebase.firestore().collection('quizzes').doc(quizId);
+            batch.delete(quizRef);
+        });
+        
+        await batch.commit();
+        
+        alert(`✅ ${selectedQuizzes.size} quiz(es) deleted successfully!`);
+        clearSelection();
+        loadQuizzes();
+        
+    } catch (error) {
+        console.error('Error bulk deleting quizzes:', error);
+        alert('❌ Error deleting quizzes. Please try again.');
+    }
+}
+
+// Clear all quizzes (DANGEROUS)
+async function clearAllQuizzes() {
+    if (currentQuizzes.length === 0) {
+        alert('No quizzes to delete');
+        return;
+    }
+    
+    if (!confirm(`⚠️ DANGER: Delete ALL ${currentQuizzes.length} quizzes?\n\nThis will permanently delete every quiz in your database!\n\nThis action cannot be undone!`)) return;
+    
+    if (!confirm('⚠️ FINAL WARNING: ALL QUIZZES WILL BE DELETED!\n\nAre you absolutely certain?')) return;
+    
+    const confirmation = prompt('Type "DELETE ALL" to confirm complete deletion:');
+    if (confirmation !== 'DELETE ALL') {
+        alert('Deletion cancelled.');
+        return;
+    }
+    
+    try {
+        const snapshot = await firebase.firestore().collection('quizzes').get();
+        const batch = firebase.firestore().batch();
+        
+        snapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        
+        await batch.commit();
+        
+        alert(`✅ All ${snapshot.size} quizzes have been deleted!`);
+        clearSelection();
+        loadQuizzes();
+        
+    } catch (error) {
+        console.error('Error clearing all quizzes:', error);
+        alert('❌ Error clearing quizzes. Please try again.');
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ===== MAKE FUNCTIONS GLOBALLY AVAILABLE =====
 window.loadQuizzes = loadQuizzes;
