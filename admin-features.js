@@ -472,3 +472,113 @@ window.viewUser = viewUser;
 window.exportAllData = exportAllData;
 
 console.log('Admin Features loaded successfully');
+
+
+
+
+
+// Enhanced Admin Controls - ADD THESE FUNCTIONS
+
+// Toggle quiz active/inactive status
+async function toggleQuizStatus(quizId) {
+    try {
+        const quizRef = firebase.firestore().collection('quizzes').doc(quizId);
+        const doc = await quizRef.get();
+        
+        if (doc.exists) {
+            const currentStatus = doc.data().status || 'active';
+            const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+            
+            await quizRef.update({
+                status: newStatus,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            
+            alert(`Quiz ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully!`);
+            loadQuizzes(); // Refresh the list
+        }
+    } catch (error) {
+        console.error('Error toggling quiz status:', error);
+        alert('Error updating quiz status. Please try again.');
+    }
+}
+
+// Duplicate quiz function
+async function duplicateQuiz(quizId) {
+    if (!confirm('Create a copy of this quiz?')) return;
+    
+    try {
+        const quizRef = firebase.firestore().collection('quizzes').doc(quizId);
+        const doc = await quizRef.get();
+        
+        if (doc.exists) {
+            const originalQuiz = doc.data();
+            const duplicatedQuiz = {
+                ...originalQuiz,
+                title: `${originalQuiz.title} (Copy)`,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            const newDocRef = await firebase.firestore().collection('quizzes').add(duplicatedQuiz);
+            alert(`Quiz duplicated successfully! New Quiz ID: ${newDocRef.id}`);
+            loadQuizzes(); // Refresh the list
+        }
+    } catch (error) {
+        console.error('Error duplicating quiz:', error);
+        alert('Error duplicating quiz. Please try again.');
+    }
+}
+
+// Clear all sample data
+async function clearSampleData() {
+    if (!confirm('⚠️ WARNING: This will delete ALL quizzes in the database. This action cannot be undone.\n\nAre you absolutely sure?')) return;
+    
+    try {
+        const snapshot = await firebase.firestore().collection('quizzes').get();
+        const batch = firebase.firestore().batch();
+        
+        snapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        
+        await batch.commit();
+        alert('All quizzes have been deleted successfully!');
+        loadQuizzes(); // Refresh the list
+    } catch (error) {
+        console.error('Error clearing data:', error);
+        alert('Error clearing data. Please try again.');
+    }
+}
+
+// Export quiz data
+async function exportQuiz(quizId) {
+    try {
+        const doc = await firebase.firestore().collection('quizzes').doc(quizId).get();
+        if (doc.exists) {
+            const quizData = doc.data();
+            const dataStr = JSON.stringify(quizData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `${quizData.title || 'quiz'}-export.json`;
+            link.click();
+        }
+    } catch (error) {
+        console.error('Error exporting quiz:', error);
+        alert('Error exporting quiz. Please try again.');
+    }
+}
+
+// Make functions globally available
+window.toggleQuizStatus = toggleQuizStatus;
+window.duplicateQuiz = duplicateQuiz;
+window.clearSampleData = clearSampleData;
+window.exportQuiz = exportQuiz;
+
+
+
+
+
+
