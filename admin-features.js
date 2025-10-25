@@ -1,5 +1,5 @@
 // ===== ENHANCED ADMIN FEATURES - COMPLETE IMPLEMENTATION =====
-console.log('Loading Enhanced Admin Features...');
+console.log('Loading Enhanced Admin0810 Features...');
 
 // Global variables
 let currentQuizzes = [];
