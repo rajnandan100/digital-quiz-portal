@@ -1,4 +1,5 @@
 // ===== ENHANCED ADMIN FEATURES - COMPLETE IMPLEMENTATION =====
+
 console.log('Loading Enhanced Admin Features...');
 
 // Global variables
@@ -23,6 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
 async function loadQuizzes() {
     console.log('Loading quizzes...');
     const quizList = document.getElementById('quizList');
+    
     if (!quizList) {
         console.log('Quiz list element not found');
         return;
@@ -30,9 +32,9 @@ async function loadQuizzes() {
 
     // Show loading state
     quizList.innerHTML = `
-        <div class="loading-message">
+        <div class="loading-state">
             <i class="fas fa-spinner fa-spin"></i>
-            Loading quizzes...
+            <p>Loading quizzes...</p>
         </div>
     `;
 
@@ -43,13 +45,13 @@ async function loadQuizzes() {
 
         const quizzesRef = firebase.firestore().collection('quizzes');
         const snapshot = await quizzesRef.orderBy('createdAt', 'desc').get();
-        
+
         currentQuizzes = [];
 
         if (snapshot.empty) {
             quizList.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-question-circle" style="font-size: 48px; color: #ddd; margin-bottom: 15px;"></i>
+                <div class="no-quizzes">
+                    <i class="fas fa-quiz"></i>
                     <h3>No quizzes found</h3>
                     <p>Start by creating your first quiz!</p>
                 </div>
@@ -57,172 +59,216 @@ async function loadQuizzes() {
             return;
         }
 
-        let quizzesHtml = '';
-        
-        snapshot.forEach(doc => {
-            const quiz = doc.data();
-            currentQuizzes.push({id: doc.id, ...quiz});
-            
-            // Get quiz status (active/inactive)
-            const status = quiz.status || 'active';
-            const statusColor = status === 'active' ? '#10B981' : '#EF4444';
-            const statusText = status === 'active' ? 'Active' : 'Inactive';
-            
-            // Calculate quiz stats
-            const questionCount = quiz.questions?.length || 0;
-            const timeLimit = quiz.timeLimit || 30;
-            const createdDate = quiz.createdAt ? quiz.createdAt.toDate().toLocaleDateString() : 'Unknown';
-            
-            quizzesHtml += `
-                <div class="quiz-item ${status}" data-quiz-id="${doc.id}">
-                    <div class="quiz-header">
-                        <div class="quiz-title-section">
-                            <h3>${quiz.title || 'Untitled Quiz'}</h3>
-                            <div class="quiz-status">
-                                <span class="status-badge status-${status}" style="background-color: ${statusColor}20; color: ${statusColor}; border: 1px solid ${statusColor}40;">
-                                    <i class="fas fa-${status === 'active' ? 'play' : 'pause'}-circle"></i>
-                                    ${statusText}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="quiz-id">ID: ${doc.id}</div>
-                    </div>
-                    
-                    <div class="quiz-details">
-                        <div class="quiz-info-grid">
-                            <div class="info-item">
-                                <i class="fas fa-folder"></i>
-                                <span>Category: ${quiz.category || 'Unknown'}</span>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-question-circle"></i>
-                                <span>Questions: ${questionCount}</span>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-clock"></i>
-                                <span>Time: ${timeLimit} min</span>
-                            </div>
-                            <div class="info-item">
-                                <i class="fas fa-signal"></i>
-                                <span>Level: ${quiz.difficulty || 'Medium'}</span>
-                            </div>
-                        </div>
-                        
-                        <div class="quiz-description">
-                            <p><i class="fas fa-info-circle"></i> ${quiz.description || 'No description provided'}</p>
-                        </div>
-                        
-                        <div class="quiz-meta">
-                            <small><i class="fas fa-calendar"></i> Created: ${createdDate}</small>
-                            <small><i class="fas fa-user"></i> By: Admin</small>
-                        </div>
-                    </div>
+        let quizHtml = '';
+        snapshot.forEach((doc) => {
+            const quiz = { id: doc.id, ...doc.data() };
+            currentQuizzes.push(quiz);
 
-                    <div class="quiz-actions">
-                        <div class="action-group primary-actions">
-                            <button class="btn-sm btn-primary" onclick="editQuiz('${doc.id}')" title="Edit Quiz">
-                                <i class="fas fa-edit"></i> Edit
+            const createdDate = quiz.createdAt ? 
+                quiz.createdAt.toDate().toLocaleDateString() : 
+                'Unknown date';
+
+            const statusColor = quiz.status === 'active' ? '#10b981' : '#f59e0b';
+            const statusIcon = quiz.status === 'active' ? 'play' : 'pause';
+
+            quizHtml += `
+                <div class="quiz-card" data-quiz-id="${quiz.id}">
+                    <div class="quiz-header">
+                        <div class="quiz-title">
+                            <h3>${quiz.title}</h3>
+                            <span class="quiz-status" style="color: ${statusColor}">
+                                <i class="fas fa-${statusIcon}"></i> 
+                                ${quiz.status || 'active'}
+                            </span>
+                        </div>
+                        <div class="quiz-actions">
+                            <button class="action-btn preview" onclick="previewQuiz('${quiz.id}')" title="Preview">
+                                <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn-sm ${status === 'active' ? 'btn-warning' : 'btn-success'}" 
-                                    onclick="toggleQuizStatus('${doc.id}')" 
-                                    title="${status === 'active' ? 'Deactivate' : 'Activate'} Quiz">
-                                <i class="fas fa-${status === 'active' ? 'pause' : 'play'}"></i> 
-                                ${status === 'active' ? 'Deactivate' : 'Activate'}
+                            <button class="action-btn edit" onclick="editQuiz('${quiz.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-sm btn-info" onclick="previewQuiz('${doc.id}')" title="Preview Quiz">
-                                <i class="fas fa-eye"></i> Preview
+                            <button class="action-btn duplicate" onclick="duplicateQuiz('${quiz.id}')" title="Duplicate">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="action-btn export" onclick="exportQuiz('${quiz.id}')" title="Export">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="action-btn stats" onclick="viewQuizStats('${quiz.id}')" title="Statistics">
+                                <i class="fas fa-chart-bar"></i>
+                            </button>
+                            <button class="action-btn toggle" onclick="toggleQuizStatus('${quiz.id}')" title="Toggle Status">
+                                <i class="fas fa-${quiz.status === 'active' ? 'pause' : 'play'}"></i>
                             </button>
                         </div>
-                        
-                        <div class="action-group secondary-actions">
-                            <button class="btn-sm btn-secondary" onclick="duplicateQuiz('${doc.id}')" title="Duplicate Quiz">
-                                <i class="fas fa-copy"></i> Copy
-                            </button>
-                            <button class="btn-sm btn-secondary" onclick="exportQuiz('${doc.id}')" title="Export Quiz">
-                                <i class="fas fa-download"></i> Export
-                            </button>
-                            <button class="btn-sm btn-success" onclick="viewQuizStats('${doc.id}')" title="View Statistics">
-                                <i class="fas fa-chart-bar"></i> Stats
-                            </button>
-                            <button class="btn-sm btn-danger" onclick="deleteQuiz('${doc.id}')" title="Delete Quiz">
-                                <i class="fas fa-trash"></i> Delete
-                            </button>
+                    </div>
+                    <div class="quiz-meta">
+                        <div class="quiz-description">
+                            ${quiz.description || 'No description provided'}
+                        </div>
+                        <div class="quiz-stats">
+                            <span><i class="fas fa-question-circle"></i> ${quiz.questions?.length || 0} questions</span>
+                            <span><i class="fas fa-clock"></i> ${quiz.timeLimit || 30} minutes</span>
+                            <span><i class="fas fa-tag"></i> ${quiz.category || 'general'}</span>
+                            <span><i class="fas fa-calendar"></i> ${createdDate}</span>
                         </div>
                     </div>
                 </div>
             `;
         });
 
-        quizList.innerHTML = quizzesHtml;
+        quizList.innerHTML = quizHtml;
         console.log(`Loaded ${currentQuizzes.length} quizzes`);
 
-
- // ADD THESE NEW LINES:
-        // Add checkboxes to quiz items
-        setTimeout(() => {
-            addCheckboxesToQuizItems();
-            updateQuizStats();
-        }, 100);
-
-
-
-
-        
     } catch (error) {
         console.error('Error loading quizzes:', error);
         quizList.innerHTML = `
             <div class="error-state">
-                <i class="fas fa-exclamation-triangle" style="color: #dc2626; font-size: 48px; margin-bottom: 15px;"></i>
-                <h3>Error Loading Quizzes</h3>
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Error loading quizzes</h3>
                 <p>${error.message}</p>
-                <button class="btn-primary" onclick="loadQuizzes()">
-                    <i class="fas fa-refresh"></i> Try Again
+                <button onclick="loadQuizzes()" class="retry-btn">
+                    <i class="fas fa-redo"></i> Try again
                 </button>
             </div>
         `;
     }
 }
 
-// Filter quizzes function
-function filterQuizzes() {
+// Search and filter quizzes
+function searchQuizzes() {
     const searchTerm = document.getElementById('quizSearch')?.value.toLowerCase() || '';
-    const categoryFilter = document.getElementById('categoryFilter')?.value || 'all';
-    const statusFilter = document.getElementById('statusFilter')?.value || 'all';
-
-    const quizItems = document.querySelectorAll('.quiz-item');
-    let visibleCount = 0;
-
-    quizItems.forEach(item => {
-        const quizId = item.dataset.quizId;
-        const quiz = currentQuizzes.find(q => q.id === quizId);
+    const filterStatus = document.getElementById('statusFilter')?.value || 'all';
+    
+    const filteredQuizzes = currentQuizzes.filter(quiz => {
+        const matchesSearch = quiz.title.toLowerCase().includes(searchTerm) ||
+                            (quiz.description && quiz.description.toLowerCase().includes(searchTerm));
         
-        if (quiz) {
-            const matchesSearch = quiz.title.toLowerCase().includes(searchTerm) || 
-                                quiz.description?.toLowerCase().includes(searchTerm);
-            const matchesCategory = categoryFilter === 'all' || quiz.category === categoryFilter;
-            const matchesStatus = statusFilter === 'all' || (quiz.status || 'active') === statusFilter;
-
-            if (matchesSearch && matchesCategory && matchesStatus) {
-                item.style.display = 'block';
-                visibleCount++;
-            } else {
-                item.style.display = 'none';
-            }
-        }
+        const matchesStatus = filterStatus === 'all' || quiz.status === filterStatus;
+        
+        return matchesSearch && matchesStatus;
     });
 
-    // Show no results message if needed
+    displayFilteredQuizzes(filteredQuizzes);
+}
+
+function displayFilteredQuizzes(quizzes) {
     const quizList = document.getElementById('quizList');
-    if (visibleCount === 0 && currentQuizzes.length > 0) {
-        const noResultsMsg = document.createElement('div');
-        noResultsMsg.className = 'empty-state';
-        noResultsMsg.innerHTML = `
-            <i class="fas fa-search" style="font-size: 48px; color: #ddd; margin-bottom: 15px;"></i>
-            <h3>No quizzes match your filters</h3>
-            <p>Try adjusting your search criteria</p>
+    
+    if (quizzes.length === 0) {
+        quizList.innerHTML = `
+            <div class="no-results">
+                <i class="fas fa-search"></i>
+                <h3>No quizzes found</h3>
+                <p>Try adjusting your search criteria</p>
+            </div>
         `;
-        quizList.appendChild(noResultsMsg);
+        return;
     }
+
+    let quizHtml = '';
+    quizzes.forEach(quiz => {
+        const createdDate = quiz.createdAt ? 
+            quiz.createdAt.toDate().toLocaleDateString() : 
+            'Unknown date';
+
+        const statusColor = quiz.status === 'active' ? '#10b981' : '#f59e0b';
+        const statusIcon = quiz.status === 'active' ? 'play' : 'pause';
+
+        quizHtml += `
+            <div class="quiz-card" data-quiz-id="${quiz.id}">
+                <div class="quiz-header">
+                    <div class="quiz-title">
+                        <h3>${quiz.title}</h3>
+                        <span class="quiz-status" style="color: ${statusColor}">
+                            <i class="fas fa-${statusIcon}"></i> 
+                            ${quiz.status || 'active'}
+                        </span>
+                    </div>
+                    <div class="quiz-actions">
+                        <button class="action-btn preview" onclick="previewQuiz('${quiz.id}')" title="Preview">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn edit" onclick="editQuiz('${quiz.id}')" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn duplicate" onclick="duplicateQuiz('${quiz.id}')" title="Duplicate">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="action-btn export" onclick="exportQuiz('${quiz.id}')" title="Export">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="action-btn stats" onclick="viewQuizStats('${quiz.id}')" title="Statistics">
+                            <i class="fas fa-chart-bar"></i>
+                        </button>
+                        <button class="action-btn toggle" onclick="toggleQuizStatus('${quiz.id}')" title="Toggle Status">
+                            <i class="fas fa-${quiz.status === 'active' ? 'pause' : 'play'}"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="quiz-meta">
+                    <div class="quiz-description">
+                        ${quiz.description || 'No description provided'}
+                    </div>
+                    <div class="quiz-stats">
+                        <span><i class="fas fa-question-circle"></i> ${quiz.questions?.length || 0} questions</span>
+                        <span><i class="fas fa-clock"></i> ${quiz.timeLimit || 30} minutes</span>
+                        <span><i class="fas fa-tag"></i> ${quiz.category || 'general'}</span>
+                        <span><i class="fas fa-calendar"></i> ${createdDate}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    quizList.innerHTML = quizHtml;
+}
+
+// Handle search input with debounce
+let searchTimeout;
+function handleSearch() {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(searchQuizzes, 300);
+}
+
+// Bulk operations
+function selectAllQuizzes() {
+    const checkboxes = document.querySelectorAll('.quiz-checkbox');
+    const selectAllBtn = document.getElementById('selectAll');
+    
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = selectAllBtn.checked;
+    });
+    
+    updateBulkOperations();
+}
+
+function updateBulkOperations() {
+    const selectedQuizzes = document.querySelectorAll('.quiz-checkbox:checked');
+    const bulkActions = document.getElementById('bulkActions');
+    
+    if (selectedQuizzes.length > 0) {
+        bulkActions.style.display = 'flex';
+        document.getElementById('selectedCount').textContent = selectedQuizzes.length;
+    } else {
+        bulkActions.style.display = 'none';
+    }
+}
+
+// Handle no results
+function showNoResults(message) {
+    const quizList = document.getElementById('quizList');
+    const noResultsMsg = document.createElement('div');
+    noResultsMsg.className = 'no-results-message';
+    noResultsMsg.innerHTML = `
+        <div class="no-results-content">
+            <i class="fas fa-search"></i>
+            <h3>No quizzes found</h3>
+            <p>${message}</p>
+            <p>Try adjusting your search criteria</p>
+        </div>
+    `;
+    quizList.appendChild(noResultsMsg);
 }
 
 // ===== ENHANCED ADMIN CONTROL FUNCTIONS =====
@@ -255,6 +301,7 @@ async function toggleQuizStatus(quizId) {
 async function previewQuiz(quizId) {
     try {
         const doc = await firebase.firestore().collection('quizzes').doc(quizId).get();
+        
         if (doc.exists) {
             const quiz = doc.data();
             const questions = quiz.questions || [];
@@ -273,11 +320,14 @@ async function previewQuiz(quizId) {
                     previewText += `${index + 1}. ${q.question}\n`;
                     if (q.options) {
                         q.options.forEach((opt, i) => {
-                            const marker = i === q.correct ? '✅' : '   ';
+                            const marker = i === q.correctAnswer ? '✅' : ' ';
                             previewText += `${marker} ${String.fromCharCode(65 + i)}) ${opt}\n`;
                         });
                     }
-                    previewText += `Points: ${q.points || 1}\n\n`;
+                    if (q.explanation) {
+                        previewText += `💡 Explanation: ${q.explanation}\n`;
+                    }
+                    previewText += `Points: ${q.points || 10}\n\n`;
                 });
                 
                 if (questions.length > 3) {
@@ -312,6 +362,7 @@ async function duplicateQuiz(quizId) {
             };
             
             const newDocRef = await firebase.firestore().collection('quizzes').add(duplicatedQuiz);
+            
             alert(`✅ Quiz duplicated successfully!\n\nNew Quiz: "${duplicatedQuiz.title}"\nID: ${newDocRef.id}`);
             loadQuizzes(); // Refresh the list
         }
@@ -325,6 +376,7 @@ async function duplicateQuiz(quizId) {
 async function exportQuiz(quizId) {
     try {
         const doc = await firebase.firestore().collection('quizzes').doc(quizId).get();
+        
         if (doc.exists) {
             const quizData = doc.data();
             const exportData = {
@@ -367,7 +419,7 @@ async function viewQuizStats(quizId) {
             .collection('quizResults')
             .where('quizId', '==', quizId)
             .get();
-        
+            
         const results = [];
         resultsSnapshot.forEach(doc => {
             results.push(doc.data());
@@ -375,7 +427,7 @@ async function viewQuizStats(quizId) {
         
         // Calculate statistics
         const totalAttempts = results.length;
-        const scores = results.map(r => r.score || 0);
+        const scores = results.map(r => r.percentage || r.score || 0);
         const averageScore = totalAttempts > 0 ? (scores.reduce((a, b) => a + b, 0) / totalAttempts).toFixed(1) : 0;
         const highestScore = totalAttempts > 0 ? Math.max(...scores) : 0;
         const lowestScore = totalAttempts > 0 ? Math.min(...scores) : 0;
@@ -392,13 +444,15 @@ async function viewQuizStats(quizId) {
         if (totalAttempts > 0) {
             statsText += `\n📈 RECENT ATTEMPTS:\n`;
             results.slice(0, 5).forEach((result, index) => {
-                const date = result.completedAt ? new Date(result.completedAt.toDate()).toLocaleDateString() : 'Unknown';
-                statsText += `${index + 1}. Score: ${result.score}% - ${date}\n`;
+                const date = result.completedAt ? 
+                    new Date(result.completedAt.toDate()).toLocaleDateString() : 
+                    'Unknown';
+                const score = result.percentage || result.score || 0;
+                statsText += `${index + 1}. Score: ${score}% - ${date}\n`;
             });
         }
         
         alert(statsText);
-        
     } catch (error) {
         console.error('Error loading quiz stats:', error);
         alert('❌ Error loading quiz statistics.');
@@ -423,204 +477,341 @@ function switchUploadTab(tabName) {
     document.querySelector(`[onclick="switchUploadTab('${tabName}')"]`).classList.add('active');
 }
 
-// Add question to manual creation
+// Add question to manual creation (ENHANCED WITH EXPLANATIONS)
 function addQuestion() {
     const questionsList = document.getElementById('questionsList');
     const questionNumber = questionsList.children.length + 1;
     
     const questionHtml = `
-        <div class="question-block" id="question-${questionNumber}">
+        <div class="question-item" id="question-${questionNumber}">
             <div class="question-header">
                 <h4>Question ${questionNumber}</h4>
-                <button type="button" class="btn-danger btn-sm" onclick="removeQuestion(${questionNumber})">
+                <button type="button" class="remove-question-btn" onclick="removeQuestion(${questionNumber})">
                     <i class="fas fa-trash"></i> Remove
                 </button>
             </div>
             
             <div class="form-group">
-                <label>Question Text:</label>
-                <textarea class="form-control" placeholder="Enter your question..." required></textarea>
+                <label for="question-text-${questionNumber}" class="required">Question Text:</label>
+                <textarea 
+                    id="question-text-${questionNumber}" 
+                    name="question-text-${questionNumber}" 
+                    placeholder="Enter your question here..." 
+                    required
+                    rows="3"
+                ></textarea>
             </div>
-            
+
             <div class="form-group">
-                <label>Question Type:</label>
-                <select class="form-control" onchange="updateQuestionType(this, ${questionNumber})">
-                    <option value="multiple-choice">Multiple Choice</option>
-                    <option value="true-false">True/False</option>
-                </select>
+                <label class="required">Answer Options:</label>
+                <div class="options-container">
+                    <div class="option-input">
+                        <input type="text" name="option-${questionNumber}-1" placeholder="Option A" required>
+                        <input type="radio" name="correct-${questionNumber}" value="0" required>
+                        <label>Correct</label>
+                    </div>
+                    <div class="option-input">
+                        <input type="text" name="option-${questionNumber}-2" placeholder="Option B" required>
+                        <input type="radio" name="correct-${questionNumber}" value="1" required>
+                        <label>Correct</label>
+                    </div>
+                    <div class="option-input">
+                        <input type="text" name="option-${questionNumber}-3" placeholder="Option C" required>
+                        <input type="radio" name="correct-${questionNumber}" value="2" required>
+                        <label>Correct</label>
+                    </div>
+                    <div class="option-input">
+                        <input type="text" name="option-${questionNumber}-4" placeholder="Option D" required>
+                        <input type="radio" name="correct-${questionNumber}" value="3" required>
+                        <label>Correct</label>
+                    </div>
+                </div>
             </div>
-            
-            <div class="options-section" id="options-${questionNumber}">
-                <div class="form-group">
-                    <label>Option A:</label>
-                    <input type="text" class="form-control" placeholder="Option A" required>
-                </div>
-                <div class="form-group">
-                    <label>Option B:</label>
-                    <input type="text" class="form-control" placeholder="Option B" required>
-                </div>
-                <div class="form-group">
-                    <label>Option C:</label>
-                    <input type="text" class="form-control" placeholder="Option C" required>
-                </div>
-                <div class="form-group">
-                    <label>Option D:</label>
-                    <input type="text" class="form-control" placeholder="Option D" required>
-                </div>
-            </div>
-            
+
+            <!-- NEW EXPLANATION FIELD -->
             <div class="form-group">
-                <label>Correct Answer:</label>
-                <select class="form-control" required>
-                    <option value="0">Option A</option>
-                    <option value="1">Option B</option>
-                    <option value="2">Option C</option>
-                    <option value="3">Option D</option>
-                </select>
+                <label for="explanation-${questionNumber}" class="required">Explanation:</label>
+                <textarea 
+                    id="explanation-${questionNumber}" 
+                    name="explanation-${questionNumber}" 
+                    placeholder="Provide a detailed explanation for the correct answer. This will help students understand the topic better." 
+                    required
+                    rows="4"
+                ></textarea>
+                <small class="help-text">
+                    <i class="fas fa-info-circle"></i> 
+                    Write a clear explanation that helps students understand why this is the correct answer and learn from any mistakes.
+                </small>
             </div>
-            
+
             <div class="form-group">
-                <label>Points:</label>
-                <input type="number" class="form-control" value="1" min="1" max="10" required>
+                <label for="points-${questionNumber}">Points:</label>
+                <input 
+                    type="number" 
+                    id="points-${questionNumber}" 
+                    name="points-${questionNumber}" 
+                    value="10" 
+                    min="1" 
+                    max="100"
+                >
             </div>
         </div>
     `;
     
     questionsList.insertAdjacentHTML('beforeend', questionHtml);
+    
+    // Update question counter
+    updateQuestionCounter();
 }
 
-// Remove question from manual creation
+// Remove question
 function removeQuestion(questionNumber) {
-    const questionBlock = document.getElementById(`question-${questionNumber}`);
-    if (questionBlock) {
-        questionBlock.remove();
-        
-        // Renumber remaining questions
-        const questions = document.querySelectorAll('.question-block');
-        questions.forEach((block, index) => {
-            const newNumber = index + 1;
-            block.id = `question-${newNumber}`;
-            block.querySelector('h4').textContent = `Question ${newNumber}`;
-        });
+    if (confirm('Are you sure you want to remove this question?')) {
+        const questionItem = document.getElementById(`question-${questionNumber}`);
+        if (questionItem) {
+            questionItem.remove();
+            renumberQuestions();
+            updateQuestionCounter();
+        }
     }
 }
 
-// Create quiz from manual form
-async function createQuiz() {
-    try {
-        // Get basic quiz info
-        const title = document.getElementById('quizTitle').value.trim();
-        const description = document.getElementById('quizDescription').value.trim();
-        const category = document.getElementById('quizCategory').value;
-        const difficulty = document.getElementById('quizDifficulty').value;
-        const timeLimit = parseInt(document.getElementById('quizTimeLimit').value);
-
-        if (!title) {
-            alert('Please enter a quiz title');
-            return;
-        }
-
-        // Get questions
-        const questions = [];
-        const questionBlocks = document.querySelectorAll('.question-block');
-
-        if (questionBlocks.length === 0) {
-            alert('Please add at least one question');
-            return;
-        }
-
-        questionBlocks.forEach((block, index) => {
-            const questionText = block.querySelector('textarea').value.trim();
-            const questionType = block.querySelector('select').value;
-            const options = Array.from(block.querySelectorAll('.options-section input')).map(input => input.value.trim());
-            const correctAnswer = parseInt(block.querySelector('.form-group:last-child select').value);
-            const points = parseInt(block.querySelector('input[type="number"]').value);
-
-            if (!questionText) {
-                throw new Error(`Question ${index + 1} is missing text`);
+// Renumber questions after removal
+function renumberQuestions() {
+    const questionItems = document.querySelectorAll('.question-item');
+    questionItems.forEach((item, index) => {
+        const newNumber = index + 1;
+        item.id = `question-${newNumber}`;
+        
+        // Update question header
+        const header = item.querySelector('h4');
+        if (header) header.textContent = `Question ${newNumber}`;
+        
+        // Update remove button onclick
+        const removeBtn = item.querySelector('.remove-question-btn');
+        if (removeBtn) removeBtn.setAttribute('onclick', `removeQuestion(${newNumber})`);
+        
+        // Update all form field names and IDs
+        const fields = item.querySelectorAll('input, textarea, select');
+        fields.forEach(field => {
+            const name = field.name;
+            const id = field.id;
+            
+            if (name) {
+                field.name = name.replace(/question-\d+/, `question-${newNumber}`)
+                                .replace(/option-\d+-/, `option-${newNumber}-`)
+                                .replace(/correct-\d+/, `correct-${newNumber}`)
+                                .replace(/explanation-\d+/, `explanation-${newNumber}`)
+                                .replace(/points-\d+/, `points-${newNumber}`);
             }
-
-            if (questionType === 'multiple-choice' && options.some(opt => !opt)) {
-                throw new Error(`Question ${index + 1} has empty options`);
+            
+            if (id) {
+                field.id = id.replace(/question-text-\d+/, `question-text-${newNumber}`)
+                            .replace(/explanation-\d+/, `explanation-${newNumber}`)
+                            .replace(/points-\d+/, `points-${newNumber}`);
             }
-
-            questions.push({
-                question: questionText,
-                type: questionType,
-                options: questionType === 'true-false' ? ['True', 'False'] : options,
-                correct: correctAnswer,
-                points: points
-            });
         });
-
-        // Create quiz object
-        const quizData = {
-            title,
-            description,
-            category,
-            difficulty,
-            timeLimit,
-            questions,
-            status: 'active',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        // Save to Firestore
-        const docRef = await firebase.firestore().collection('quizzes').add(quizData);
         
-        alert(`✅ Quiz created successfully!\n\nQuiz ID: ${docRef.id}\nTitle: ${title}\nQuestions: ${questions.length}`);
+        // Update labels
+        const labels = item.querySelectorAll('label[for]');
+        labels.forEach(label => {
+            const forAttr = label.getAttribute('for');
+            if (forAttr) {
+                label.setAttribute('for', forAttr.replace(/\d+/, newNumber));
+            }
+        });
+    });
+}
+
+// Update question counter
+function updateQuestionCounter() {
+    const count = document.querySelectorAll('.question-item').length;
+    const counter = document.getElementById('questionCount');
+    if (counter) {
+        counter.textContent = `${count} question${count !== 1 ? 's' : ''}`;
+    }
+}
+
+// Collect quiz data with explanations
+function collectQuizData() {
+    const form = document.getElementById('quizCreationForm');
+    const formData = new FormData(form);
+    
+    // Get basic quiz info
+    const quizData = {
+        title: formData.get('quiz-title')?.trim(),
+        description: formData.get('quiz-description')?.trim(),
+        category: formData.get('quiz-category'),
+        difficulty: formData.get('quiz-difficulty'),
+        timeLimit: parseInt(formData.get('quiz-time-limit')) || 30,
+        status: 'active',
+        questions: [],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdBy: firebase.auth().currentUser?.uid
+    };
+
+    // Validate basic info
+    if (!quizData.title || !quizData.description) {
+        throw new Error('Please fill in all required quiz information');
+    }
+
+    // Collect questions with explanations
+    const questionItems = document.querySelectorAll('.question-item');
+    
+    if (questionItems.length === 0) {
+        throw new Error('Please add at least one question');
+    }
+
+    questionItems.forEach((questionItem, index) => {
+        const questionNum = index + 1;
         
+        // Get question text
+        const questionText = formData.get(`question-text-${questionNum}`)?.trim();
+        if (!questionText) {
+            throw new Error(`Question ${questionNum}: Question text is required`);
+        }
+
+        // Get options
+        const options = [
+            formData.get(`option-${questionNum}-1`)?.trim(),
+            formData.get(`option-${questionNum}-2`)?.trim(),
+            formData.get(`option-${questionNum}-3`)?.trim(),
+            formData.get(`option-${questionNum}-4`)?.trim()
+        ];
+
+        // Validate options
+        if (options.some(option => !option)) {
+            throw new Error(`Question ${questionNum}: All four options are required`);
+        }
+
+        // Get correct answer
+        const correctAnswer = parseInt(formData.get(`correct-${questionNum}`));
+        if (isNaN(correctAnswer)) {
+            throw new Error(`Question ${questionNum}: Please select the correct answer`);
+        }
+
+        // Get explanation - THIS IS THE CRITICAL NEW PART
+        const explanation = formData.get(`explanation-${questionNum}`)?.trim();
+        if (!explanation) {
+            throw new Error(`Question ${questionNum}: Explanation is required`);
+        }
+
+        // Get points
+        const points = parseInt(formData.get(`points-${questionNum}`)) || 10;
+
+        // Add complete question object
+        quizData.questions.push({
+            question: questionText,
+            options: options,
+            correctAnswer: correctAnswer,
+            explanation: explanation, // NEW: Include explanation
+            points: points
+        });
+    });
+
+    return quizData;
+}
+
+// Enhanced create manual quiz function
+async function createManualQuiz() {
+    console.log('Creating manual quiz...');
+    
+    try {
+        // Collect and validate quiz data
+        const quizData = collectQuizData();
+        
+        console.log('Quiz data collected:', quizData);
+
+        // Show loading state
+        const submitBtn = document.querySelector('.submit-quiz-btn');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Quiz...';
+        submitBtn.disabled = true;
+
+        // Save to Firebase
+        const docRef = await firebase.firestore()
+            .collection('quizzes')
+            .add(quizData);
+
+        console.log('Quiz created successfully with ID:', docRef.id);
+
+        // Show success message
+        alert(`✅ Quiz created successfully!\n\nQuiz ID: ${docRef.id}\nTitle: ${quizData.title}\nQuestions: ${quizData.questions.length}\nAll questions include explanations!`);
+
         // Reset form
-        document.getElementById('createQuizForm').reset();
+        document.getElementById('quizCreationForm').reset();
         document.getElementById('questionsList').innerHTML = '';
-        addQuestion(); // Add one default question
         
-        // Refresh quiz list
-        loadQuizzes();
+        // Add first question again
+        addQuestion();
+
+        // Refresh quiz list if visible
+        if (typeof loadQuizzes === 'function') {
+            loadQuizzes();
+        }
 
     } catch (error) {
         console.error('Error creating quiz:', error);
-        alert(`❌ Error creating quiz: ${error.message}`);
+        alert(`❌ Error creating quiz:\n\n${error.message}\n\nPlease check all required fields and try again.`);
+    } finally {
+        // Restore button
+        const submitBtn = document.querySelector('.submit-quiz-btn');
+        if (submitBtn) {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
     }
 }
 
-// Upload quiz from JSON
-async function uploadJSON() {
-    const jsonInput = document.getElementById('jsonInput').value.trim();
+// Upload JSON quiz
+async function uploadJsonQuiz() {
+    const jsonInput = document.getElementById('jsonQuizData');
+    const jsonData = jsonInput.value.trim();
     
-    if (!jsonInput) {
-        alert('Please paste JSON data');
+    if (!jsonData) {
+        alert('Please enter quiz JSON data');
         return;
     }
-
+    
     try {
-        const quizData = JSON.parse(jsonInput);
+        const quizData = JSON.parse(jsonData);
         
         // Validate required fields
         if (!quizData.title || !quizData.questions || !Array.isArray(quizData.questions)) {
-            throw new Error('Invalid JSON format. Missing title or questions array.');
+            throw new Error('Invalid quiz format. Title and questions array are required.');
         }
 
+        // Validate each question has explanation
+        for (let i = 0; i < quizData.questions.length; i++) {
+            const question = quizData.questions[i];
+            if (!question.explanation) {
+                throw new Error(`Question ${i + 1}: Explanation is required for all questions.`);
+            }
+        }
+        
         // Add metadata
-        quizData.status = 'active';
         quizData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-        quizData.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
-
-        // Save to Firestore
-        const docRef = await firebase.firestore().collection('quizzes').add(quizData);
+        quizData.createdBy = firebase.auth().currentUser?.uid;
+        quizData.status = quizData.status || 'active';
         
-        alert(`✅ Quiz uploaded successfully!\n\nQuiz ID: ${docRef.id}\nTitle: ${quizData.title}\nQuestions: ${quizData.questions.length}`);
+        // Save to Firebase
+        const docRef = await firebase.firestore()
+            .collection('quizzes')
+            .add(quizData);
+            
+        alert(`✅ Quiz uploaded successfully!\n\nQuiz ID: ${docRef.id}\nTitle: ${quizData.title}`);
         
-        // Clear input
-        document.getElementById('jsonInput').value = '';
+        // Clear form
+        jsonInput.value = '';
         
         // Refresh quiz list
-        loadQuizzes();
-
+        if (typeof loadQuizzes === 'function') {
+            loadQuizzes();
+        }
+        
     } catch (error) {
         console.error('Error uploading quiz:', error);
-        alert(`❌ Error uploading quiz: ${error.message}`);
+        alert(`❌ Error uploading quiz:\n\n${error.message}`);
     }
 }
 
@@ -628,742 +819,74 @@ async function uploadJSON() {
 
 // Load users
 async function loadUsers() {
-    console.log('Loading users...');
     const usersList = document.getElementById('usersList');
     
-    if (!usersList) {
-        console.log('Users list element not found');
-        return;
-    }
-
-    usersList.innerHTML = '<tr><td colspan="4">Loading users...</td></tr>';
-
     try {
-        const usersRef = firebase.firestore().collection('users');
-        const snapshot = await usersRef.orderBy('createdAt', 'desc').get();
-
+        const usersSnapshot = await firebase.firestore().collection('users').get();
         currentUsers = [];
-        let usersHtml = '';
-
-        if (snapshot.empty) {
-            usersHtml = '<tr><td colspan="4">No users found</td></tr>';
-        } else {
-            snapshot.forEach(doc => {
-                const user = doc.data();
-                currentUsers.push({id: doc.id, ...user});
-
-                const joinDate = user.createdAt ? user.createdAt.toDate().toLocaleDateString() : 'Unknown';
-                const status = user.status || 'active';
-
-                usersHtml += `
-                    <tr>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                    ${(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
-                                </div>
-                                <div>
-                                    <strong>${user.displayName || 'Unknown'}</strong><br>
-                                    <small style="color: #666;">${user.email}</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>${joinDate}</td>
-                        <td>
-                            <span class="status-badge status-${status}" style="background: ${status === 'active' ? '#10B981' : '#EF4444'}20; color: ${status === 'active' ? '#10B981' : '#EF4444'}; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
-                                ${status.charAt(0).toUpperCase() + status.slice(1)}
-                            </span>
-                        </td>
-                        <td>
-                            <button class="btn-sm btn-primary" onclick="viewUser('${doc.id}')">
-                                <i class="fas fa-eye"></i> View
-                            </button>
-                            <button class="btn-sm btn-${status === 'active' ? 'warning' : 'success'}" onclick="toggleUserStatus('${doc.id}')">
-                                <i class="fas fa-${status === 'active' ? 'ban' : 'check'}"></i>
-                                ${status === 'active' ? 'Ban' : 'Unban'}
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
+        
+        let usersHtml = `
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Joined</th>
+                <th>Quizzes Taken</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        `;
+        
+        usersSnapshot.forEach(doc => {
+            const user = { id: doc.id, ...doc.data() };
+            currentUsers.push(user);
+            
+            const joinDate = user.createdAt ? 
+                user.createdAt.toDate().toLocaleDateString() : 
+                'Unknown';
+                
+            usersHtml += `
+                <tr>
+                    <td>${user.displayName || 'N/A'}</td>
+                    <td>${user.email}</td>
+                    <td>${joinDate}</td>
+                    <td>${user.quizzesTaken || 0}</td>
+                    <td>
+                        <span class="status ${user.status || 'active'}">
+                            ${user.status || 'active'}
+                        </span>
+                    </td>
+                    <td>
+                        <button onclick="viewUserDetails('${user.id}')" class="btn-sm">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        
         usersList.innerHTML = usersHtml;
-        console.log(`Loaded ${currentUsers.length} users`);
-
+        
     } catch (error) {
         console.error('Error loading users:', error);
-        usersList.innerHTML = '<tr><td colspan="4">Error loading users</td></tr>';
-    }
-}
-
-// View user details
-async function viewUser(userId) {
-    try {
-        const userDoc = await firebase.firestore().collection('users').doc(userId).get();
-        if (!userDoc.exists) {
-            alert('User not found');
-            return;
-        }
-
-        const user = userDoc.data();
-        
-        // Get user's quiz results
-        const resultsSnapshot = await firebase.firestore()
-            .collection('quizResults')
-            .where('userId', '==', userId)
-            .orderBy('completedAt', 'desc')
-            .limit(10)
-            .get();
-
-        let userInfo = `👤 USER PROFILE\n\n`;
-        userInfo += `Name: ${user.displayName || 'Not set'}\n`;
-        userInfo += `Email: ${user.email}\n`;
-        userInfo += `Status: ${user.status || 'active'}\n`;
-        userInfo += `Joined: ${user.createdAt ? user.createdAt.toDate().toLocaleDateString() : 'Unknown'}\n`;
-        
-        if (!resultsSnapshot.empty) {
-            userInfo += `\n📊 RECENT QUIZ RESULTS:\n`;
-            resultsSnapshot.forEach((doc, index) => {
-                const result = doc.data();
-                const date = result.completedAt ? result.completedAt.toDate().toLocaleDateString() : 'Unknown';
-                userInfo += `${index + 1}. Score: ${result.score || 0}% - ${date}\n`;
-            });
-        } else {
-            userInfo += `\n📊 No quiz attempts yet`;
-        }
-        
-        alert(userInfo);
-        
-    } catch (error) {
-        console.error('Error loading user details:', error);
-        alert('❌ Error loading user details.');
+        usersList.innerHTML = '<tr><td colspan="6">Error loading users</td></tr>';
     }
 }
 
 // ===== UTILITY FUNCTIONS =====
 
-// Export all data
-async function exportAllData() {
-    if (!confirm('📥 Export all quizzes and user data?')) return;
-    
-    try {
-        const [quizzesSnapshot, usersSnapshot, resultsSnapshot] = await Promise.all([
-            firebase.firestore().collection('quizzes').get(),
-            firebase.firestore().collection('users').get(),
-            firebase.firestore().collection('quizResults').get()
-        ]);
-
-        const exportData = {
-            exportedAt: new Date().toISOString(),
-            exportedBy: 'Admin',
-            data: {
-                quizzes: [],
-                users: [],
-                results: []
-            }
-        };
-
-        quizzesSnapshot.forEach(doc => {
-            exportData.data.quizzes.push({id: doc.id, ...doc.data()});
-        });
-
-        usersSnapshot.forEach(doc => {
-            exportData.data.users.push({id: doc.id, ...doc.data()});
-        });
-
-        resultsSnapshot.forEach(doc => {
-            exportData.data.results.push({id: doc.id, ...doc.data()});
-        });
-
-        const dataStr = JSON.stringify(exportData, null, 2);
-        const dataBlob = new Blob([dataStr], {type: 'application/json'});
-        
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(dataBlob);
-        link.download = `digiquiz-export-${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-        
-        alert(`✅ All data exported successfully!\n\nQuizzes: ${exportData.data.quizzes.length}\nUsers: ${exportData.data.users.length}\nResults: ${exportData.data.results.length}`);
-
-    } catch (error) {
-        console.error('Error exporting data:', error);
-        alert('❌ Error exporting data. Please try again.');
-    }
-}
-
-// Edit quiz (placeholder - can be enhanced)
-async function editQuiz(quizId) {
-    alert(`🔧 Edit functionality for Quiz ID: ${quizId}\n\nThis feature will be implemented in the next update.\n\nFor now, you can:\n- Duplicate the quiz\n- Delete and recreate\n- Export and modify JSON`);
-}
-
-// Delete quiz
-async function deleteQuiz(quizId) {
-    if (!confirm('⚠️ Are you sure you want to delete this quiz?\n\nThis action cannot be undone!')) return;
-    
-    try {
-        await firebase.firestore().collection('quizzes').doc(quizId).delete();
-        alert('✅ Quiz deleted successfully!');
-        loadQuizzes();
-    } catch (error) {
-        console.error('Error deleting quiz:', error);
-        alert('❌ Error deleting quiz. Please try again.');
-    }
-}
-
-// Clear all sample data (DANGEROUS)
-async function clearAllData() {
-    if (!confirm('⚠️ DANGER: This will delete ALL quizzes!\n\nThis action cannot be undone. Are you absolutely sure?')) return;
-    if (!confirm('⚠️ FINAL WARNING: All quizzes will be permanently deleted!\n\nType "DELETE" in the next prompt to confirm.')) return;
-    
-    const confirmation = prompt('Type "DELETE" to confirm:');
-    if (confirmation !== 'DELETE') {
-        alert('Deletion cancelled.');
-        return;
-    }
-    
-    try {
-        const snapshot = await firebase.firestore().collection('quizzes').get();
-        const batch = firebase.firestore().batch();
-        
-        snapshot.docs.forEach(doc => {
-            batch.delete(doc.ref);
-        });
-        
-        await batch.commit();
-        alert('✅ All quizzes have been deleted!');
-        loadQuizzes();
-    } catch (error) {
-        console.error('Error clearing data:', error);
-        alert('❌ Error clearing data. Please try again.');
-    }
-}
-
-
-
-
-
-
-
-
-// ===== BULK ACTIONS SYSTEM =====
-
-let selectedQuizzes = new Set(); // Track selected quiz IDs
-
-// Update quiz display to include checkboxes
-function addCheckboxesToQuizItems() {
-    const quizItems = document.querySelectorAll('.quiz-item');
-    quizItems.forEach(item => {
-        const quizId = item.dataset.quizId;
-        
-        // Check if checkbox already exists
-        if (!item.querySelector('.quiz-checkbox')) {
-            const checkboxHtml = `
-                <div class="quiz-checkbox">
-                    <input type="checkbox" id="quiz-${quizId}" data-quiz-id="${quizId}" 
-                           onchange="toggleQuizSelection('${quizId}')">
-                    <label for="quiz-${quizId}"></label>
-                </div>
-            `;
-            
-            // Add checkbox to the beginning of quiz header
-            const header = item.querySelector('.quiz-header');
-            header.insertAdjacentHTML('afterbegin', checkboxHtml);
+// Initialize admin features when page loads
+if (typeof window !== 'undefined') {
+    window.addEventListener('load', () => {
+        // Auto-load quizzes if on quiz management tab
+        if (document.getElementById('quizList')) {
+            loadQuizzes();
         }
-    });
-    
-    updateBulkActionButtons();
-}
-
-// Toggle individual quiz selection
-function toggleQuizSelection(quizId) {
-    const checkbox = document.getElementById(`quiz-${quizId}`);
-    
-    if (checkbox.checked) {
-        selectedQuizzes.add(quizId);
-    } else {
-        selectedQuizzes.delete(quizId);
-    }
-    
-    updateSelectionCount();
-    updateBulkActionButtons();
-}
-
-// Select all quizzes
-function selectAllQuizzes() {
-    const checkboxes = document.querySelectorAll('.quiz-checkbox input[type="checkbox"]');
-    
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = true;
-        selectedQuizzes.add(checkbox.dataset.quizId);
-    });
-    
-    updateSelectionCount();
-    updateBulkActionButtons();
-}
-
-// Clear all selections
-function clearSelection() {
-    const checkboxes = document.querySelectorAll('.quiz-checkbox input[type="checkbox"]');
-    
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = false;
-    });
-    
-    selectedQuizzes.clear();
-    updateSelectionCount();
-    updateBulkActionButtons();
-}
-
-// Update selection counter
-function updateSelectionCount() {
-    const count = selectedQuizzes.size;
-    document.getElementById('selected-count').textContent = count;
-    document.getElementById('selected-quiz-count').textContent = count;
-}
-
-// Update bulk action button states
-function updateBulkActionButtons() {
-    const hasSelection = selectedQuizzes.size > 0;
-    
-    // Enable/disable buttons based on selection
-    const bulkButtons = [
-        'bulk-activate', 'bulk-deactivate', 'bulk-export', 
-        'bulk-delete', 'bulk-category', 'bulk-category-btn'
-    ];
-    
-    bulkButtons.forEach(buttonId => {
-        const button = document.getElementById(buttonId);
-        if (button) {
-            button.disabled = !hasSelection;
+        
+        // Auto-load users if on user management tab
+        if (document.getElementById('usersList')) {
+            loadUsers();
         }
     });
 }
 
-// Update quiz statistics
-function updateQuizStats() {
-    const totalQuizzes = currentQuizzes.length;
-    const activeQuizzes = currentQuizzes.filter(q => (q.status || 'active') === 'active').length;
-    const inactiveQuizzes = totalQuizzes - activeQuizzes;
-    
-    document.getElementById('total-quiz-count').textContent = totalQuizzes;
-    document.getElementById('active-quiz-count').textContent = activeQuizzes;
-    document.getElementById('inactive-quiz-count').textContent = inactiveQuizzes;
-}
-
-// ===== BULK OPERATIONS =====
-
-// Bulk activate quizzes
-async function bulkActivateQuizzes() {
-    if (selectedQuizzes.size === 0) {
-        alert('Please select quizzes to activate');
-        return;
-    }
-    
-    if (!confirm(`Activate ${selectedQuizzes.size} selected quiz(es)?`)) return;
-    
-    try {
-        const batch = firebase.firestore().batch();
-        
-        selectedQuizzes.forEach(quizId => {
-            const quizRef = firebase.firestore().collection('quizzes').doc(quizId);
-            batch.update(quizRef, {
-                status: 'active',
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        });
-        
-        await batch.commit();
-        
-        alert(`✅ ${selectedQuizzes.size} quiz(es) activated successfully!`);
-        clearSelection();
-        loadQuizzes();
-        
-    } catch (error) {
-        console.error('Error bulk activating quizzes:', error);
-        alert('❌ Error activating quizzes. Please try again.');
-    }
-}
-
-// Bulk deactivate quizzes
-async function bulkDeactivateQuizzes() {
-    if (selectedQuizzes.size === 0) {
-        alert('Please select quizzes to deactivate');
-        return;
-    }
-    
-    if (!confirm(`Deactivate ${selectedQuizzes.size} selected quiz(es)?`)) return;
-    
-    try {
-        const batch = firebase.firestore().batch();
-        
-        selectedQuizzes.forEach(quizId => {
-            const quizRef = firebase.firestore().collection('quizzes').doc(quizId);
-            batch.update(quizRef, {
-                status: 'inactive',
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        });
-        
-        await batch.commit();
-        
-        alert(`✅ ${selectedQuizzes.size} quiz(es) deactivated successfully!`);
-        clearSelection();
-        loadQuizzes();
-        
-    } catch (error) {
-        console.error('Error bulk deactivating quizzes:', error);
-        alert('❌ Error deactivating quizzes. Please try again.');
-    }
-}
-
-// Bulk update category
-async function bulkUpdateCategory() {
-    if (selectedQuizzes.size === 0) {
-        alert('Please select quizzes to update');
-        return;
-    }
-    
-    const newCategory = document.getElementById('bulk-category').value;
-    if (!newCategory) {
-        alert('Please select a category');
-        return;
-    }
-    
-    if (!confirm(`Update category to "${newCategory}" for ${selectedQuizzes.size} selected quiz(es)?`)) return;
-    
-    try {
-        const batch = firebase.firestore().batch();
-        
-        selectedQuizzes.forEach(quizId => {
-            const quizRef = firebase.firestore().collection('quizzes').doc(quizId);
-            batch.update(quizRef, {
-                category: newCategory,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        });
-        
-        await batch.commit();
-        
-        alert(`✅ Category updated for ${selectedQuizzes.size} quiz(es)!`);
-        clearSelection();
-        loadQuizzes();
-        
-        // Reset category selector
-        document.getElementById('bulk-category').value = '';
-        
-    } catch (error) {
-        console.error('Error bulk updating category:', error);
-        alert('❌ Error updating category. Please try again.');
-    }
-}
-
-// Bulk export quizzes
-async function bulkExportQuizzes() {
-    if (selectedQuizzes.size === 0) {
-        alert('Please select quizzes to export');
-        return;
-    }
-    
-    try {
-        const exportData = {
-            exportedAt: new Date().toISOString(),
-            exportedBy: 'Admin',
-            exportType: 'bulk_selection',
-            totalQuizzes: selectedQuizzes.size,
-            quizzes: []
-        };
-        
-        // Get selected quiz data
-        for (const quizId of selectedQuizzes) {
-            const doc = await firebase.firestore().collection('quizzes').doc(quizId).get();
-            if (doc.exists) {
-                exportData.quizzes.push({
-                    id: quizId,
-                    ...doc.data()
-                });
-            }
-        }
-        
-        const dataStr = JSON.stringify(exportData, null, 2);
-        const dataBlob = new Blob([dataStr], {type: 'application/json'});
-        
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(dataBlob);
-        link.download = `bulk-quizzes-export-${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-        
-        alert(`✅ ${selectedQuizzes.size} quiz(es) exported successfully!`);
-        
-    } catch (error) {
-        console.error('Error bulk exporting quizzes:', error);
-        alert('❌ Error exporting quizzes. Please try again.');
-    }
-}
-
-// Export all quizzes
-async function exportAllQuizzes() {
-    if (currentQuizzes.length === 0) {
-        alert('No quizzes to export');
-        return;
-    }
-    
-    if (!confirm(`Export all ${currentQuizzes.length} quizzes?`)) return;
-    
-    try {
-        const exportData = {
-            exportedAt: new Date().toISOString(),
-            exportedBy: 'Admin',
-            exportType: 'all_quizzes',
-            totalQuizzes: currentQuizzes.length,
-            quizzes: currentQuizzes
-        };
-        
-        const dataStr = JSON.stringify(exportData, null, 2);
-        const dataBlob = new Blob([dataStr], {type: 'application/json'});
-        
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(dataBlob);
-        link.download = `all-quizzes-export-${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-        
-        alert(`✅ All ${currentQuizzes.length} quizzes exported successfully!`);
-        
-    } catch (error) {
-        console.error('Error exporting all quizzes:', error);
-        alert('❌ Error exporting quizzes. Please try again.');
-    }
-}
-
-// Bulk delete quizzes
-async function bulkDeleteQuizzes() {
-    if (selectedQuizzes.size === 0) {
-        alert('Please select quizzes to delete');
-        return;
-    }
-    
-    if (!confirm(`⚠️ DELETE ${selectedQuizzes.size} selected quiz(es)?\n\nThis action cannot be undone!`)) return;
-    
-    const confirmation = prompt(`Type "DELETE" to confirm deletion of ${selectedQuizzes.size} quizzes:`);
-    if (confirmation !== 'DELETE') {
-        alert('Deletion cancelled.');
-        return;
-    }
-    
-    try {
-        const batch = firebase.firestore().batch();
-        
-        selectedQuizzes.forEach(quizId => {
-            const quizRef = firebase.firestore().collection('quizzes').doc(quizId);
-            batch.delete(quizRef);
-        });
-        
-        await batch.commit();
-        
-        alert(`✅ ${selectedQuizzes.size} quiz(es) deleted successfully!`);
-        clearSelection();
-        loadQuizzes();
-        
-    } catch (error) {
-        console.error('Error bulk deleting quizzes:', error);
-        alert('❌ Error deleting quizzes. Please try again.');
-    }
-}
-
-// Clear all quizzes (DANGEROUS)
-async function clearAllQuizzes() {
-    if (currentQuizzes.length === 0) {
-        alert('No quizzes to delete');
-        return;
-    }
-    
-    if (!confirm(`⚠️ DANGER: Delete ALL ${currentQuizzes.length} quizzes?\n\nThis will permanently delete every quiz in your database!\n\nThis action cannot be undone!`)) return;
-    
-    if (!confirm('⚠️ FINAL WARNING: ALL QUIZZES WILL BE DELETED!\n\nAre you absolutely certain?')) return;
-    
-    const confirmation = prompt('Type "DELETE ALL" to confirm complete deletion:');
-    if (confirmation !== 'DELETE ALL') {
-        alert('Deletion cancelled.');
-        return;
-    }
-    
-    try {
-        const snapshot = await firebase.firestore().collection('quizzes').get();
-        const batch = firebase.firestore().batch();
-        
-        snapshot.docs.forEach(doc => {
-            batch.delete(doc.ref);
-        });
-        
-        await batch.commit();
-        
-        alert(`✅ All ${snapshot.size} quizzes have been deleted!`);
-        clearSelection();
-        loadQuizzes();
-        
-    } catch (error) {
-        console.error('Error clearing all quizzes:', error);
-        alert('❌ Error clearing quizzes. Please try again.');
-    }
-}
-
-
-
-
-
-
-
-
-
-
-// ===== SIMPLIFIED NOTIFICATION SYSTEM (FIXED) =====
-class SimpleNotificationSystem {
-    constructor() {
-        this.container = null;
-        this.init();
-    }
-
-    init() {
-        this.createNotificationContainer();
-        // Don't auto-setup real-time notifications to avoid permission errors
-    }
-
-    createNotificationContainer() {
-        if (document.getElementById('notification-container')) return;
-
-        const container = document.createElement('div');
-        container.id = 'notification-container';
-        container.className = 'notification-container';
-        document.body.appendChild(container);
-        this.container = container;
-    }
-
-    showNotification({ type = 'info', title, message, duration = 3000 }) {
-        const id = Date.now() + Math.random();
-
-        const icons = {
-            success: 'fas fa-check-circle',
-            error: 'fas fa-times-circle', 
-            warning: 'fas fa-exclamation-triangle',
-            info: 'fas fa-info-circle'
-        };
-
-        const notificationEl = document.createElement('div');
-        notificationEl.className = `notification notification-${type}`;
-        notificationEl.setAttribute('data-id', id);
-
-        notificationEl.innerHTML = `
-            <div class="notification-icon">
-                <i class="${icons[type]}"></i>
-            </div>
-            <div class="notification-content">
-                <div class="notification-title">${title}</div>
-                <div class="notification-message">${message}</div>
-            </div>
-            <button class="notification-close" onclick="window.notificationSystem.removeNotification(${id})">
-                <i class="fas fa-times"></i>
-            </button>
-        `;
-
-        this.container.appendChild(notificationEl);
-
-        // Animate in
-        setTimeout(() => {
-            notificationEl.classList.add('show');
-        }, 100);
-
-        // Auto remove
-        setTimeout(() => {
-            this.removeNotification(id);
-        }, duration);
-    }
-
-    removeNotification(id) {
-        const notificationEl = document.querySelector(`[data-id="${id}"]`);
-        if (notificationEl) {
-            notificationEl.classList.add('hide');
-            setTimeout(() => {
-                if (notificationEl.parentNode) {
-                    notificationEl.parentNode.removeChild(notificationEl);
-                }
-            }, 300);
-        }
-    }
-
-    showSuccess(title, message) {
-        this.showNotification({ type: 'success', title, message });
-    }
-
-    showError(title, message) {
-        this.showNotification({ type: 'error', title, message });
-    }
-}
-
-// Initialize simple notification system
-window.addEventListener('DOMContentLoaded', () => {
-    window.notificationSystem = new SimpleNotificationSystem();
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ===== MAKE FUNCTIONS GLOBALLY AVAILABLE =====
-window.loadQuizzes = loadQuizzes;
-window.filterQuizzes = filterQuizzes;
-window.editQuiz = editQuiz;
-window.viewQuizStats = viewQuizStats;
-window.deleteQuiz = deleteQuiz;
-window.toggleQuizStatus = toggleQuizStatus;
-window.previewQuiz = previewQuiz;
-window.duplicateQuiz = duplicateQuiz;
-window.exportQuiz = exportQuiz;
-window.switchUploadTab = switchUploadTab;
-window.addQuestion = addQuestion;
-window.removeQuestion = removeQuestion;
-window.createQuiz = createQuiz;
-window.uploadJSON = uploadJSON;
-window.loadUsers = loadUsers;
-window.viewUser = viewUser;
-window.exportAllData = exportAllData;
-window.clearAllData = clearAllData;
-
-
-
-
-
-
-
-// Add these to your existing global functions section:
-window.selectAllQuizzes = selectAllQuizzes;
-window.clearSelection = clearSelection;
-window.toggleQuizSelection = toggleQuizSelection;
-window.bulkActivateQuizzes = bulkActivateQuizzes;
-window.bulkDeactivateQuizzes = bulkDeactivateQuizzes;
-window.bulkUpdateCategory = bulkUpdateCategory;
-window.bulkExportQuizzes = bulkExportQuizzes;
-window.exportAllQuizzes = exportAllQuizzes;
-window.bulkDeleteQuizzes = bulkDeleteQuizzes;
-window.clearAllQuizzes = clearAllQuizzes;
-
-
-
-
-
-
-
-
-console.log('✅ Enhanced Admin Features loaded successfully!');
+console.log('Enhanced Admin Features loaded successfully!');
