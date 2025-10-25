@@ -1,4 +1,4 @@
-// ===== ENHANCED ADMIN FEATURES - COMPLETE IMPLEMENTATION =====
+// ===== ENHANCED ADMIN FEATURES - COMPLETE IMPLEMENTATION WITH JSON EXPLANATION VALIDATION =====
 
 console.log('Loading Enhanced Admin Features...');
 
@@ -528,7 +528,7 @@ function addQuestion() {
                 </div>
             </div>
 
-            <!-- NEW EXPLANATION FIELD -->
+            <!-- EXPLANATION FIELD - MANDATORY -->
             <div class="form-group">
                 <label for="explanation-${questionNumber}" class="required">Explanation:</label>
                 <textarea 
@@ -690,7 +690,7 @@ function collectQuizData() {
             throw new Error(`Question ${questionNum}: Please select the correct answer`);
         }
 
-        // Get explanation - THIS IS THE CRITICAL NEW PART
+        // Get explanation - MANDATORY
         const explanation = formData.get(`explanation-${questionNum}`)?.trim();
         if (!explanation) {
             throw new Error(`Question ${questionNum}: Explanation is required`);
@@ -704,7 +704,7 @@ function collectQuizData() {
             question: questionText,
             options: options,
             correctAnswer: correctAnswer,
-            explanation: explanation, // NEW: Include explanation
+            explanation: explanation, // MANDATORY FIELD
             points: points
         });
     });
@@ -763,10 +763,10 @@ async function createManualQuiz() {
     }
 }
 
-// Upload JSON quiz
+// ✅ FIXED: Upload JSON quiz with explanation validation
 async function uploadJsonQuiz() {
     const jsonInput = document.getElementById('jsonQuizData');
-    const jsonData = jsonInput.value.trim();
+    const jsonData = jsonInput?.value.trim();
     
     if (!jsonData) {
         alert('Please enter quiz JSON data');
@@ -781,12 +781,35 @@ async function uploadJsonQuiz() {
             throw new Error('Invalid quiz format. Title and questions array are required.');
         }
 
-        // Validate each question has explanation
+        // ✅ NEW: Validate each question has explanation
         for (let i = 0; i < quizData.questions.length; i++) {
             const question = quizData.questions[i];
-            if (!question.explanation) {
+            
+            if (!question.explanation || question.explanation.trim() === '') {
                 throw new Error(`Question ${i + 1}: Explanation is required for all questions.`);
             }
+            
+            // Also validate other required fields
+            if (!question.question || question.question.trim() === '') {
+                throw new Error(`Question ${i + 1}: Question text is required.`);
+            }
+            if (!question.options || !Array.isArray(question.options) || question.options.length < 4) {
+                throw new Error(`Question ${i + 1}: Must have at least 4 options.`);
+            }
+            if (question.correctAnswer === undefined || question.correctAnswer === null) {
+                throw new Error(`Question ${i + 1}: Correct answer is required.`);
+            }
+            if (question.correctAnswer < 0 || question.correctAnswer >= question.options.length) {
+                throw new Error(`Question ${i + 1}: Correct answer index is invalid.`);
+            }
+        }
+        
+        // Show loading state
+        const uploadBtn = document.querySelector('.upload-json-btn');
+        const originalText = uploadBtn?.innerHTML || 'Upload Quiz';
+        if (uploadBtn) {
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+            uploadBtn.disabled = true;
         }
         
         // Add metadata
@@ -799,7 +822,7 @@ async function uploadJsonQuiz() {
             .collection('quizzes')
             .add(quizData);
             
-        alert(`✅ Quiz uploaded successfully!\n\nQuiz ID: ${docRef.id}\nTitle: ${quizData.title}`);
+        alert(`✅ Quiz uploaded successfully!\n\nQuiz ID: ${docRef.id}\nTitle: ${quizData.title}\nQuestions: ${quizData.questions.length}\nAll questions include explanations!`);
         
         // Clear form
         jsonInput.value = '';
@@ -811,7 +834,21 @@ async function uploadJsonQuiz() {
         
     } catch (error) {
         console.error('Error uploading quiz:', error);
-        alert(`❌ Error uploading quiz:\n\n${error.message}`);
+        let errorMessage = error.message;
+        
+        // Provide helpful error messages
+        if (error.message.includes('JSON')) {
+            errorMessage = 'Invalid JSON format. Please check your JSON syntax.';
+        }
+        
+        alert(`❌ Error uploading quiz:\n\n${errorMessage}`);
+    } finally {
+        // Restore button
+        const uploadBtn = document.querySelector('.upload-json-btn');
+        if (uploadBtn) {
+            uploadBtn.innerHTML = originalText;
+            uploadBtn.disabled = false;
+        }
     }
 }
 
@@ -889,4 +926,4 @@ if (typeof window !== 'undefined') {
     });
 }
 
-console.log('Enhanced Admin Features loaded successfully!');
+console.log('Enhanced Admin Features with JSON Explanation Validation loaded successfully!');
