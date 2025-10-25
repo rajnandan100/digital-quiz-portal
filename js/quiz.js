@@ -1,3 +1,26 @@
+
+
+// ✅ UNIVERSAL FIX - Add this as the FIRST line in quiz.js
+if (!document.getElementById('congratulations-title')) {
+    // Create missing elements if they don't exist
+    const hiddenElements = ['congratulations-title', 'performance-subtitle', 'score-percentage', 'score-grade'];
+    hiddenElements.forEach(id => {
+        if (!document.getElementById(id)) {
+            const div = document.createElement('div');
+            div.id = id;
+            div.style.display = 'none';
+            document.body.appendChild(div);
+        }
+    });
+}
+
+
+
+
+
+
+
+
 // ===== REAL-TIME FIREBASE RESULTS SYSTEM =====
 
 class ResultsManager {
