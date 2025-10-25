@@ -1,4 +1,4 @@
-// ===== UPDATED QUIZ SYSTEM WITH ALL REQUESTED FEATURES =====
+// ===== REAL-TIME FIREBASE QUIZ SYSTEM WITH ALL FEATURES =====
 
 class QuizManager {
     constructor() {
@@ -14,7 +14,7 @@ class QuizManager {
         this.selectedQuote = null; // Store selected quote for entire quiz
         this.userFirstName = '';
         this.isPaletteExpanded = false; // Question palette starts minimized
-        
+        this.quizId = null;
         this.init();
     }
 
@@ -63,7 +63,20 @@ class QuizManager {
         }
     }
 
-    // 100 Motivational Quotes Array (same as before)
+    // Update user UI elements
+    updateUserUI(user) {
+        const userAvatar = document.getElementById('user-avatar-quiz');
+        if (userAvatar) {
+            if (user.photoURL) {
+                userAvatar.src = user.photoURL;
+            } else {
+                const displayName = user.displayName || user.email.split('@')[0];
+                userAvatar.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=4F46E5&color=fff&size=40`;
+            }
+        }
+    }
+
+    // 100 Motivational Quotes Array
     getMotivationalQuotes() {
         return [
             { text: "The harder you work for something, the greater you'll feel when you achieve it.", author: "Anonymous" },
@@ -116,66 +129,7 @@ class QuizManager {
             { text: "Build your own dreams, or someone else will hire you to build theirs.", author: "Farrah Gray" },
             { text: "The best time to plant a tree was 20 years ago. The second best time is now.", author: "Chinese Proverb" },
             { text: "Challenges are what make life interesting and overcoming them is what makes life meaningful.", author: "Joshua J. Marine" },
-            // Adding 50 more quotes to reach 100...
-            { text: "Don't be afraid to give up the good to go for the great.", author: "John D. Rockefeller" },
-            { text: "If you believe it will work out, you'll see opportunities.", author: "Wayne Dyer" },
-            { text: "You are never too old to set another goal or to dream a new dream.", author: "C.S. Lewis" },
-            { text: "The way to get started is to quit talking and begin doing.", author: "Walt Disney" },
-            { text: "Innovation distinguishes between a leader and a follower.", author: "Steve Jobs" },
-            { text: "Life is what happens to you while you're busy making other plans.", author: "John Lennon" },
-            { text: "The future belongs to those who prepare for it today.", author: "Malcolm X" },
-            { text: "You miss 100% of the shots you don't take.", author: "Wayne Gretzky" },
-            { text: "Whether you think you can or you think you can't, you're right.", author: "Henry Ford" },
-            { text: "The only person you are destined to become is the person you decide to be.", author: "Ralph Waldo Emerson" },
-            { text: "Go confidently in the direction of your dreams.", author: "Henry David Thoreau" },
-            { text: "Born to be real, not to be perfect.", author: "Anonymous" },
-            { text: "Be yourself; everyone else is already taken.", author: "Oscar Wilde" },
-            { text: "I'm not a product of my circumstances. I am a product of my decisions.", author: "Stephen Covey" },
-            { text: "Every child is an artist. The problem is how to remain an artist once he grows up.", author: "Pablo Picasso" },
-            { text: "You can never cross the ocean until you have the courage to lose sight of the shore.", author: "Christopher Columbus" },
-            { text: "Either you run the day, or the day runs you.", author: "Jim Rohn" },
-            { text: "The two most important days in your life are the day you are born and the day you find out why.", author: "Mark Twain" },
-            { text: "Whatever you can do, or dream you can, begin it.", author: "Johann Wolfgang von Goethe" },
-            { text: "Failure will never overtake me if my determination to succeed is strong enough.", author: "Og Mandino" },
-            { text: "We may encounter many defeats but we must not be defeated.", author: "Maya Angelou" },
-            { text: "Imagine your life is perfect in every respect; what would it look like?", author: "Brian Tracy" },
-            { text: "We generate fears while we sit. We overcome them by action.", author: "Dr. Henry Link" },
-            { text: "What seems impossible today will one day become your warm-up.", author: "Anonymous" },
-            { text: "Turn your wounds into wisdom.", author: "Oprah Winfrey" },
-            { text: "The successful warrior is the average man with laser-like focus.", author: "Bruce Lee" },
-            { text: "Developing excellence is a lifelong journey of continuous improvement.", author: "Anonymous" },
-            { text: "There are no shortcuts to any place worth going.", author: "Beverly Sills" },
-            { text: "You are what you do, not what you say you'll do.", author: "Anonymous" },
-            { text: "A goal is a dream with a deadline.", author: "Napoleon Hill" },
-            { text: "You don't have to be great to get started, but you have to get started to be great.", author: "Les Brown" },
-            { text: "A year from now you may wish you had started today.", author: "Karen Lamb" },
-            { text: "Creativity is intelligence having fun.", author: "Albert Einstein" },
-            { text: "What we think, we become.", author: "Buddha" },
-            { text: "The mind is everything. What you think you become.", author: "Buddha" },
-            { text: "The best way to predict the future is to create it.", author: "Peter Drucker" },
-            { text: "You can't fall if you don't climb. But there's no joy in living your whole life on the ground.", author: "Anonymous" },
-            { text: "We must believe that we are gifted for something.", author: "Marie Curie" },
-            { text: "Too many of us are not living our dreams because we are living our fears.", author: "Les Brown" },
-            { text: "The way to achieve your own success is to be willing to help somebody else get it first.", author: "Iyanla Vanzant" },
-            { text: "Don't be pushed around by the fears in your mind. Be led by the dreams in your heart.", author: "Roy T. Bennett" },
-            { text: "The difference between a stumbling block and a stepping stone is how high you raise your foot.", author: "Benny Lewis" },
-            { text: "As we look ahead into the next century, leaders will be those who empower others.", author: "Bill Gates" },
-            { text: "There are no traffic jams along the extra mile.", author: "Roger Staubach" },
-            { text: "I would rather die of passion than of boredom.", author: "Vincent van Gogh" },
-            { text: "The battles that count aren't the ones for gold medals.", author: "Jesse Owens" },
-            { text: "Education costs money. But then so does ignorance.", author: "Sir Claus Moser" },
-            { text: "I have not failed. I've just found 10,000 ways that won't work.", author: "Thomas A. Edison" },
-            { text: "Strive not to be a success, but rather to be of value.", author: "Albert Einstein" },
-            { text: "Two roads diverged in a wood, and I took the one less traveled by.", author: "Robert Frost" },
-            { text: "The only way to make sense out of change is to plunge into it, move with it, and join the dance.", author: "Alan Watts" },
-            { text: "Happiness is not something readymade. It comes from your own actions.", author: "Dalai Lama" },
-            { text: "If you want to lift yourself up, lift up someone else.", author: "Booker T. Washington" },
-            { text: "The greatest glory in living lies not in never falling, but in rising every time we fall.", author: "Nelson Mandela" },
-            { text: "If life were predictable it would cease to be life, and be without flavor.", author: "Eleanor Roosevelt" },
-            { text: "Life is really simple, but we insist on making it complicated.", author: "Confucius" },
-            { text: "May you live all the days of your life.", author: "Jonathan Swift" },
-            { text: "Life itself is the most wonderful fairy tale.", author: "Hans Christian Andersen" },
-            { text: "Do not go where the path may lead, go instead where there is no path and leave a trail.", author: "Ralph Waldo Emerson" }
+            { text: "Don't be afraid to give up the good to go for the great.", author: "John D. Rockefeller" }
         ];
     }
 
@@ -188,126 +142,77 @@ class QuizManager {
         this.displaySelectedMotivationalQuote();
     }
 
-    // Sample Quiz Data
-    getSampleQuiz() {
-        return {
-            id: 'gk-001',
-            title: 'General Knowledge Challenge 2024',
-            category: 'General Knowledge',
-            duration: 30, // minutes
-            totalQuestions: 30,
-            questions: [
-                {
-                    id: 1,
-                    text: "What is the capital of Australia?",
-                    options: ["Sydney", "Melbourne", "Canberra", "Perth"],
-                    correctAnswer: 2,
-                    category: "Geography"
-                },
-                {
-                    id: 2,
-                    text: "Who painted the Mona Lisa?",
-                    options: ["Vincent van Gogh", "Leonardo da Vinci", "Pablo Picasso", "Michelangelo"],
-                    correctAnswer: 1,
-                    category: "Art"
-                },
-                {
-                    id: 3,
-                    text: "What is the largest planet in our solar system?",
-                    options: ["Earth", "Mars", "Jupiter", "Saturn"],
-                    correctAnswer: 2,
-                    category: "Science"
-                },
-                {
-                    id: 4,
-                    text: "Which year did World War II end?",
-                    options: ["1944", "1945", "1946", "1947"],
-                    correctAnswer: 1,
-                    category: "History"
-                },
-                {
-                    id: 5,
-                    text: "What is the chemical symbol for gold?",
-                    options: ["Go", "Gd", "Au", "Ag"],
-                    correctAnswer: 2,
-                    category: "Science"
-                },
-                {
-                    id: 6,
-                    text: "Who wrote 'Romeo and Juliet'?",
-                    options: ["Charles Dickens", "William Shakespeare", "Mark Twain", "Jane Austen"],
-                    correctAnswer: 1,
-                    category: "Literature"
-                },
-                {
-                    id: 7,
-                    text: "What is the smallest country in the world?",
-                    options: ["Monaco", "San Marino", "Vatican City", "Liechtenstein"],
-                    correctAnswer: 2,
-                    category: "Geography"
-                },
-                {
-                    id: 8,
-                    text: "Which element has the atomic number 1?",
-                    options: ["Helium", "Hydrogen", "Oxygen", "Carbon"],
-                    correctAnswer: 1,
-                    category: "Science"
-                },
-                {
-                    id: 9,
-                    text: "In which year did the Berlin Wall fall?",
-                    options: ["1987", "1988", "1989", "1990"],
-                    correctAnswer: 2,
-                    category: "History"
-                },
-                {
-                    id: 10,
-                    text: "What is the currency of Japan?",
-                    options: ["Yuan", "Won", "Yen", "Ringgit"],
-                    correctAnswer: 2,
-                    category: "Geography"
-                },
-                // Adding more questions to reach 30
-                ...Array.from({ length: 20 }, (_, i) => ({
-                    id: i + 11,
-                    text: `Sample Question ${i + 11}: This is a placeholder question for testing the quiz system functionality with various topics and complexity levels.`,
-                    options: [`Option A${i + 11}`, `Option B${i + 11}`, `Option C${i + 11}`, `Option D${i + 11}`],
-                    correctAnswer: Math.floor(Math.random() * 4),
-                    category: ["General Knowledge", "Science", "History", "Geography", "Literature"][Math.floor(Math.random() * 5)]
-                }))
-            ]
-        };
+    // Display the selected motivational quote
+    displaySelectedMotivationalQuote() {
+        if (this.selectedQuote) {
+            document.getElementById('motivational-text').textContent = `"${this.selectedQuote.text}"`;
+            document.getElementById('quote-author').textContent = `- ${this.selectedQuote.author}`;
+        }
     }
 
-    loadQuizFromURL() {
-        // In a real app, you'd get quiz ID from URL params and load from Firebase
-        const urlParams = new URLSearchParams(window.location.search);
-        const quizId = urlParams.get('id') || 'gk-001';
-        
-        this.showLoading(true);
-        
-        // Simulate loading delay
-        setTimeout(() => {
-            this.currentQuiz = this.getSampleQuiz();
+    // Load quiz from Firestore using URL parameter
+    async loadQuizFromURL() {
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            this.quizId = urlParams.get('id');
+
+            if (!this.quizId) {
+                this.showToast('No quiz ID provided', 'error');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 2000);
+                return;
+            }
+
+            this.showLoading(true);
+
+            // Load quiz from Firestore
+            const quizDoc = await firebase.firestore()
+                .collection('quizzes')
+                .doc(this.quizId)
+                .get();
+
+            if (!quizDoc.exists) {
+                throw new Error('Quiz not found');
+            }
+
+            this.currentQuiz = {
+                id: quizDoc.id,
+                ...quizDoc.data()
+            };
+
+            // Check if quiz is active
+            if (this.currentQuiz.status !== 'active') {
+                throw new Error('Quiz is not available');
+            }
+
             this.initializeQuiz();
             this.showLoading(false);
-        }, 1500);
+
+        } catch (error) {
+            console.error('Error loading quiz:', error);
+            this.showLoading(false);
+            this.showToast('Failed to load quiz: ' + error.message, 'error');
+            setTimeout(() => {
+                window.location.href = '../index.html';
+            }, 3000);
+        }
     }
 
     initializeQuiz() {
         // Initialize quiz data
-        this.timeRemaining = this.currentQuiz.duration * 60; // Convert to seconds
+        this.timeRemaining = this.currentQuiz.timeLimit * 60; // Convert to seconds
         this.quizStartTime = new Date();
         this.currentQuestionIndex = 0;
         this.userAnswers = {};
         this.markedQuestions = new Set();
         this.questionStates = {};
-        
+
         // Initialize question states - all start as not-visited except first one
         this.currentQuiz.questions.forEach((_, index) => {
             this.questionStates[index] = index === 0 ? 'current' : 'not-visited';
         });
-        
+
         // Update UI
         this.updateQuizHeader();
         this.generateQuestionPalette();
@@ -322,11 +227,11 @@ class QuizManager {
         const toggleBtn = document.getElementById('palette-toggle');
         const palette = document.getElementById('question-palette');
         const toggleIcon = document.getElementById('toggle-icon');
-        
+
         if (toggleBtn) {
             toggleBtn.addEventListener('click', () => {
                 this.isPaletteExpanded = !this.isPaletteExpanded;
-                
+
                 if (this.isPaletteExpanded) {
                     palette.classList.remove('collapsed');
                     palette.classList.add('expanded');
@@ -344,7 +249,7 @@ class QuizManager {
 
     updateQuizHeader() {
         document.getElementById('quiz-title').textContent = this.currentQuiz.title;
-        document.getElementById('total-questions').textContent = this.currentQuiz.totalQuestions;
+        document.getElementById('total-questions').textContent = this.currentQuiz.questions.length;
         this.updateTimer();
     }
 
@@ -352,13 +257,13 @@ class QuizManager {
         this.timer = setInterval(() => {
             this.timeRemaining--;
             this.updateTimer();
-            
+
             // Auto-submit when time is up
             if (this.timeRemaining <= 0) {
                 clearInterval(this.timer);
                 this.autoSubmitQuiz();
             }
-            
+
             // Warning at 5 minutes
             if (this.timeRemaining === 300) {
                 this.showTimerWarning();
@@ -370,8 +275,9 @@ class QuizManager {
         const minutes = Math.floor(this.timeRemaining / 60);
         const seconds = this.timeRemaining % 60;
         const display = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        document.getElementById('timer-display').textContent = display;
         
+        document.getElementById('timer-display').textContent = display;
+
         // Change timer color based on time remaining
         const timerContainer = document.querySelector('.timer-container');
         if (this.timeRemaining <= 300) { // 5 minutes
@@ -390,7 +296,7 @@ class QuizManager {
     generateQuestionPalette() {
         const paletteGrid = document.getElementById('palette-grid');
         paletteGrid.innerHTML = '';
-        
+
         this.currentQuiz.questions.forEach((_, index) => {
             const questionBtn = document.createElement('button');
             questionBtn.className = `question-number ${this.questionStates[index]}`;
@@ -398,7 +304,7 @@ class QuizManager {
             questionBtn.addEventListener('click', () => this.goToQuestion(index));
             paletteGrid.appendChild(questionBtn);
         });
-        
+
         this.updatePaletteStats();
     }
 
@@ -410,8 +316,8 @@ class QuizManager {
             ...Array.from(this.markedQuestions),
             this.currentQuestionIndex
         ]).size;
-        const notVisited = this.currentQuiz.totalQuestions - visited;
-        
+        const notVisited = this.currentQuiz.questions.length - visited;
+
         document.getElementById('answered-count').textContent = answered;
         document.getElementById('marked-count').textContent = marked;
         document.getElementById('remaining-count').textContent = Math.max(0, notVisited);
@@ -419,15 +325,15 @@ class QuizManager {
 
     displayCurrentQuestion() {
         const question = this.currentQuiz.questions[this.currentQuestionIndex];
-        
+
         // Update question info
         document.getElementById('current-question-number').textContent = this.currentQuestionIndex + 1;
-        document.getElementById('question-text').textContent = question.text;
-        
+        document.getElementById('question-text').textContent = question.question;
+
         // Create options with click-anywhere functionality
         const optionsContainer = document.getElementById('options-container');
         optionsContainer.innerHTML = '';
-        
+
         question.options.forEach((option, index) => {
             const optionDiv = document.createElement('div');
             optionDiv.className = 'option-item';
@@ -436,57 +342,53 @@ class QuizManager {
             if (isSelected) {
                 optionDiv.classList.add('selected');
             }
-            
+
             optionDiv.innerHTML = `
-                <input type="radio" 
-                       name="question-${question.id}" 
-                       value="${index}" 
-                       id="option-${index}" 
-                       class="option-input"
-                       ${isSelected ? 'checked' : ''}>
+                <input type="radio" class="option-input" name="question-${question.id || this.currentQuestionIndex}" 
+                       id="option-${index}" value="${index}" ${isSelected ? 'checked' : ''}>
                 <label for="option-${index}" class="option-text">${option}</label>
             `;
-            
+
             // Add click event to entire option div
             optionDiv.addEventListener('click', () => {
                 this.selectAnswer(index);
             });
-            
+
             optionsContainer.appendChild(optionDiv);
         });
-        
+
         // Update navigation buttons
         this.updateNavigationButtons();
-        
+
         // Update mark button state
         const markBtn = document.getElementById('btn-mark');
         if (this.markedQuestions.has(this.currentQuestionIndex)) {
             markBtn.classList.add('active');
-            markBtn.innerHTML = '<i class="fas fa-bookmark"></i> Marked for Review';
+            markBtn.innerHTML = '<i class="fas fa-flag"></i> Marked for Review';
         } else {
             markBtn.classList.remove('active');
-            markBtn.innerHTML = '<i class="fas fa-bookmark"></i> Mark for Review';
+            markBtn.innerHTML = '<i class="fas fa-flag"></i> Mark for Review';
         }
-        
+
         this.updateAllProgressBars();
     }
 
     selectAnswer(optionIndex) {
         this.userAnswers[this.currentQuestionIndex] = optionIndex;
         this.questionStates[this.currentQuestionIndex] = 'answered';
-        
+
         // Update radio button
         const radio = document.getElementById(`option-${optionIndex}`);
         if (radio) {
             radio.checked = true;
         }
-        
+
         // Update option styling - Green for selected
         document.querySelectorAll('.option-item').forEach(item => {
             item.classList.remove('selected');
         });
         document.querySelectorAll('.option-item')[optionIndex].classList.add('selected');
-        
+
         // Update palette
         this.updateQuestionPalette();
         this.updatePaletteStats();
@@ -506,7 +408,7 @@ class QuizManager {
         
         prevBtn.disabled = this.currentQuestionIndex === 0;
         
-        if (this.currentQuestionIndex === this.currentQuiz.totalQuestions - 1) {
+        if (this.currentQuestionIndex === this.currentQuiz.questions.length - 1) {
             nextBtn.innerHTML = '<i class="fas fa-flag-checkered"></i> Finish';
         } else {
             nextBtn.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
@@ -514,22 +416,22 @@ class QuizManager {
     }
 
     goToQuestion(questionIndex) {
-        if (questionIndex >= 0 && questionIndex < this.currentQuiz.totalQuestions) {
+        if (questionIndex >= 0 && questionIndex < this.currentQuiz.questions.length) {
             // Update previous question state
             if (this.questionStates[this.currentQuestionIndex] === 'current' && 
-                !this.userAnswers.hasOwnProperty(this.currentQuestionIndex) &&
+                !this.userAnswers.hasOwnProperty(this.currentQuestionIndex) && 
                 !this.markedQuestions.has(this.currentQuestionIndex)) {
                 this.questionStates[this.currentQuestionIndex] = 'not-visited';
-            } else if (this.questionStates[this.currentQuestionIndex] === 'current' &&
-                      this.userAnswers.hasOwnProperty(this.currentQuestionIndex)) {
+            } else if (this.questionStates[this.currentQuestionIndex] === 'current' && 
+                       this.userAnswers.hasOwnProperty(this.currentQuestionIndex)) {
                 this.questionStates[this.currentQuestionIndex] = 'answered';
-            } else if (this.questionStates[this.currentQuestionIndex] === 'current' &&
-                      this.markedQuestions.has(this.currentQuestionIndex)) {
+            } else if (this.questionStates[this.currentQuestionIndex] === 'current' && 
+                       this.markedQuestions.has(this.currentQuestionIndex)) {
                 this.questionStates[this.currentQuestionIndex] = 'marked';
             }
-            
+
             this.currentQuestionIndex = questionIndex;
-            
+
             // Set current question state
             if (this.userAnswers.hasOwnProperty(this.currentQuestionIndex)) {
                 this.questionStates[this.currentQuestionIndex] = 'answered';
@@ -538,7 +440,7 @@ class QuizManager {
             } else {
                 this.questionStates[this.currentQuestionIndex] = 'current';
             }
-            
+
             this.displayCurrentQuestion();
             this.updateQuestionPalette();
         }
@@ -551,7 +453,7 @@ class QuizManager {
     }
 
     nextQuestion() {
-        if (this.currentQuestionIndex < this.currentQuiz.totalQuestions - 1) {
+        if (this.currentQuestionIndex < this.currentQuiz.questions.length - 1) {
             this.goToQuestion(this.currentQuestionIndex + 1);
         } else {
             // Last question - show submit confirmation
@@ -565,7 +467,7 @@ class QuizManager {
         if (this.markedQuestions.has(this.currentQuestionIndex)) {
             this.markedQuestions.delete(this.currentQuestionIndex);
             markBtn.classList.remove('active');
-            markBtn.innerHTML = '<i class="fas fa-bookmark"></i> Mark for Review';
+            markBtn.innerHTML = '<i class="fas fa-flag"></i> Mark for Review';
             
             // Update state
             if (this.userAnswers.hasOwnProperty(this.currentQuestionIndex)) {
@@ -576,10 +478,10 @@ class QuizManager {
         } else {
             this.markedQuestions.add(this.currentQuestionIndex);
             markBtn.classList.add('active');
-            markBtn.innerHTML = '<i class="fas fa-bookmark"></i> Marked for Review';
+            markBtn.innerHTML = '<i class="fas fa-flag"></i> Marked for Review';
             this.questionStates[this.currentQuestionIndex] = 'marked';
         }
-        
+
         this.updateQuestionPalette();
         this.updatePaletteStats();
     }
@@ -587,23 +489,23 @@ class QuizManager {
     clearResponse() {
         if (this.userAnswers.hasOwnProperty(this.currentQuestionIndex)) {
             delete this.userAnswers[this.currentQuestionIndex];
-            
+
             // Update question state
             if (this.markedQuestions.has(this.currentQuestionIndex)) {
                 this.questionStates[this.currentQuestionIndex] = 'marked';
             } else {
                 this.questionStates[this.currentQuestionIndex] = 'current';
             }
-            
+
             // Clear radio buttons
-            document.querySelectorAll(`input[name="question-${this.currentQuiz.questions[this.currentQuestionIndex].id}"]`)
+            document.querySelectorAll(`input[name="question-${this.currentQuiz.questions[this.currentQuestionIndex].id || this.currentQuestionIndex}"]`)
                 .forEach(radio => radio.checked = false);
-            
+
             // Remove selection styling
             document.querySelectorAll('.option-item').forEach(item => {
                 item.classList.remove('selected');
             });
-            
+
             this.updateQuestionPalette();
             this.updatePaletteStats();
             this.updateAllProgressBars();
@@ -613,13 +515,13 @@ class QuizManager {
     showSubmitModal() {
         const modal = document.getElementById('submit-modal');
         const answered = Object.keys(this.userAnswers).length;
-        const notAnswered = this.currentQuiz.totalQuestions - answered;
+        const notAnswered = this.currentQuiz.questions.length - answered;
         const marked = this.markedQuestions.size;
-        
+
         document.getElementById('submit-answered').textContent = answered;
         document.getElementById('submit-not-answered').textContent = notAnswered;
         document.getElementById('submit-marked').textContent = marked;
-        
+
         modal.classList.add('show');
     }
 
@@ -630,27 +532,35 @@ class QuizManager {
     async submitQuiz() {
         this.hideSubmitModal();
         this.showLoading(true);
-        
+
         // Stop timer
         if (this.timer) {
             clearInterval(this.timer);
         }
-        
+
         // Calculate results
         const results = this.calculateResults();
-        
-        // Save to Firebase (simulation)
+
         try {
+            // Save to Firebase
             await this.saveQuizResults(results);
-            
+
             // Show interstitial ad (simulation)
             setTimeout(() => {
                 this.showInterstitialAd(() => {
                     // Redirect to results page
-                    window.location.href = `../pages/results.html?score=${results.score}&total=${results.total}&percentage=${results.percentage}`;
+                    const params = new URLSearchParams({
+                        quizId: this.quizId,
+                        score: results.score,
+                        total: results.total,
+                        percentage: results.percentage
+                    });
+                    window.location.href = `../pages/results.html?${params.toString()}`;
                 });
             }, 1000);
+
         } catch (error) {
+            console.error('Error submitting quiz:', error);
             this.showLoading(false);
             this.showToast('Error submitting quiz. Please try again.', 'error');
         }
@@ -665,48 +575,65 @@ class QuizManager {
 
     calculateResults() {
         let correctAnswers = 0;
-        const totalQuestions = this.currentQuiz.totalQuestions;
-        
+        const totalQuestions = this.currentQuiz.questions.length;
+
         this.currentQuiz.questions.forEach((question, index) => {
             if (this.userAnswers[index] === question.correctAnswer) {
                 correctAnswers++;
             }
         });
-        
+
         const percentage = Math.round((correctAnswers / totalQuestions) * 100);
-        
+
         return {
-            quizId: this.currentQuiz.id,
+            quizId: this.quizId,
+            quizTitle: this.currentQuiz.title,
             userId: this.currentUser.uid,
-            userName: this.currentUser.displayName,
+            userEmail: this.currentUser.email,
+            userName: this.currentUser.displayName || this.currentUser.email.split('@')[0],
             userFirstName: this.userFirstName,
             score: correctAnswers,
             total: totalQuestions,
             percentage: percentage,
-            timeTaken: this.currentQuiz.duration * 60 - this.timeRemaining,
-            answers: this.userAnswers,
+            timeTaken: (this.currentQuiz.timeLimit * 60) - this.timeRemaining,
+            answers: Object.keys(this.userAnswers).map(key => ({
+                questionIndex: parseInt(key),
+                selectedOption: this.userAnswers[key]
+            })),
             markedQuestions: Array.from(this.markedQuestions),
             selectedQuote: this.selectedQuote,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            category: this.currentQuiz.category || 'general-knowledge',
+            completedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
     }
 
     async saveQuizResults(results) {
-        // Save to Firestore
-        await firebase.firestore()
+        // Save quiz result
+        const resultRef = await firebase.firestore()
             .collection('quizResults')
             .add(results);
-        
+
+        // Save to leaderboard
+        await firebase.firestore()
+            .collection('leaderboard')
+            .add({
+                ...results,
+                resultId: resultRef.id
+            });
+
         // Update user stats
         const userRef = firebase.firestore()
             .collection('users')
             .doc(this.currentUser.uid);
-        
-        await userRef.update({
+
+        await userRef.set({
+            email: this.currentUser.email,
+            displayName: this.currentUser.displayName || this.currentUser.email.split('@')[0],
             quizzesTaken: firebase.firestore.FieldValue.increment(1),
             totalScore: firebase.firestore.FieldValue.increment(results.score),
-            lastQuizDate: firebase.firestore.FieldValue.serverTimestamp()
-        });
+            lastQuizDate: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
     }
 
     showInterstitialAd(callback) {
@@ -727,212 +654,172 @@ class QuizManager {
             color: white;
             text-align: center;
         `;
-        
+
         adOverlay.innerHTML = `
             <div style="max-width: 400px; padding: 40px;">
-                <i class="fas fa-trophy" style="font-size: 4rem; margin-bottom: 20px; color: gold;"></i>
-                <h2 style="margin-bottom: 16px;">Congratulations ${this.userFirstName}! 🎉</h2>
-                <p style="margin-bottom: 30px; font-size: 1.1rem; opacity: 0.9;">
+                <h2 style="margin-bottom: 20px;">🎉 Quiz Completed!</h2>
+                <p style="margin-bottom: 30px; font-size: 1.1rem;">
                     You've completed the quiz! Loading your results...
                 </p>
-                <div style="width: 300px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; margin: 0 auto;">
-                    <div style="width: 0%; height: 100%; background: rgba(255,255,255,0.8); border-radius: 2px; animation: loading 3s ease-in-out forwards;"></div>
+                <div style="background: rgba(0,0,0,0.2); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <p style="margin: 0; font-size: 0.9rem; opacity: 0.8;">Advertisement • Support our platform</p>
                 </div>
-                <p style="margin-top: 20px; font-size: 0.9rem; opacity: 0.7;">
-                    Advertisement • Support our platform
-                </p>
+                <div class="spinner" style="margin: 20px 0;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem;"></i>
+                </div>
+                <p style="font-size: 0.9rem; opacity: 0.7;">Redirecting to results...</p>
             </div>
         `;
-        
-        // Add loading animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes loading {
-                0% { width: 0%; }
-                100% { width: 100%; }
-            }
-        `;
-        document.head.appendChild(style);
-        
+
         document.body.appendChild(adOverlay);
-        
-        // Remove after 3 seconds and execute callback
+
+        // Remove ad and execute callback after 3 seconds
         setTimeout(() => {
             document.body.removeChild(adOverlay);
-            document.head.removeChild(style);
             callback();
         }, 3000);
     }
 
+    // Progress bar updates
     updateAllProgressBars() {
         const answered = Object.keys(this.userAnswers).length;
-        const progress = (answered / this.currentQuiz.totalQuestions) * 100;
+        const total = this.currentQuiz ? this.currentQuiz.questions.length : 1;
+        const percentage = Math.round((answered / total) * 100);
+
+        // Main progress bar
+        const progressFill = document.getElementById('progress-fill');
+        const progressPercentage = document.getElementById('progress-percentage');
         
-        // Update main progress bar
-        document.getElementById('quiz-progress-fill').style.width = `${progress}%`;
-        document.getElementById('progress-percentage').textContent = `${Math.round(progress)}%`;
-        
-        // Update motivation progress bar
-        document.getElementById('motivation-progress-fill').style.width = `${progress}%`;
-        
-        // Update motivation progress text
-        const progressText = document.getElementById('motivation-progress-text');
-        if (progress === 100) {
-            progressText.textContent = `Amazing ${this.userFirstName}! You've answered all questions! 🎉`;
-        } else if (progress >= 75) {
-            progressText.textContent = `You're almost there ${this.userFirstName}! Keep going! 💪`;
-        } else if (progress >= 50) {
-            progressText.textContent = `Great progress ${this.userFirstName}! You're halfway there! 🚀`;
-        } else if (progress >= 25) {
-            progressText.textContent = `You're doing great ${this.userFirstName}! Keep it up! ⭐`;
-        } else {
-            progressText.textContent = `You've got this ${this.userFirstName}! Keep going! 💪`;
+        if (progressFill) {
+            progressFill.style.width = percentage + '%';
         }
+        if (progressPercentage) {
+            progressPercentage.textContent = percentage + '%';
+        }
+
+        // Motivation progress bar
+        const motivationProgress = document.getElementById('motivation-progress');
+        if (motivationProgress) {
+            motivationProgress.style.width = percentage + '%';
+        }
+
+        this.updateMotivationText(percentage);
     }
 
-    displaySelectedMotivationalQuote() {
-        if (this.selectedQuote) {
-            document.getElementById('motivational-text').textContent = `"${this.selectedQuote.text}"`;
-            document.getElementById('quote-author').textContent = `- ${this.selectedQuote.author}`;
+    updateMotivationText(percentage) {
+        const motivationText = document.getElementById('motivation-text');
+        if (!motivationText) return;
+
+        if (percentage === 0) {
+            motivationText.textContent = "Let's get started! 🚀";
+        } else if (percentage <= 25) {
+            motivationText.textContent = "Great start! Keep going! 💪";
+        } else if (percentage <= 50) {
+            motivationText.textContent = "You're halfway there! 🔥";
+        } else if (percentage <= 75) {
+            motivationText.textContent = "Excellent progress! 🌟";
+        } else if (percentage < 100) {
+            motivationText.textContent = "Almost done! Push forward! 🎯";
+        } else {
+            motivationText.textContent = "Amazing! You're ready to finish! 🏆";
         }
-        
-        // Note: This quote will NOT change during the entire quiz session
     }
 
     showPersonalizedGreeting() {
-        if (!this.currentUser) return;
-        
-        const timeOfDay = new Date().getHours();
-        let greeting;
-        
-        if (timeOfDay < 12) {
-            greeting = `Good morning, ${this.userFirstName}! 🌅`;
-        } else if (timeOfDay < 17) {
-            greeting = `Good afternoon, ${this.userFirstName}! ☀️`;
-        } else {
-            greeting = `Good evening, ${this.userFirstName}! 🌙`;
+        const greeting = document.getElementById('personalized-greeting');
+        if (greeting) {
+            const greetings = [
+                `You've got this, ${this.userFirstName}! 🌟`,
+                `Stay focused, ${this.userFirstName}! 🎯`,
+                `Keep pushing, ${this.userFirstName}! 💪`,
+                `You're doing great, ${this.userFirstName}! 🚀`,
+                `Almost there, ${this.userFirstName}! 🔥`
+            ];
+            greeting.textContent = greetings[Math.floor(Math.random() * greetings.length)];
         }
-        
-        const greetings = [
-            `${greeting} You've got this!`,
-            `Keep going, ${this.userFirstName}! 🌟`,
-            `You're amazing, ${this.userFirstName}! ⭐`,
-            `Stay focused, ${this.userFirstName}! 💪`,
-            `Believe in yourself, ${this.userFirstName}! 🚀`,
-            `You're doing great, ${this.userFirstName}! 🎯`
-        ];
-        
-        const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
-        document.getElementById('greeting-text').textContent = randomGreeting;
     }
 
+    // Event listeners
     setupEventListeners() {
-        // Navigation buttons
-        document.getElementById('btn-previous')?.addEventListener('click', () => this.previousQuestion());
-        document.getElementById('btn-next')?.addEventListener('click', () => this.nextQuestion());
-        
-        // Action buttons
-        document.getElementById('btn-mark')?.addEventListener('click', () => this.toggleMarkForReview());
-        document.getElementById('btn-clear')?.addEventListener('click', () => this.clearResponse());
-        document.getElementById('btn-submit')?.addEventListener('click', () => this.showSubmitModal());
-        
-        // Modal buttons
-        document.getElementById('submit-cancel')?.addEventListener('click', () => this.hideSubmitModal());
-        document.getElementById('submit-modal-close')?.addEventListener('click', () => this.hideSubmitModal());
-        document.getElementById('confirm-submit')?.addEventListener('click', () => this.submitQuiz());
-        
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') {
                 this.previousQuestion();
             } else if (e.key === 'ArrowRight') {
                 this.nextQuestion();
-            } else if (e.key === 'Enter' && e.ctrlKey) {
-                this.showSubmitModal();
+            } else if (e.key >= '1' && e.key <= '4') {
+                const optionIndex = parseInt(e.key) - 1;
+                if (optionIndex < this.currentQuiz?.questions[this.currentQuestionIndex]?.options.length) {
+                    this.selectAnswer(optionIndex);
+                }
             }
         });
-        
+
         // Prevent accidental page refresh
         window.addEventListener('beforeunload', (e) => {
-            if (this.timer) {
+            if (this.currentQuiz && this.timer) {
                 e.preventDefault();
-                e.returnValue = 'You have an active quiz. Are you sure you want to leave?';
+                e.returnValue = 'Are you sure you want to leave? Your quiz progress will be lost.';
             }
         });
     }
 
-    updateUserUI(user) {
-        const userInfo = document.getElementById('user-info');
-        const userName = document.getElementById('user-name');
-        const userAvatar = document.getElementById('user-avatar');
-        
-        if (user && userInfo && userName && userAvatar) {
-            userInfo.style.display = 'flex';
-            userName.textContent = user.displayName || user.email;
-            userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email)}&background=4F46E5&color=fff`;
-        }
-    }
-
+    // Utility functions
     showLoading(show) {
         const spinner = document.getElementById('loading-spinner');
         if (spinner) {
-            spinner.classList.toggle('show', show);
+            if (show) {
+                spinner.classList.add('show');
+            } else {
+                spinner.classList.remove('show');
+            }
         }
     }
 
     showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container') || document.body;
         const toast = document.createElement('div');
-        toast.className = `quiz-toast ${type}`;
-        
-        const bgColor = {
-            'info': '#4f46e5',
-            'success': '#10b981',
-            'warning': '#f59e0b',
-            'error': '#ef4444'
-        }[type] || '#4f46e5';
         
         toast.style.cssText = `
-            position: fixed;
-            top: 120px;
-            right: 20px;
-            background: ${bgColor};
+            background: ${type === 'error' ? '#ef4444' : type === 'warning' ? '#f59e0b' : '#10b981'};
             color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            z-index: 10001;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            max-width: 350px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 300ms ease;
             font-weight: 500;
         `;
         
         toast.textContent = message;
-        document.body.appendChild(toast);
-        
+        container.appendChild(toast);
+
         setTimeout(() => {
-            toast.style.transform = 'translateX(0)';
-        }, 100);
-        
-        setTimeout(() => {
-            toast.style.transform = 'translateX(100%)';
+            toast.style.animation = 'slideOut 300ms ease';
             setTimeout(() => {
-                if (document.body.contains(toast)) {
-                    document.body.removeChild(toast);
+                if (container.contains(toast)) {
+                    container.removeChild(toast);
                 }
             }, 300);
-        }, 4000);
+        }, 3000);
     }
 }
 
-// Initialize quiz manager when DOM is ready
+// Initialize quiz manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.quizManager = new QuizManager();
 });
 
-// Make selectAnswer globally accessible for option clicks
-window.selectAnswer = (optionIndex) => {
-    if (window.quizManager) {
-        window.quizManager.selectAnswer(optionIndex);
+// CSS animations for toast
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
     }
-};
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
