@@ -1,18 +1,22 @@
-// ===== FULLY WORKING MAIN.JS =====
-console.log('🚀 Loading Enhanced Main.js...');
+// ===== ENHANCED MAIN.JS WITH ALL FEATURES =====
+console.log('🚀 Loading Complete Enhanced Main.js...');
 
 // Global variables
 let allQuizzes = [];
+let displayedQuizzes = [];
 let currentUser = null;
+let currentPage = 0;
+const QUIZZES_PER_PAGE = 2;
 
 // Initialize everything when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing homepage...');
     
-    // Initialize features in correct order
     initFirebase();
     initParticles();
+    initBubbleEffects();
     initNavigation();
+    initMobileNavigation();
     initButtons();
     initFilters();
     initScrollEffects();
@@ -27,11 +31,10 @@ document.addEventListener('DOMContentLoaded', function() {
 // ===== FIREBASE INTEGRATION =====
 function initFirebase() {
     if (typeof firebase !== 'undefined') {
-        // Listen for auth changes
         firebase.auth().onAuthStateChanged((user) => {
             currentUser = user;
             console.log('Auth state:', user ? `Logged in as ${user.email}` : 'Not logged in');
-            updateAuthButtons(user);
+            updateAuthUI(user);
         });
         console.log('✅ Firebase authentication listener set up');
     } else {
@@ -39,7 +42,7 @@ function initFirebase() {
     }
 }
 
-// ===== QUIZ LOADING SYSTEM =====
+// ===== QUIZ LOADING WITH PAGINATION =====
 async function initQuizLoading() {
     console.log('🔄 Loading quizzes...');
     const quizGrid = document.getElementById('quiz-grid');
@@ -49,7 +52,6 @@ async function initQuizLoading() {
         return;
     }
 
-    // Show loading state
     quizGrid.innerHTML = `
         <div class="quiz-loading">
             <i class="fas fa-spinner fa-spin"></i>
@@ -58,7 +60,6 @@ async function initQuizLoading() {
     `;
 
     try {
-        // Check Firebase availability
         if (typeof firebase === 'undefined' || !firebase.apps.length) {
             console.warn('⚠️ Firebase not available, loading sample quizzes');
             loadSampleQuizzes();
@@ -67,36 +68,42 @@ async function initQuizLoading() {
 
         console.log('📡 Fetching quizzes from Firebase...');
         
-        // Get quizzes from Firestore
+        // Simple query (no index required)
         const quizzesRef = firebase.firestore().collection('quizzes');
-        const snapshot = await quizzesRef.where('status', '==', 'active').orderBy('createdAt', 'desc').get();
+        const snapshot = await quizzesRef.get();
         
-        allQuizzes = [];
+        const tempQuizzes = [];
 
-        if (snapshot.empty) {
+        // Filter and process quizzes
+        snapshot.forEach(doc => {
+            const quiz = doc.data();
+            // Only include active quizzes
+            if ((quiz.status || 'active') === 'active') {
+                tempQuizzes.push({
+                    id: doc.id,
+                    title: quiz.title || 'Untitled Quiz',
+                    description: quiz.description || 'No description available',
+                    category: quiz.category || 'general-knowledge',
+                    questions: quiz.questions?.length || 0,
+                    duration: quiz.timeLimit || 30,
+                    date: quiz.createdAt ? quiz.createdAt.toDate().toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                    difficulty: quiz.difficulty || 'medium',
+                    isReal: true
+                });
+            }
+        });
+
+        // Sort by creation date (newest first)
+        allQuizzes = tempQuizzes.sort((a, b) => new Date(b.date) - new Date(a.date));
+        
+        if (allQuizzes.length === 0) {
             console.log('📭 No active quizzes found');
             showEmptyState();
             return;
         }
 
-        // Process Firebase quizzes
-        snapshot.forEach(doc => {
-            const quiz = doc.data();
-            allQuizzes.push({
-                id: doc.id,
-                title: quiz.title || 'Untitled Quiz',
-                description: quiz.description || 'No description available',
-                category: quiz.category || 'general-knowledge',
-                questions: quiz.questions?.length || 0,
-                duration: quiz.timeLimit || 30,
-                date: quiz.createdAt ? quiz.createdAt.toDate().toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-                difficulty: quiz.difficulty || 'medium',
-                isReal: true
-            });
-        });
-
         console.log(`✅ Successfully loaded ${allQuizzes.length} real quizzes from Firebase`);
-        displayQuizzes(allQuizzes);
+        displayQuizzesPaginated();
 
     } catch (error) {
         console.error('❌ Error loading quizzes from Firebase:', error);
@@ -105,111 +112,68 @@ async function initQuizLoading() {
     }
 }
 
-// ===== SAMPLE QUIZZES FALLBACK =====
-function loadSampleQuizzes() {
-    console.log('📝 Loading sample quizzes...');
+// ===== PAGINATION SYSTEM =====
+function displayQuizzesPaginated(reset = true) {
+    const quizGrid = document.getElementById('quiz-grid');
+    const paginationControls = document.getElementById('pagination-controls');
     
-    allQuizzes = [
-        {
-            id: 'sample-1',
-            title: '🎯 Sample General Knowledge Quiz',
-            description: 'This is a sample quiz. Create real quizzes in the Admin Panel to replace this.',
-            category: 'general-knowledge',
-            questions: 5,
-            duration: 10,
-            date: new Date().toISOString().split('T')[0],
-            difficulty: 'easy',
-            isSample: true
-        },
-        {
-            id: 'sample-2',
-            title: '🧪 Sample Science Quiz',
-            description: 'Another sample. Your admin-created quizzes will appear here automatically!',
-            category: 'science',
-            questions: 8,
-            duration: 15,
-            date: new Date().toISOString().split('T')[0],
-            difficulty: 'medium',
-            isSample: true
-        },
-        {
-            id: 'sample-3',
-            title: '🔢 Sample Math Quiz',
-            description: 'Sample math quiz. Login as admin and create real quizzes to see them here.',
-            category: 'mathematics',
-            questions: 6,
-            duration: 12,
-            date: new Date().toISOString().split('T')[0],
-            difficulty: 'medium',
-            isSample: true
-        }
-    ];
-
-    displayQuizzes(allQuizzes);
-    showSampleNotice();
-}
-
-function showSampleNotice() {
-    setTimeout(() => {
-        const quizGrid = document.getElementById('quiz-grid');
-        const notice = document.createElement('div');
-        notice.className = 'sample-notice';
-        notice.innerHTML = `
-            <div style="background: linear-gradient(135deg, #fef3c7, #fed7aa); border: 2px solid #f59e0b; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <i class="fas fa-info-circle" style="color: #d97706; font-size: 24px; margin-bottom: 10px;"></i>
-                <h3 style="color: #92400e; margin: 10px 0;">These are Sample Quizzes</h3>
-                <p style="color: #78350f; margin: 10px 0;">🎯 <strong>To add real quizzes:</strong> Login → Go to Admin Panel → Create Quiz</p>
-                <p style="color: #78350f; margin: 10px 0; font-size: 14px;">Real quizzes created by admin will automatically replace these samples!</p>
-            </div>
-        `;
-        quizGrid.appendChild(notice);
-    }, 500);
-}
-
-function showEmptyState() {
-    const quizGrid = document.getElementById('quiz-grid');
-    quizGrid.innerHTML = `
-        <div class="empty-state" style="text-align: center; padding: 60px 20px;">
-            <i class="fas fa-graduation-cap" style="font-size: 64px; color: #cbd5e1; margin-bottom: 20px;"></i>
-            <h3 style="color: #1e293b; margin-bottom: 15px;">No Quizzes Available Yet</h3>
-            <p style="color: #64748b; margin-bottom: 25px;">Quizzes created by administrators will appear here.</p>
-            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                <button class="btn-primary" onclick="refreshQuizzes()">
-                    <i class="fas fa-refresh"></i> Refresh
-                </button>
-                <button class="btn-secondary" onclick="showLoginForAdmin()">
-                    <i class="fas fa-user-cog"></i> Admin Login
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-// ===== QUIZ DISPLAY =====
-function displayQuizzes(quizzes) {
-    const quizGrid = document.getElementById('quiz-grid');
-    if (!quizGrid) return;
-
-    quizGrid.innerHTML = '';
-
-    if (quizzes.length === 0) {
-        showEmptyState();
-        return;
+    if (reset) {
+        currentPage = 0;
+        displayedQuizzes = [];
+        quizGrid.innerHTML = '';
     }
-
-    quizzes.forEach((quiz, index) => {
+    
+    const startIndex = currentPage * QUIZZES_PER_PAGE;
+    const endIndex = startIndex + QUIZZES_PER_PAGE;
+    const quizzesToShow = allQuizzes.slice(startIndex, endIndex);
+    
+    // Add new quizzes to displayed array
+    displayedQuizzes = [...displayedQuizzes, ...quizzesToShow];
+    
+    // Create and append quiz cards
+    quizzesToShow.forEach((quiz, index) => {
         const quizCard = createQuizCard(quiz);
-        quizCard.style.animationDelay = `${index * 0.1}s`;
+        quizCard.style.animationDelay = `${index * 0.2}s`;
         quizCard.classList.add('animate-fadeIn');
         quizGrid.appendChild(quizCard);
     });
-
+    
+    // Update pagination controls
+    const totalQuizzes = allQuizzes.length;
+    const currentCount = displayedQuizzes.length;
+    const hasMore = currentCount < totalQuizzes;
+    
+    document.getElementById('current-count').textContent = currentCount;
+    document.getElementById('total-count').textContent = totalQuizzes;
+    
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    if (hasMore) {
+        loadMoreBtn.style.display = 'flex';
+        loadMoreBtn.innerHTML = `
+            <i class="fas fa-plus"></i>
+            Load More (${Math.min(QUIZZES_PER_PAGE, totalQuizzes - currentCount)} more)
+        `;
+    } else {
+        loadMoreBtn.style.display = 'none';
+    }
+    
+    paginationControls.style.display = totalQuizzes > 0 ? 'flex' : 'none';
+    
+    // Update statistics
     updateStats();
+    
+    console.log(`📊 Displayed ${currentCount}/${totalQuizzes} quizzes`);
 }
 
+function loadMoreQuizzes() {
+    currentPage++;
+    displayQuizzesPaginated(false);
+}
+
+// ===== ENHANCED QUIZ CARD CREATION (NO PREVIEW BUTTON) =====
 function createQuizCard(quiz) {
     const card = document.createElement('div');
-    card.className = `quiz-card ${quiz.isSample ? 'sample-quiz' : ''}`;
+    card.className = `quiz-card ${quiz.isSample ? 'sample-quiz' : ''} enhanced-card`;
     card.setAttribute('data-category', quiz.category);
 
     const categories = {
@@ -227,6 +191,7 @@ function createQuizCard(quiz) {
     });
 
     card.innerHTML = `
+        <div class="quiz-card-glow"></div>
         <div class="quiz-header">
             <div class="quiz-category" style="color: ${categoryInfo.color};">
                 <i class="${categoryInfo.icon}"></i>
@@ -263,10 +228,7 @@ function createQuizCard(quiz) {
                     onclick="startQuiz('${quiz.id}', ${quiz.isSample || false})" 
                     title="${quiz.isSample ? 'Sample Quiz - Login to create real quizzes' : 'Start this quiz'}">
                 <i class="fas fa-play"></i>
-                ${quiz.isSample ? 'Sample Quiz' : 'Start Quiz'}
-            </button>
-            <button class="btn-quiz-preview" onclick="previewQuiz('${quiz.id}')" title="Preview Quiz">
-                <i class="fas fa-eye"></i>
+                <span>${quiz.isSample ? 'Sample Quiz' : 'Start Quiz'}</span>
             </button>
         </div>
     `;
@@ -274,166 +236,207 @@ function createQuizCard(quiz) {
     return card;
 }
 
-// ===== QUIZ INTERACTION FUNCTIONS =====
+// ===== BUBBLE EFFECTS SYSTEM =====
+function initBubbleEffects() {
+    const bubbleContainer = document.getElementById('bubble-container');
+    if (!bubbleContainer) return;
+
+    function createBubble() {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        
+        const size = Math.random() * 40 + 10; // 10-50px
+        const left = Math.random() * 100; // 0-100%
+        const duration = Math.random() * 3 + 4; // 4-7 seconds
+        
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.left = `${left}%`;
+        bubble.style.animationDuration = `${duration}s`;
+        
+        bubbleContainer.appendChild(bubble);
+        
+        // Remove bubble after animation
+        setTimeout(() => {
+            if (bubble.parentNode) {
+                bubble.parentNode.removeChild(bubble);
+            }
+        }, duration * 1000);
+    }
+    
+    // Create bubbles continuously
+    setInterval(createBubble, 800);
+    console.log('🫧 Bubble effects initialized');
+}
+
+// ===== MOBILE NAVIGATION =====
+function initMobileNavigation() {
+    const mobileNav = document.getElementById('mobile-nav');
+    if (mobileNav) {
+        // Set initial state based on screen size
+        if (window.innerWidth <= 768) {
+            mobileNav.classList.add('show');
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768) {
+                mobileNav.classList.add('show');
+            } else {
+                mobileNav.classList.remove('show');
+            }
+        });
+    }
+    
+    console.log('📱 Mobile navigation initialized');
+}
+
+function toggleMobileNav() {
+    const mobileNav = document.getElementById('mobile-nav');
+    const navIcon = document.getElementById('mobile-nav-icon');
+    
+    mobileNav.classList.toggle('minimized');
+    
+    if (mobileNav.classList.contains('minimized')) {
+        navIcon.className = 'fas fa-chevron-up';
+    } else {
+        navIcon.className = 'fas fa-chevron-down';
+    }
+}
+
+// ===== USER PROFILE MANAGEMENT =====
+function toggleProfileMenu() {
+    const dropdown = document.getElementById('profile-dropdown');
+    dropdown.classList.toggle('show');
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.user-profile') && !e.target.closest('.profile-dropdown')) {
+            dropdown.classList.remove('show');
+        }
+    });
+}
+
+function updateAuthUI(user) {
+    const userInfo = document.getElementById('user-info');
+    const loginBtn = document.getElementById('btn-login');
+    
+    if (user) {
+        // User is logged in
+        userInfo.style.display = 'flex';
+        loginBtn.style.display = 'none';
+        
+        // Update user info
+        const userName = user.displayName || user.email || 'User';
+        const shortName = userName.length > 8 ? userName.substring(0, 8) + '...' : userName;
+        
+        document.getElementById('user-name').textContent = shortName;
+        document.getElementById('profile-name').textContent = user.displayName || 'User';
+        document.getElementById('profile-email').textContent = user.email;
+        
+        // Set avatar
+        const avatarUrl = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=4F46E5&color=fff&size=128`;
+        document.getElementById('user-avatar').src = avatarUrl;
+        document.getElementById('dropdown-avatar').src = avatarUrl;
+        
+    } else {
+        // User is not logged in
+        userInfo.style.display = 'none';
+        loginBtn.style.display = 'flex';
+    }
+}
+
+function goToAdmin() {
+    window.location.href = 'admin.html';
+}
+
+function logoutUser() {
+    if (firebase && firebase.auth) {
+        firebase.auth().signOut().then(() => {
+            console.log('User logged out successfully');
+            window.location.reload();
+        }).catch((error) => {
+            console.error('Logout error:', error);
+        });
+    }
+}
+
+// ===== ENHANCED QUIZ INTERACTION =====
 function startQuiz(quizId, isSample = false) {
     console.log('🎯 Starting quiz:', quizId, 'Sample:', isSample);
 
-    // Handle sample quizzes
     if (isSample) {
-        alert('🎯 Sample Quiz Info\n\n' +
+        alert('🎯 Sample Quiz Demo\n\n' +
               'This is a demonstration quiz.\n\n' +
-              '📝 To create real quizzes:\n' +
+              '📝 To access real quizzes:\n' +
               '1. Login to your account\n' +
-              '2. Access the Admin Panel\n' +
-              '3. Use "Quiz Management" to create quizzes\n' +
-              '4. Real quizzes will appear here automatically!\n\n' +
-              '🎓 Try creating your first quiz!');
+              '2. Real quizzes created by admin appear here\n' +
+              '3. Click "Start Quiz" on real quizzes\n\n' +
+              '🎓 Ready to try real quizzes?');
         
-        // Show login modal
         if (window.authManager && typeof window.authManager.showAuthModal === 'function') {
             window.authManager.showAuthModal();
         }
         return;
     }
 
-    // Check authentication for real quizzes
+    // For real quizzes, check authentication
     if (!currentUser) {
-        alert('🔐 Login Required\n\nPlease login or register to take quizzes.\n\nClick "Login" to get started!');
+        alert('🔐 Login Required\n\nPlease login to take quizzes.');
         
-        // Show login modal
         if (window.authManager && typeof window.authManager.showAuthModal === 'function') {
             window.authManager.showAuthModal();
         }
         return;
     }
 
-    // Find and validate quiz
-    const quiz = allQuizzes.find(q => q.id === quizId);
-    if (!quiz) {
-        alert('❌ Quiz not found!\n\nThis quiz may have been removed or is no longer available.');
-        refreshQuizzes(); // Refresh to get updated list
-        return;
-    }
-
-    // Redirect to quiz page
-    console.log('✅ Redirecting to quiz page...');
+    // User is authenticated, proceed to quiz
+    console.log('✅ User authenticated, redirecting to quiz...');
     window.location.href = `quiz.html?id=${quizId}`;
 }
 
-async function previewQuiz(quizId) {
-    console.log('👁️ Previewing quiz:', quizId);
-
-    const quiz = allQuizzes.find(q => q.id === quizId);
-    if (!quiz) {
-        alert('❌ Quiz not found');
-        return;
-    }
-
-    if (quiz.isSample) {
-        alert(`📋 SAMPLE QUIZ PREVIEW\n\n` +
-              `📚 Title: ${quiz.title}\n` +
-              `📝 Description: ${quiz.description}\n` +
-              `❓ Questions: ${quiz.questions}\n` +
-              `⏱️ Duration: ${quiz.duration} minutes\n` +
-              `📊 Difficulty: ${quiz.difficulty}\n\n` +
-              `💡 This is a sample quiz for demonstration.\n` +
-              `Create real quizzes in the Admin Panel!`);
-        return;
-    }
-
-    // For real quizzes, get details from Firebase
-    try {
-        if (typeof firebase !== 'undefined' && firebase.apps.length) {
-            const doc = await firebase.firestore().collection('quizzes').doc(quizId).get();
-            
-            if (doc.exists) {
-                const quizData = doc.data();
-                const questions = quizData.questions || [];
-                
-                let previewText = `📋 QUIZ PREVIEW\n\n`;
-                previewText += `📚 Title: ${quizData.title}\n`;
-                previewText += `📂 Category: ${quizData.category}\n`;
-                previewText += `📊 Difficulty: ${quizData.difficulty || 'Medium'}\n`;
-                previewText += `⏱️ Time Limit: ${quizData.timeLimit || 30} minutes\n`;
-                previewText += `❓ Total Questions: ${questions.length}\n`;
-                previewText += `🎯 Status: ${quizData.status || 'Active'}\n\n`;
-                
-                if (questions.length > 0) {
-                    previewText += `📖 SAMPLE QUESTIONS:\n\n`;
-                    questions.slice(0, 3).forEach((q, index) => {
-                        previewText += `${index + 1}. ${q.question}\n`;
-                        if (q.options && q.options.length > 0) {
-                            q.options.forEach((opt, i) => {
-                                previewText += `   ${String.fromCharCode(65 + i)}) ${opt}\n`;
-                            });
-                        }
-                        previewText += `   💎 Points: ${q.points || 1}\n\n`;
-                    });
-                    
-                    if (questions.length > 3) {
-                        previewText += `... and ${questions.length - 3} more questions\n\n`;
-                    }
-                }
-                
-                previewText += `🚀 Ready to start? Click "Start Quiz"!`;
-                alert(previewText);
-            } else {
-                alert('❌ Quiz details not available');
-            }
-        } else {
-            // Fallback preview
-            alert(`📋 QUIZ PREVIEW\n\n` +
-                  `📚 Title: ${quiz.title}\n` +
-                  `📝 Description: ${quiz.description}\n` +
-                  `❓ Questions: ${quiz.questions}\n` +
-                  `⏱️ Duration: ${quiz.duration} minutes\n` +
-                  `📊 Difficulty: ${quiz.difficulty}\n\n` +
-                  `🚀 Click "Start Quiz" to begin!`);
-        }
-    } catch (error) {
-        console.error('Error loading quiz preview:', error);
-        alert('❌ Error loading quiz preview.\n\nPlease try again or contact support if the issue persists.');
-    }
-}
-
-// ===== BUTTON INITIALIZATION =====
+// ===== HERO SECTION ENHANCEMENTS =====
 function initButtons() {
-    console.log('🔘 Initializing buttons...');
+    console.log('🔘 Initializing enhanced buttons...');
 
-    // Hero section buttons
+    // Enhanced Start Quiz button (finds latest quiz)
     const startQuizBtn = document.getElementById('start-quiz-btn');
     if (startQuizBtn) {
         startQuizBtn.addEventListener('click', () => {
             if (allQuizzes.length > 0) {
-                startQuiz(allQuizzes[0].id, allQuizzes[0].isSample);
+                // Find the latest real quiz or use first available
+                const latestQuiz = allQuizzes.find(q => !q.isSample) || allQuizzes[0];
+                startQuiz(latestQuiz.id, latestQuiz.isSample);
             } else {
-                alert('📭 No quizzes available at the moment.\n\nPlease check back later or refresh the page!');
+                alert('📭 No quizzes available.\n\nPlease check back later!');
                 refreshQuizzes();
             }
         });
     }
 
+    // Enhanced View Rankings button (goes to latest rankings)
     const leaderboardBtn = document.getElementById('view-leaderboard-btn');
     if (leaderboardBtn) {
         leaderboardBtn.addEventListener('click', () => {
+            console.log('🏆 Redirecting to latest rankings...');
             window.location.href = 'leaderboard.html';
         });
     }
 
+    // Enhanced Load More button
     const loadMoreBtn = document.getElementById('load-more-btn');
     if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', () => {
-            alert('🔄 Load More Feature\n\nThis feature will be implemented soon!\nFor now, all available quizzes are displayed.');
-        });
+        loadMoreBtn.addEventListener('click', loadMoreQuizzes);
     }
 
-    console.log('✅ Buttons initialized');
+    console.log('✅ Enhanced buttons initialized');
 }
 
-// ===== FILTER SYSTEM =====
+// ===== ENHANCED FILTER SYSTEM =====
 function initFilters() {
     const applyFiltersBtn = document.getElementById('apply-filters');
     const subjectFilter = document.getElementById('subject-filter');
+    const dateFilter = document.getElementById('date-filter');
     
     if (applyFiltersBtn) {
         applyFiltersBtn.addEventListener('click', applyFilters);
@@ -441,6 +444,10 @@ function initFilters() {
     
     if (subjectFilter) {
         subjectFilter.addEventListener('change', applyFilters);
+    }
+    
+    if (dateFilter) {
+        dateFilter.addEventListener('change', applyFilters);
     }
 }
 
@@ -450,80 +457,130 @@ function applyFilters() {
 
     let filteredQuizzes = [...allQuizzes];
 
-    // Filter by subject
+    // Apply filters
     if (subjectFilter && subjectFilter !== 'all') {
         filteredQuizzes = filteredQuizzes.filter(quiz => quiz.category === subjectFilter);
     }
 
-    // Filter by date
     if (dateFilter) {
         filteredQuizzes = filteredQuizzes.filter(quiz => quiz.date === dateFilter);
     }
 
-    displayQuizzes(filteredQuizzes);
+    // Update global quiz array and reset pagination
+    const originalQuizzes = [...allQuizzes];
+    allQuizzes = filteredQuizzes;
     
-    console.log(`🔍 Filters applied: ${filteredQuizzes.length} quizzes shown`);
+    displayQuizzesPaginated(true);
+    
+    // Show filter results
+    const resultText = filteredQuizzes.length === originalQuizzes.length ? 
+        'All quizzes' : `${filteredQuizzes.length} of ${originalQuizzes.length} quizzes`;
+    
+    console.log(`🔍 Filter applied: ${resultText} shown`);
+    
+    // Reset filters and restore data after showing results
+    setTimeout(() => {
+        allQuizzes = originalQuizzes;
+    }, 100);
 }
 
-// ===== UI UPDATES =====
-function updateAuthButtons(user) {
-    // This will be handled by auth.js, just log the status
-    console.log('🔐 Auth UI should update:', user ? 'Show user info' : 'Show login button');
+// ===== FALLBACK SAMPLES =====
+function loadSampleQuizzes() {
+    console.log('📝 Loading enhanced sample quizzes...');
+    
+    allQuizzes = [
+        {
+            id: 'sample-1',
+            title: '🎯 Welcome to DigiQuiz!',
+            description: 'Sample quiz to demonstrate the platform. Create your own quizzes through the Admin Panel.',
+            category: 'general-knowledge',
+            questions: 5,
+            duration: 10,
+            date: new Date().toISOString().split('T')[0],
+            difficulty: 'easy',
+            isSample: true
+        },
+        {
+            id: 'sample-2',
+            title: '🧪 Science Demo Quiz',
+            description: 'Experience our quiz interface. Your admin-created quizzes will replace samples automatically.',
+            category: 'science',
+            questions: 8,
+            duration: 15,
+            date: new Date().toISOString().split('T')[0],
+            difficulty: 'medium',
+            isSample: true
+        }
+    ];
+
+    displayQuizzesPaginated();
+    showSampleNotice();
 }
 
-function updateStats() {
-    const totalQuizzesEl = document.getElementById('total-quizzes');
-    const totalQuestionsEl = document.getElementById('total-questions');
+function showSampleNotice() {
+    setTimeout(() => {
+        const quizGrid = document.getElementById('quiz-grid');
+        const notice = document.createElement('div');
+        notice.className = 'sample-notice';
+        notice.innerHTML = `
+            <div class="sample-info-card">
+                <div class="info-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="info-content">
+                    <h3>These are Demo Quizzes</h3>
+                    <p>🎯 <strong>To add real quizzes:</strong> Login → Admin Panel → Create Quiz</p>
+                    <p>Real quizzes will automatically appear here and replace samples!</p>
+                    <button class="btn-primary" onclick="showLoginForAdmin()">
+                        <i class="fas fa-user-cog"></i> Access Admin Panel
+                    </button>
+                </div>
+            </div>
+        `;
+        quizGrid.appendChild(notice);
+    }, 1000);
+}
 
-    if (totalQuizzesEl) {
-        totalQuizzesEl.textContent = allQuizzes.length || '0';
+// ===== BUBBLE EFFECTS =====
+function initBubbleEffects() {
+    const bubbleContainer = document.getElementById('bubble-container');
+    if (!bubbleContainer) return;
+
+    function createBubble() {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        
+        const size = Math.random() * 60 + 20; // 20-80px
+        const left = Math.random() * 100; // 0-100%
+        const duration = Math.random() * 4 + 6; // 6-10 seconds
+        const opacity = Math.random() * 0.3 + 0.1; // 0.1-0.4
+        
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.left = `${left}%`;
+        bubble.style.animationDuration = `${duration}s`;
+        bubble.style.opacity = opacity;
+        
+        bubbleContainer.appendChild(bubble);
+        
+        setTimeout(() => {
+            if (bubble.parentNode) {
+                bubble.parentNode.removeChild(bubble);
+            }
+        }, duration * 1000);
     }
-
-    if (totalQuestionsEl) {
-        const totalQuestions = allQuizzes.reduce((sum, quiz) => sum + (quiz.questions || 0), 0);
-        totalQuestionsEl.textContent = totalQuestions || '0';
+    
+    // Create initial bubbles
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => createBubble(), i * 500);
     }
+    
+    // Continue creating bubbles
+    setInterval(createBubble, 1200);
+    console.log('🫧 Enhanced bubble effects initialized');
 }
 
-// ===== UTILITY FUNCTIONS =====
-function refreshQuizzes() {
-    console.log('🔄 Refreshing quizzes...');
-    allQuizzes = [];
-    initQuizLoading();
-}
-
-function showLoginForAdmin() {
-    if (window.authManager && typeof window.authManager.showAuthModal === 'function') {
-        window.authManager.showAuthModal();
-    } else {
-        alert('🔐 Please use the Login button in the navigation to access admin features.');
-    }
-}
-
-// ===== PARTICLES.JS =====
-function initParticles() {
-    if (window.particlesJS) {
-        particlesJS('particles-js', {
-            "particles": {
-                "number": { "value": 60, "density": { "enable": true, "value_area": 800 } },
-                "color": { "value": "#ffffff" },
-                "shape": { "type": "circle" },
-                "opacity": { "value": 0.6, "anim": { "enable": false } },
-                "size": { "value": 3, "random": true },
-                "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.4, "width": 1 },
-                "move": { "enable": true, "speed": 6, "direction": "none", "out_mode": "out" }
-            },
-            "interactivity": {
-                "detect_on": "canvas",
-                "events": { "onhover": { "enable": true, "mode": "repulse" }, "onclick": { "enable": true, "mode": "push" } }
-            },
-            "retina_detect": true
-        });
-        console.log('✨ Particles background initialized');
-    }
-}
-
-// ===== NAVIGATION =====
+// ===== NAVIGATION ENHANCEMENTS =====
 function initNavigation() {
     const navToggle = document.getElementById('nav-toggle');
     const navMenu = document.getElementById('nav-menu');
@@ -543,7 +600,33 @@ function initNavigation() {
         });
     });
 
-    console.log('🧭 Navigation initialized');
+    console.log('🧭 Enhanced navigation initialized');
+}
+
+// ===== PARTICLES.JS ENHANCED =====
+function initParticles() {
+    if (window.particlesJS) {
+        particlesJS('particles-js', {
+            "particles": {
+                "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#ffffff" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.5, "anim": { "enable": true, "speed": 1 } },
+                "size": { "value": 3, "random": true, "anim": { "enable": true, "speed": 2 } },
+                "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.4, "width": 1 },
+                "move": { "enable": true, "speed": 6, "direction": "none", "out_mode": "out" }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": { 
+                    "onhover": { "enable": true, "mode": "repulse" }, 
+                    "onclick": { "enable": true, "mode": "push" } 
+                }
+            },
+            "retina_detect": true
+        });
+        console.log('✨ Enhanced particles background initialized');
+    }
 }
 
 // ===== SCROLL EFFECTS =====
@@ -557,6 +640,58 @@ function initScrollEffects() {
             navbar?.classList.remove('scrolled');
         }
     });
+}
+
+// ===== UTILITY FUNCTIONS =====
+function updateStats() {
+    const totalQuizzesEl = document.getElementById('total-quizzes');
+    const totalQuestionsEl = document.getElementById('total-questions');
+
+    if (totalQuizzesEl) {
+        totalQuizzesEl.textContent = allQuizzes.length || '0';
+    }
+
+    if (totalQuestionsEl) {
+        const totalQuestions = allQuizzes.reduce((sum, quiz) => sum + (quiz.questions || 0), 0);
+        totalQuestionsEl.textContent = totalQuestions || '0';
+    }
+}
+
+function refreshQuizzes() {
+    console.log('🔄 Refreshing quizzes...');
+    allQuizzes = [];
+    displayedQuizzes = [];
+    currentPage = 0;
+    initQuizLoading();
+}
+
+function showEmptyState() {
+    const quizGrid = document.getElementById('quiz-grid');
+    quizGrid.innerHTML = `
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h3>No Quizzes Available Yet</h3>
+            <p>Quizzes created by administrators will appear here.</p>
+            <div class="empty-actions">
+                <button class="btn-primary" onclick="refreshQuizzes()">
+                    <i class="fas fa-refresh"></i> Refresh Page
+                </button>
+                <button class="btn-secondary" onclick="showLoginForAdmin()">
+                    <i class="fas fa-user-cog"></i> Admin Access
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function showLoginForAdmin() {
+    if (window.authManager && typeof window.authManager.showAuthModal === 'function') {
+        window.authManager.showAuthModal();
+    } else {
+        alert('🔐 Please use the Login button to access admin features.');
+    }
 }
 
 // ===== SMOOTH SCROLLING =====
@@ -576,5 +711,10 @@ window.previewQuiz = previewQuiz;
 window.applyFilters = applyFilters;
 window.refreshQuizzes = refreshQuizzes;
 window.showLoginForAdmin = showLoginForAdmin;
+window.toggleMobileNav = toggleMobileNav;
+window.toggleProfileMenu = toggleProfileMenu;
+window.goToAdmin = goToAdmin;
+window.logoutUser = logoutUser;
+window.loadMoreQuizzes = loadMoreQuizzes;
 
-console.log('🎉 Enhanced Main.js loaded successfully!');
+console.log('🎉 Complete Enhanced Main.js loaded successfully!');
