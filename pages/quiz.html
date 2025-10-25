@@ -3,95 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz - DigiQuiz Portal</title>
+    <title>Take Quiz - DigiQuiz Portal</title>
     
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="../css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="../css/quiz.css">
     <link rel="stylesheet" href="../css/responsive.css">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Firebase SDK v8 Compatibility -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase v8 SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
+
 <body>
-    <!-- Minimal Quiz Header - Fixed Position -->
-    <div class="quiz-header-fixed" id="quiz-header">
-        <!-- Left: Static Timer -->
-        <div class="timer-static" id="quiz-timer">
+    <!-- FIXED QUIZ HEADER -->
+    <header class="quiz-header-fixed">
+        <!-- Left: Timer Display -->
+        <div class="timer-static">
             <div class="timer-container">
                 <i class="fas fa-clock timer-icon"></i>
                 <div class="timer-content">
-                    <span class="timer-display" id="timer-display">30:00</span>
+                    <span id="timer-display">30:00</span>
                 </div>
             </div>
         </div>
-        
-        <!-- Right: User Profile -->
-        <div class="user-profile-static">
-            <div class="user-info" id="user-info">
-                <img src="" alt="User" class="user-avatar-static" id="user-avatar">
-                <div class="user-dropdown" id="user-dropdown">
-                    <div class="dropdown-item" onclick="window.location.href='../index.html'">
-                        <i class="fas fa-home"></i>
-                        Home
-                    </div>
-                    <div class="dropdown-item" onclick="firebase.auth().signOut()">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Main Quiz Container -->
-    <div class="quiz-container" id="quiz-container">
-        <!-- Question Palette Section (Minimizable) -->
-        <div class="question-palette-wrapper" id="palette-wrapper">
-            <div class="palette-toggle-btn" id="palette-toggle">
-                <i class="fas fa-list"></i>
+        <!-- Right: User Profile with Dropdown -->
+        <div class="user-profile-static">
+            <div class="user-info">
+                <img src="https://ui-avatars.com/api/?name=User&background=4F46E5&color=fff&size=40" 
+                     alt="User Avatar" class="user-avatar-static" id="user-avatar-quiz">
+                <div class="user-dropdown">
+                    <div class="dropdown-item" onclick="goToHome()">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </div>
+                    <div class="dropdown-item" onclick="pauseQuiz()">
+                        <i class="fas fa-pause"></i>
+                        <span>Pause</span>
+                    </div>
+                    <div class="dropdown-item" onclick="showSubmitModal()">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Submit</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN QUIZ CONTAINER -->
+    <div class="quiz-container">
+        <!-- LEFT: QUESTION PALETTE (Collapsible) -->
+        <aside class="question-palette-wrapper">
+            <button class="palette-toggle-btn" id="palette-toggle">
                 <span>Questions</span>
                 <i class="fas fa-chevron-right toggle-icon" id="toggle-icon"></i>
-            </div>
+            </button>
             
             <div class="question-palette collapsed" id="question-palette">
                 <div class="palette-header">
-                    <h3>
-                        <i class="fas fa-list"></i>
-                        Question Palette
-                    </h3>
-                    <div class="palette-legend">
-                        <div class="legend-item">
-                            <div class="legend-dot not-visited"></div>
-                            <span>Not Visited</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-dot current"></div>
-                            <span>Current</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-dot answered"></div>
-                            <span>Answered</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-dot marked"></div>
-                            <span>Marked</span>
-                        </div>
-                    </div>
+                    <h3><i class="fas fa-th-large"></i> Question Navigation</h3>
                 </div>
                 
+                <!-- Legend -->
+                <div class="palette-legend">
+                    <div class="legend-item">
+                        <span class="legend-dot not-visited"></span>
+                        <span>Not Visited</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot current"></span>
+                        <span>Current</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot answered"></span>
+                        <span>Answered</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot marked"></span>
+                        <span>Marked for Review</span>
+                    </div>
+                </div>
+
+                <!-- Question Grid -->
                 <div class="palette-grid" id="palette-grid">
                     <!-- Question numbers will be dynamically generated -->
                 </div>
-                
+
+                <!-- Statistics -->
                 <div class="palette-stats">
                     <div class="stat-item">
                         <span class="stat-number" id="answered-count">0</span>
@@ -103,155 +105,149 @@
                     </div>
                     <div class="stat-item">
                         <span class="stat-number" id="remaining-count">0</span>
-                        <span class="stat-label">Not Visited</span>
+                        <span class="stat-label">Remaining</span>
                     </div>
                 </div>
             </div>
-        </div>
+        </aside>
 
-        <!-- Quiz Content Section -->
-        <div class="quiz-content">
-            <!-- Quiz Header -->
+        <!-- CENTER: QUIZ CONTENT -->
+        <main class="quiz-content">
+            <!-- Quiz Header with Progress -->
             <div class="quiz-info-header">
-                <div class="quiz-title" id="quiz-title">General Knowledge Challenge 2024</div>
+                <h1 class="quiz-title" id="quiz-title">Loading Quiz...</h1>
+                
                 <div class="quiz-progress">
                     <div class="progress-info">
-                        <span>Question </span>
-                        <span id="current-question-number">1</span>
-                        <span> of </span>
-                        <span id="total-questions">30</span>
+                        Question <span id="current-question-number">1</span> of <span id="total-questions">30</span>
                     </div>
                     <div class="progress-bar-container">
                         <div class="progress-bar">
-                            <div class="progress-fill" id="quiz-progress-fill"></div>
+                            <div class="progress-fill" id="progress-fill" style="width: 3.33%;"></div>
                         </div>
                         <span class="progress-percentage" id="progress-percentage">3%</span>
                     </div>
                 </div>
             </div>
-            
-            <!-- Question Section -->
+
+            <!-- Question Display -->
             <div class="question-section">
-                <div class="question-content">
-                    <div class="question-text" id="question-text">
-                        Loading question...
-                    </div>
-                    
-                    <div class="options-container" id="options-container">
-                        <!-- Options will be dynamically loaded -->
-                    </div>
+                <div class="question-text" id="question-text">
+                    Loading question...
+                </div>
+                
+                <!-- Answer Options -->
+                <div class="options-container" id="options-container">
+                    <!-- Options will be dynamically generated -->
                 </div>
             </div>
 
-            <!-- Navigation Controls -->
+            <!-- Quiz Controls -->
             <div class="quiz-controls">
-                <button class="btn-control btn-previous" id="btn-previous">
-                    <i class="fas fa-chevron-left"></i>
-                    Previous
-                </button>
-                
                 <div class="control-actions">
-                    <button class="btn-control btn-mark" id="btn-mark">
-                        <i class="fas fa-bookmark"></i>
+                    <button class="btn-control btn-mark" id="btn-mark" onclick="quizManager.toggleMarkForReview()">
+                        <i class="fas fa-flag"></i>
                         Mark for Review
                     </button>
-                    <button class="btn-control btn-clear" id="btn-clear">
+                    <button class="btn-control btn-clear" onclick="quizManager.clearResponse()">
                         <i class="fas fa-eraser"></i>
                         Clear Response
                     </button>
                 </div>
-                
-                <button class="btn-control btn-next" id="btn-next">
-                    Next
-                    <i class="fas fa-chevron-right"></i>
-                </button>
+
+                <div class="navigation-actions">
+                    <button class="btn-control btn-previous" id="btn-previous" onclick="quizManager.previousQuestion()">
+                        <i class="fas fa-chevron-left"></i>
+                        Previous
+                    </button>
+                    <button class="btn-control btn-next" id="btn-next" onclick="quizManager.nextQuestion()">
+                        Next
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Submit Section -->
             <div class="submit-section">
-                <button class="btn-submit-quiz" id="btn-submit">
+                <button class="btn-submit-quiz" onclick="quizManager.showSubmitModal()">
                     <i class="fas fa-paper-plane"></i>
                     Submit Quiz
                 </button>
             </div>
-        </div>
+        </main>
 
-        <!-- Motivational Section -->
-        <div class="motivation-section">
+        <!-- RIGHT: MOTIVATION & ADS -->
+        <aside class="motivation-section">
+            <!-- Motivational Quote Card -->
             <div class="motivation-card">
                 <div class="motivation-header">
-                    <div class="greeting" id="greeting-text">
-                        Keep going! 🌟
-                    </div>
+                    <div class="greeting" id="personalized-greeting">Keep Going, Champion! 🎯</div>
                 </div>
+                
                 <div class="motivational-quote">
-                    <i class="fas fa-quote-left quote-icon"></i>
-                    <p id="motivational-text">
-                        "The harder you work for something, the greater you'll feel when you achieve it."
-                    </p>
-                    <div class="quote-author" id="quote-author">
-                        - Keep pushing forward!
+                    <div class="quote-icon">
+                        <i class="fas fa-quote-left"></i>
                     </div>
+                    <p id="motivational-text">"The harder you work for something, the greater you'll feel when you achieve it."</p>
+                    <div class="quote-author" id="quote-author">- Anonymous</div>
                 </div>
+
                 <div class="progress-encouragement">
                     <div class="progress-bar">
-                        <div class="progress-fill" id="motivation-progress-fill" style="width: 0%"></div>
+                        <div class="progress-fill" id="motivation-progress" style="width: 3%;"></div>
                     </div>
-                    <div class="progress-text">
-                        <span id="motivation-progress-text">You're doing great! Keep it up!</span>
-                    </div>
+                    <div class="progress-text" id="motivation-text">Great start! Keep it up! 💪</div>
                 </div>
             </div>
-        </div>
 
-        <!-- Advertisement Section -->
-        <div class="ad-section-quiz">
-            <div class="ad-video-placeholder">
-                <div class="ad-content">
-                    <i class="fas fa-play-circle"></i>
-                    <p>Video Advertisement</p>
-                    <small>Support us by watching</small>
+            <!-- Advertisement Section -->
+            <div class="ad-section-quiz">
+                <div class="ad-video-placeholder">
+                    <div class="ad-content">
+                        <i class="fas fa-play-circle"></i>
+                        <p>Video Advertisement</p>
+                        <small>Support our platform</small>
+                    </div>
                 </div>
             </div>
-        </div>
+        </aside>
     </div>
 
-    <!-- Submit Confirmation Modal -->
+    <!-- SUBMIT CONFIRMATION MODAL -->
     <div class="submit-modal" id="submit-modal">
         <div class="submit-modal-content">
             <div class="submit-modal-header">
-                <h3>
-                    <i class="fas fa-paper-plane"></i>
-                    Submit Quiz?
-                </h3>
-                <button class="modal-close" id="submit-modal-close">
+                <h3><i class="fas fa-paper-plane"></i> Submit Quiz</h3>
+                <button class="modal-close" onclick="quizManager.hideSubmitModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            
+
             <div class="submit-modal-body">
                 <div class="submit-stats">
                     <div class="submit-stat answered">
                         <div class="stat-icon">
-                            <i class="fas fa-check-circle"></i>
+                            <i class="fas fa-check"></i>
                         </div>
                         <div class="stat-info">
                             <span class="stat-label">Questions Answered</span>
                             <span class="stat-value" id="submit-answered">0</span>
                         </div>
                     </div>
+
                     <div class="submit-stat not-answered">
                         <div class="stat-icon">
-                            <i class="fas fa-minus-circle"></i>
+                            <i class="fas fa-question"></i>
                         </div>
                         <div class="stat-info">
                             <span class="stat-label">Not Answered</span>
                             <span class="stat-value" id="submit-not-answered">0</span>
                         </div>
                     </div>
+
                     <div class="submit-stat marked">
                         <div class="stat-icon">
-                            <i class="fas fa-bookmark"></i>
+                            <i class="fas fa-flag"></i>
                         </div>
                         <div class="stat-info">
                             <span class="stat-label">Marked for Review</span>
@@ -259,27 +255,27 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="submit-warning">
                     <i class="fas fa-exclamation-triangle"></i>
                     <p>Once submitted, you cannot change your answers. Are you sure you want to submit?</p>
                 </div>
             </div>
-            
+
             <div class="submit-modal-footer">
-                <button class="btn-cancel" id="submit-cancel">
+                <button class="btn-cancel" onclick="quizManager.hideSubmitModal()">
                     <i class="fas fa-times"></i>
                     Cancel
                 </button>
-                <button class="btn-confirm-submit" id="confirm-submit">
-                    <i class="fas fa-check"></i>
-                    Yes, Submit
+                <button class="btn-confirm-submit" onclick="quizManager.submitQuiz()">
+                    <i class="fas fa-paper-plane"></i>
+                    Confirm Submit
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Loading Spinner -->
+    <!-- LOADING SPINNER -->
     <div class="loading-spinner-quiz" id="loading-spinner">
         <div class="spinner">
             <i class="fas fa-spinner fa-spin"></i>
@@ -287,9 +283,36 @@
         </div>
     </div>
 
-    <!-- JavaScript Files -->
+    <!-- Toast Container for Notifications -->
+    <div id="toast-container" style="position: fixed; top: 80px; right: 20px; z-index: 10003;"></div>
+
+    <!-- Scripts -->
     <script src="../js/firebase-config.js"></script>
-    <script src="../js/auth.js"></script>
     <script src="../js/quiz.js"></script>
+
+    <script>
+        // Helper Functions
+        function goToHome() {
+            if (confirm('Are you sure you want to leave the quiz? Your progress will be lost.')) {
+                window.location.href = '../index.html';
+            }
+        }
+
+        function pauseQuiz() {
+            // Implement pause functionality
+            alert('Quiz paused. Click OK to resume.');
+        }
+
+        function showSubmitModal() {
+            if (window.quizManager) {
+                window.quizManager.showSubmitModal();
+            }
+        }
+
+        // Initialize Quiz Manager
+        window.addEventListener('load', () => {
+            window.quizManager = new QuizManager();
+        });
+    </script>
 </body>
 </html>
