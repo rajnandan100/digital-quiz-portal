@@ -258,6 +258,97 @@
                     <input type="text" id="searchQuiz" placeholder="Search quizzes..." onkeyup="filterQuizzes()">
                 </div>
 
+
+
+<!-- Bulk Actions Panel -->
+<div class="bulk-actions-panel">
+    <div class="bulk-actions-header">
+        <h3>
+            <i class="fas fa-tasks"></i> Bulk Operations
+            <span class="bulk-counter">(<span id="selected-count">0</span> selected)</span>
+        </h3>
+        <div class="bulk-toggles">
+            <button class="btn-sm btn-secondary" onclick="selectAllQuizzes()">
+                <i class="fas fa-check-square"></i> Select All
+            </button>
+            <button class="btn-sm btn-secondary" onclick="clearSelection()">
+                <i class="fas fa-square"></i> Clear All
+            </button>
+        </div>
+    </div>
+
+    <div class="bulk-actions-buttons">
+        <div class="action-group status-actions">
+            <button class="btn-sm btn-success" onclick="bulkActivateQuizzes()" id="bulk-activate" disabled>
+                <i class="fas fa-play"></i> Activate Selected
+            </button>
+            <button class="btn-sm btn-warning" onclick="bulkDeactivateQuizzes()" id="bulk-deactivate" disabled>
+                <i class="fas fa-pause"></i> Deactivate Selected
+            </button>
+        </div>
+
+        <div class="action-group category-actions">
+            <select id="bulk-category" disabled>
+                <option value="">Change Category...</option>
+                <option value="general-knowledge">General Knowledge</option>
+                <option value="science">Science</option>
+                <option value="mathematics">Mathematics</option>
+                <option value="english">English</option>
+                <option value="history">History</option>
+                <option value="geography">Geography</option>
+            </select>
+            <button class="btn-sm btn-info" onclick="bulkUpdateCategory()" id="bulk-category-btn" disabled>
+                <i class="fas fa-folder"></i> Update Category
+            </button>
+        </div>
+
+        <div class="action-group export-actions">
+            <button class="btn-sm btn-secondary" onclick="bulkExportQuizzes()" id="bulk-export" disabled>
+                <i class="fas fa-download"></i> Export Selected
+            </button>
+            <button class="btn-sm btn-secondary" onclick="exportAllQuizzes()">
+                <i class="fas fa-file-export"></i> Export All Quizzes
+            </button>
+        </div>
+
+        <div class="action-group danger-actions">
+            <button class="btn-sm btn-danger" onclick="bulkDeleteQuizzes()" id="bulk-delete" disabled>
+                <i class="fas fa-trash"></i> Delete Selected
+            </button>
+            <button class="btn-sm btn-danger" onclick="clearAllQuizzes()" title="Delete ALL quizzes">
+                <i class="fas fa-trash-alt"></i> Clear All Data
+            </button>
+        </div>
+    </div>
+
+    <div class="bulk-stats">
+        <div class="stats-item">
+            <span class="stats-label">Total Quizzes:</span>
+            <span class="stats-value" id="total-quiz-count">0</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-label">Active:</span>
+            <span class="stats-value" id="active-quiz-count">0</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-label">Inactive:</span>
+            <span class="stats-value" id="inactive-quiz-count">0</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-label">Selected:</span>
+            <span class="stats-value" id="selected-quiz-count">0</span>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+                
                 <div class="quiz-list" id="quizList">
                     <div class="loading-message">
                         <i class="fas fa-spinner fa-spin"></i>
