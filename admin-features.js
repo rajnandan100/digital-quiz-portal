@@ -1242,4 +1242,29 @@ window.viewUser = viewUser;
 window.exportAllData = exportAllData;
 window.clearAllData = clearAllData;
 
+
+
+
+
+
+
+// Add these to your existing global functions section:
+window.selectAllQuizzes = selectAllQuizzes;
+window.clearSelection = clearSelection;
+window.toggleQuizSelection = toggleQuizSelection;
+window.bulkActivateQuizzes = bulkActivateQuizzes;
+window.bulkDeactivateQuizzes = bulkDeactivateQuizzes;
+window.bulkUpdateCategory = bulkUpdateCategory;
+window.bulkExportQuizzes = bulkExportQuizzes;
+window.exportAllQuizzes = exportAllQuizzes;
+window.bulkDeleteQuizzes = bulkDeleteQuizzes;
+window.clearAllQuizzes = clearAllQuizzes;
+
+
+
+
+
+
+
+
 console.log('✅ Enhanced Admin Features loaded successfully!');
