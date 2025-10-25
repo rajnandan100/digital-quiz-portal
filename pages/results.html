@@ -5,29 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quiz Results - DigiQuiz Portal</title>
     
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="../css/style.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="../css/results.css">
     <link rel="stylesheet" href="../css/responsive.css">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Chart.js for Analytics -->
- 
-    
-    <!-- Firebase SDK v8 Compatibility -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase v8 SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
+
 <body>
-    <!-- Minimal Header -->
-    <div class="results-header">
-        <button class="back-btn" onclick="window.location.href='../index.html'">
+    <!-- RESULTS HEADER -->
+    <header class="results-header">
+        <button class="back-btn" onclick="goToHome()">
             <i class="fas fa-arrow-left"></i>
             <span>Home</span>
         </button>
@@ -37,28 +31,37 @@
         </div>
         
         <div class="user-profile-small">
-            <img src="" alt="User" class="user-avatar-small" id="user-avatar">
+            <img src="https://ui-avatars.com/api/?name=User&background=4F46E5&color=fff&size=36" 
+                 alt="User Avatar" class="user-avatar-small" id="user-avatar-results">
         </div>
-    </div>
+    </header>
 
-    <!-- Results Container -->
+    <!-- MAIN RESULTS CONTAINER -->
     <div class="results-container">
-        <!-- Main Score Card -->
+        <!-- SCORE HERO CARD -->
         <div class="score-hero-card">
+            <!-- Congratulations Section -->
             <div class="congratulations-section">
                 <div class="trophy-animation">
                     <i class="fas fa-trophy" id="trophy-icon"></i>
                 </div>
-                <h1 class="congratulations-title" id="congratulations-title">🎉 Excellent Work!</h1>
+                <h1 class="congratulations-title" id="congratulations-title">🏆 Outstanding Performance!</h1>
                 <p class="performance-subtitle" id="performance-subtitle">You scored above average!</p>
             </div>
-            
+
+            <!-- Score Display -->
             <div class="score-display-main">
                 <div class="score-circle-container">
                     <div class="score-circle">
                         <svg class="score-progress" viewBox="0 0 100 100">
-                            <circle class="score-progress-bg" cx="50" cy="50" r="45"></circle>
-                            <circle class="score-progress-fill" cx="50" cy="50" r="45" id="score-circle"></circle>
+                            <defs>
+                                <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#4F46E5"/>
+                                    <stop offset="100%" stop-color="#10b981"/>
+                                </linearGradient>
+                            </defs>
+                            <circle cx="50" cy="50" r="45" class="score-progress-bg"></circle>
+                            <circle cx="50" cy="50" r="45" class="score-progress-fill" id="score-circle"></circle>
                         </svg>
                         <div class="score-content">
                             <div class="score-percentage" id="score-percentage">85%</div>
@@ -66,162 +69,148 @@
                         </div>
                     </div>
                 </div>
-                
+
+                <!-- Score Breakdown -->
                 <div class="score-breakdown">
                     <div class="breakdown-item correct">
                         <div class="breakdown-icon">
-                            <i class="fas fa-check-circle"></i>
+                            <i class="fas fa-check"></i>
                         </div>
-                        <div class="breakdown-details">
-                            <div class="breakdown-number" id="correct-count">17</div>
-                            <div class="breakdown-label">Correct</div>
-                        </div>
+                        <div class="breakdown-number" id="correct-count">17</div>
+                        <div class="breakdown-label">Correct</div>
                     </div>
-                    
+
                     <div class="breakdown-item incorrect">
                         <div class="breakdown-icon">
-                            <i class="fas fa-times-circle"></i>
+                            <i class="fas fa-times"></i>
                         </div>
-                        <div class="breakdown-details">
-                            <div class="breakdown-number" id="incorrect-count">3</div>
-                            <div class="breakdown-label">Incorrect</div>
-                        </div>
+                        <div class="breakdown-number" id="incorrect-count">3</div>
+                        <div class="breakdown-label">Incorrect</div>
                     </div>
-                    
+
                     <div class="breakdown-item skipped">
                         <div class="breakdown-icon">
-                            <i class="fas fa-minus-circle"></i>
+                            <i class="fas fa-minus"></i>
                         </div>
-                        <div class="breakdown-details">
-                            <div class="breakdown-number" id="skipped-count">10</div>
-                            <div class="breakdown-label">Skipped</div>
-                        </div>
+                        <div class="breakdown-number" id="skipped-count">0</div>
+                        <div class="breakdown-label">Skipped</div>
                     </div>
                 </div>
             </div>
-            
+
+            <!-- Quiz Metadata -->
             <div class="quiz-metadata">
                 <div class="metadata-item">
                     <i class="fas fa-clock"></i>
-                    <span>Time Taken: <strong id="time-taken">18:32</strong></span>
+                    <span id="time-taken">18:32</span>
                 </div>
                 <div class="metadata-item">
                     <i class="fas fa-calendar-alt"></i>
-                    <span>Date: <strong id="quiz-date">Oct 24, 2025</strong></span>
+                    <span id="quiz-date">Oct 25, 2025</span>
                 </div>
                 <div class="metadata-item">
-                    <i class="fas fa-list-alt"></i>
-                    <span>Quiz: <strong id="quiz-name">General Knowledge</strong></span>
+                    <i class="fas fa-book"></i>
+                    <span id="quiz-name">General Knowledge Quiz</span>
                 </div>
             </div>
         </div>
 
-        <!-- Performance Analytics -->
+        <!-- ANALYTICS CARDS -->
         <div class="analytics-cards">
-            <div class="analytics-card accuracy-card">
+            <!-- Accuracy Card -->
+            <div class="analytics-card">
                 <div class="card-header">
-                    <i class="fas fa-target"></i>
-                    <h3>Accuracy Rate</h3>
+                    <i class="fas fa-bullseye"></i>
+                    <h3>Accuracy Analysis</h3>
                 </div>
-                <div class="card-content">
-                    <div class="accuracy-meter">
-                        <div class="accuracy-fill" id="accuracy-meter"></div>
-                    </div>
-                    <div class="accuracy-percentage" id="accuracy-percentage">85%</div>
-                    <p class="accuracy-description">You answered 17 out of 20 attempted questions correctly</p>
+                <div class="accuracy-meter">
+                    <div class="accuracy-fill" id="accuracy-meter"></div>
                 </div>
+                <div class="accuracy-percentage" id="accuracy-percentage">85%</div>
+                <div class="accuracy-description">You answered <span id="accuracy-details">17 out of 20 attempted questions correctly</span></div>
             </div>
-            
-            <div class="analytics-card speed-card">
+
+            <!-- Speed Card -->
+            <div class="analytics-card">
                 <div class="card-header">
                     <i class="fas fa-tachometer-alt"></i>
                     <h3>Speed Analysis</h3>
                 </div>
-                <div class="card-content">
-                    <div class="speed-stats">
-                        <div class="speed-item">
-                            <span class="speed-label">Avg per Question</span>
-                            <span class="speed-value" id="avg-time">37s</span>
-                        </div>
-                        <div class="speed-item">
-                            <span class="speed-label">Fastest Answer</span>
-                            <span class="speed-value" id="fastest-time">12s</span>
-                        </div>
-                        <div class="speed-item">
-                            <span class="speed-label">Slowest Answer</span>
-                            <span class="speed-value" id="slowest-time">1:45</span>
-                        </div>
+                <div class="speed-stats">
+                    <div class="speed-item">
+                        <span class="speed-label">Average per Question</span>
+                        <span class="speed-value" id="avg-time">56s</span>
+                    </div>
+                    <div class="speed-item">
+                        <span class="speed-label">Fastest Answer</span>
+                        <span class="speed-value" id="fastest-time">23s</span>
+                    </div>
+                    <div class="speed-item">
+                        <span class="speed-label">Slowest Answer</span>
+                        <span class="speed-value" id="slowest-time">1:45</span>
                     </div>
                 </div>
             </div>
 
-
-
-
-<div class="analytics-card advertisement-card">
-    <div class="card-header">
-        <i class="fas fa-bullhorn"></i>
-        <h3>Sponsored</h3>
-    </div>
-    <div class="card-content">
-        <div class="ad-container">
-            <div class="banner-ad" id="banner-ad">
-                <div class="ad-content">
-                    <div class="ad-image">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <div class="ad-text">
-                        <h4>Boost Your Learning!</h4>
-                        <p>Master any subject with our premium courses</p>
-                        <button class="ad-btn">Learn More</button>
+            <!-- Advertisement Card -->
+            <div class="analytics-card advertisement-card" id="banner-ad">
+                <div class="card-header">
+                    <i class="fas fa-bullhorn"></i>
+                    <h3>Support Our Platform</h3>
+                </div>
+                <div class="ad-container">
+                    <div class="banner-ad">
+                        <div class="ad-content">
+                            <div class="ad-image">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="ad-text">
+                                <h4>Boost Your Learning</h4>
+                                <p>Get personalized study plans and detailed analytics</p>
+                                <button class="ad-btn">Learn More</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-
-            
-            
-            
-        </div>
-
-        <!-- Achievement Section -->
+        <!-- ACHIEVEMENT SECTION -->
         <div class="achievement-section" id="achievement-section">
             <div class="achievement-card">
                 <div class="achievement-badge">
-                    <i class="fas fa-medal"></i>
+                    <i class="fas fa-award"></i>
                 </div>
                 <div class="achievement-content">
                     <h3>Achievement Unlocked!</h3>
                     <p id="achievement-text">Quiz Master - Scored above 80%</p>
-                    <button class="certificate-btn" onclick="downloadCertificate()">
-                        <i class="fas fa-download"></i>
+                    <button class="certificate-btn">
+                        <i class="fas fa-certificate"></i>
                         Download Certificate
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Personal Performance Insights -->
+        <!-- INSIGHTS SECTION -->
         <div class="insights-section">
             <div class="insights-card">
                 <div class="insights-header">
                     <i class="fas fa-lightbulb"></i>
-                    <h3>Performance Insights</h3>
+                    <h3>Personal Insights</h3>
                 </div>
+
                 <div class="insights-content">
                     <div class="insight-item strength">
                         <div class="insight-icon">
                             <i class="fas fa-thumbs-up"></i>
                         </div>
                         <div class="insight-details">
-                            <h4>Strengths</h4>
+                            <h4>Strength Areas</h4>
                             <p id="strength-text">You excelled in Science and Mathematics questions</p>
                         </div>
                     </div>
-                    
+
                     <div class="insight-item improvement">
                         <div class="insight-icon">
                             <i class="fas fa-chart-line"></i>
@@ -231,10 +220,10 @@
                             <p id="improvement-text">Focus more on History and Geography topics</p>
                         </div>
                     </div>
-                    
+
                     <div class="insight-item timing">
                         <div class="insight-icon">
-                            <i class="fas fa-stopwatch"></i>
+                            <i class="fas fa-clock"></i>
                         </div>
                         <div class="insight-details">
                             <h4>Time Management</h4>
@@ -245,167 +234,112 @@
             </div>
         </div>
 
-        <!-- Question Solutions Section -->
+        <!-- DETAILED SOLUTIONS SECTION -->
         <div class="solutions-section">
             <div class="solutions-header">
                 <div class="solutions-title">
-                    <i class="fas fa-list-alt"></i>
-                    <h3>Question Solutions & Review</h3>
+                    <i class="fas fa-list-ul"></i>
+                    <h3>Question-by-Question Review</h3>
                 </div>
+
                 <div class="solutions-filters">
                     <button class="filter-btn active" data-filter="all">
-                        All <span class="filter-count" id="all-count">30</span>
+                        All <span class="filter-count" id="all-count">20</span>
                     </button>
                     <button class="filter-btn correct" data-filter="correct">
+                        <i class="fas fa-check"></i>
                         Correct <span class="filter-count" id="correct-filter-count">17</span>
                     </button>
                     <button class="filter-btn incorrect" data-filter="incorrect">
+                        <i class="fas fa-times"></i>
                         Incorrect <span class="filter-count" id="incorrect-filter-count">3</span>
                     </button>
                     <button class="filter-btn skipped" data-filter="skipped">
-                        Skipped <span class="filter-count" id="skipped-filter-count">10</span>
+                        <i class="fas fa-minus"></i>
+                        Skipped <span class="filter-count" id="skipped-filter-count">0</span>
                     </button>
                 </div>
             </div>
-            
+
             <div class="solutions-container" id="solutions-container">
-                <!-- Sample Question Card - Will be dynamically loaded -->
-                <div class="solution-card correct" data-question="1">
-                    <div class="solution-header" onclick="toggleSolution(1)">
-                        <div class="solution-info">
-                            <span class="question-number">Q1</span>
-                            <span class="question-preview">What is the capital of Australia?</span>
-                        </div>
-                        <div class="solution-status">
-                            <div class="status-icon correct">
-                                <i class="fas fa-check"></i>
-                            </div>
-                            <i class="fas fa-chevron-down toggle-icon"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="solution-content collapsed" id="solution-1">
-                        <div class="question-full">
-                            <h4>What is the capital of Australia?</h4>
-                        </div>
-                        
-                        <div class="options-review">
-                            <div class="option-item">
-                                <input type="radio" disabled>
-                                <span>A) Sydney</span>
-                            </div>
-                            <div class="option-item user-answer correct-answer">
-                                <input type="radio" checked disabled>
-                                <span>B) Canberra</span>
-                                <div class="option-indicators">
-                                    <span class="indicator user">Your Answer</span>
-                                    <span class="indicator correct">Correct Answer</span>
-                                </div>
-                            </div>
-                            <div class="option-item">
-                                <input type="radio" disabled>
-                                <span>C) Melbourne</span>
-                            </div>
-                            <div class="option-item">
-                                <input type="radio" disabled>
-                                <span>D) Perth</span>
-                            </div>
-                        </div>
-                        
-                        <div class="explanation">
-                            <div class="explanation-header">
-                                <i class="fas fa-info-circle"></i>
-                                <h5>Explanation</h5>
-                            </div>
-                            <p>Canberra is the capital city of Australia. While Sydney and Melbourne are larger and more well-known cities, Canberra was specifically planned and built to serve as the national capital in 1908.</p>
-                        </div>
-                        
-                        <div class="question-stats">
-                            <div class="stat-item">
-                                <i class="fas fa-clock"></i>
-                                <span>Your Time: <strong>23s</strong></span>
-                            </div>
-                            <div class="stat-item">
-                                <i class="fas fa-users"></i>
-                                <span>83% got this right</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- More question cards will be dynamically loaded here -->
+                <!-- Question solutions will be dynamically generated -->
             </div>
         </div>
 
-        <!-- Action Buttons -->
+        <!-- ACTION SECTION -->
         <div class="action-section">
             <div class="primary-actions">
-                <button class="action-btn leaderboard-btn" onclick="viewLeaderboard()">
+                <button class="action-btn leaderboard-btn" onclick="goToLeaderboard()">
                     <i class="fas fa-trophy"></i>
                     View Leaderboard
                 </button>
                 
-                <button class="action-btn share-btn" onclick="shareResults()">
+                <button class="action-btn share-btn" onclick="openShareModal()">
                     <i class="fas fa-share-alt"></i>
                     Share Results
                 </button>
             </div>
-            
+
             <div class="secondary-actions">
                 <button class="secondary-btn" onclick="retakeQuiz()">
                     <i class="fas fa-redo"></i>
                     Retake Quiz
                 </button>
-                
-                <button class="secondary-btn" onclick="window.location.href='../index.html'">
-                    <i class="fas fa-home"></i>
-                    Back to Home
-                </button>
-                
-                <button class="secondary-btn" onclick="exploreQuizzes()">
+                <button class="secondary-btn" onclick="browseMoreQuizzes()">
                     <i class="fas fa-search"></i>
                     More Quizzes
+                </button>
+                <button class="secondary-btn" onclick="downloadResults()">
+                    <i class="fas fa-download"></i>
+                    Download PDF
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Share Modal -->
+    <!-- SHARE MODAL -->
     <div class="share-modal" id="share-modal">
         <div class="share-modal-content">
             <div class="share-modal-header">
-                <h3>Share Your Results</h3>
+                <h3><i class="fas fa-share-alt"></i> Share Your Results</h3>
                 <button class="modal-close" onclick="closeShareModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
+
             <div class="share-modal-body">
                 <div class="share-preview">
-                    <div class="share-score">I scored <strong id="share-percentage">85%</strong> in the General Knowledge Quiz!</div>
+                    <p class="share-score" id="share-score-text">
+                        I scored 85% on DigiQuiz Portal! 🎉
+                    </p>
                 </div>
+
                 <div class="share-options">
-                    <button class="share-option whatsapp" onclick="shareToWhatsApp()">
+                    <div class="share-option whatsapp" onclick="shareToWhatsApp()">
                         <i class="fab fa-whatsapp"></i>
-                        WhatsApp
-                    </button>
-                    <button class="share-option twitter" onclick="shareToTwitter()">
+                        <span>WhatsApp</span>
+                    </div>
+                    
+                    <div class="share-option twitter" onclick="shareToTwitter()">
                         <i class="fab fa-twitter"></i>
-                        Twitter
-                    </button>
-                    <button class="share-option facebook" onclick="shareToFacebook()">
+                        <span>Twitter</span>
+                    </div>
+                    
+                    <div class="share-option facebook" onclick="shareToFacebook()">
                         <i class="fab fa-facebook"></i>
-                        Facebook
-                    </button>
-                    <button class="share-option copy" onclick="copyResultLink()">
+                        <span>Facebook</span>
+                    </div>
+                    
+                    <div class="share-option copy" onclick="copyResultsLink()">
                         <i class="fas fa-copy"></i>
-                        Copy Link
-                    </button>
+                        <span>Copy Link</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Loading Spinner -->
+    <!-- LOADING SPINNER -->
     <div class="loading-spinner" id="loading-spinner">
         <div class="spinner">
             <i class="fas fa-spinner fa-spin"></i>
@@ -413,8 +347,79 @@
         </div>
     </div>
 
-    <!-- JavaScript Files -->
+    <!-- Toast Container -->
+    <div id="toast-container" style="position: fixed; top: 80px; right: 20px; z-index: 10003;"></div>
+
+    <!-- Scripts -->
     <script src="../js/firebase-config.js"></script>
     <script src="../js/results.js"></script>
+
+    <script>
+        // Helper Functions
+        function goToHome() {
+            window.location.href = '../index.html';
+        }
+
+        function goToLeaderboard() {
+            const quizId = new URLSearchParams(window.location.search).get('quizId');
+            window.location.href = `leaderboard.html${quizId ? '?quizId=' + quizId : ''}`;
+        }
+
+        function retakeQuiz() {
+            const quizId = new URLSearchParams(window.location.search).get('quizId');
+            if (quizId) {
+                window.location.href = `quiz.html?id=${quizId}`;
+            } else {
+                window.location.href = '../index.html';
+            }
+        }
+
+        function browseMoreQuizzes() {
+            window.location.href = '../index.html';
+        }
+
+        function downloadResults() {
+            if (window.resultsManager) {
+                window.resultsManager.downloadPDF();
+            }
+        }
+
+        function openShareModal() {
+            document.getElementById('share-modal').classList.add('show');
+        }
+
+        function closeShareModal() {
+            document.getElementById('share-modal').classList.remove('show');
+        }
+
+        function shareToWhatsApp() {
+            if (window.resultsManager) {
+                window.resultsManager.shareToWhatsApp();
+            }
+        }
+
+        function shareToTwitter() {
+            if (window.resultsManager) {
+                window.resultsManager.shareToTwitter();
+            }
+        }
+
+        function shareToFacebook() {
+            if (window.resultsManager) {
+                window.resultsManager.shareToFacebook();
+            }
+        }
+
+        function copyResultsLink() {
+            if (window.resultsManager) {
+                window.resultsManager.copyResultsLink();
+            }
+        }
+
+        // Initialize Results Manager
+        window.addEventListener('load', () => {
+            window.resultsManager = new ResultsManager();
+        });
+    </script>
 </body>
 </html>
