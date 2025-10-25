@@ -309,10 +309,24 @@
             }
         }
 
-        // Initialize Quiz Manager
+              // Initialize Quiz Manager with fallback
         window.addEventListener('load', () => {
-            window.quizManager = new QuizManager();
+            if (typeof QuizManager !== 'undefined') {
+                window.quizManager = new QuizManager();
+                console.log('QuizManager initialized successfully');
+            } else {
+                console.error('QuizManager not found, retrying...');
+                setTimeout(() => {
+                    if (typeof QuizManager !== 'undefined') {
+                        window.quizManager = new QuizManager();
+                        console.log('QuizManager initialized on retry');
+                    } else {
+                        console.error('QuizManager still not found after retry');
+                    }
+                }, 1000);
+            }
         });
+
     </script>
 </body>
 </html>
