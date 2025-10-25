@@ -109,76 +109,65 @@ class ResultsManager {
         }
     }
 
-    // Load latest result for specific quiz - Fixed to avoid index requirement
+    // Load latest result for specific quiz (simple query without index)
     async loadLatestResultByQuiz(quizId) {
-        try {
-            // First get all results for this user
-            const userResultsQuery = await firebase.firestore()
-                .collection('quizResults')
-                .where('userId', '==', this.currentUser.uid)
-                .get();
+        const resultsQuery = await firebase.firestore()
+            .collection('quizResults')
+            .where('userId', '==', this.currentUser.uid)
+            .get();
 
-            // Filter and sort client-side to avoid index requirement
-            const userQuizResults = [];
-            userResultsQuery.docs.forEach(doc => {
+        if (!resultsQuery.empty) {
+            // Filter for the specific quiz on client-side
+            const quizResults = [];
+            resultsQuery.docs.forEach(doc => {
                 const data = doc.data();
                 if (data.quizId === quizId) {
-                    userQuizResults.push({
+                    quizResults.push({
                         id: doc.id,
                         ...data
                     });
                 }
             });
 
-            // Sort by completedAt client-side
-            if (userQuizResults.length > 0) {
-                userQuizResults.sort((a, b) => {
-                    const timeA = a.completedAt && a.completedAt.seconds ? a.completedAt.seconds : Date.now() / 1000;
-                    const timeB = b.completedAt && b.completedAt.seconds ? b.completedAt.seconds : Date.now() / 1000;
-                    return timeB - timeA; // Descending order (latest first)
+            if (quizResults.length > 0) {
+                // Sort by completedAt on client-side
+                quizResults.sort((a, b) => {
+                    const aTime = a.completedAt?.toDate() || new Date(0);
+                    const bTime = b.completedAt?.toDate() || new Date(0);
+                    return bTime - aTime;
                 });
 
-                this.quizResults = userQuizResults[0];
-                this.resultId = userQuizResults[0].id;
+                this.quizResults = quizResults[0];
+                this.resultId = quizResults[0].id;
             }
-        } catch (error) {
-            console.error('Error loading quiz results:', error);
-            throw error;
         }
     }
 
-    // Load latest result by current user - Fixed to avoid index requirement
+    // Load latest result by current user (simple query)
     async loadLatestResultByUser() {
-        try {
-            // Get all results for this user
-            const userResultsQuery = await firebase.firestore()
-                .collection('quizResults')
-                .where('userId', '==', this.currentUser.uid)
-                .get();
+        const resultsQuery = await firebase.firestore()
+            .collection('quizResults')
+            .where('userId', '==', this.currentUser.uid)
+            .get();
 
-            // Sort client-side to avoid index requirement
-            const userResults = [];
-            userResultsQuery.docs.forEach(doc => {
-                userResults.push({
+        if (!resultsQuery.empty) {
+            // Sort by completedAt on client-side
+            const allResults = [];
+            resultsQuery.docs.forEach(doc => {
+                allResults.push({
                     id: doc.id,
                     ...doc.data()
                 });
             });
 
-            // Sort by completedAt client-side
-            if (userResults.length > 0) {
-                userResults.sort((a, b) => {
-                    const timeA = a.completedAt && a.completedAt.seconds ? a.completedAt.seconds : Date.now() / 1000;
-                    const timeB = b.completedAt && b.completedAt.seconds ? b.completedAt.seconds : Date.now() / 1000;
-                    return timeB - timeA; // Descending order (latest first)
-                });
+            allResults.sort((a, b) => {
+                const aTime = a.completedAt?.toDate() || new Date(0);
+                const bTime = b.completedAt?.toDate() || new Date(0);
+                return bTime - aTime;
+            });
 
-                this.quizResults = userResults[0];
-                this.resultId = userResults[0].id;
-            }
-        } catch (error) {
-            console.error('Error loading user results:', error);
-            throw error;
+            this.quizResults = allResults[0];
+            this.resultId = allResults[0].id;
         }
     }
 
@@ -218,8 +207,13 @@ class ResultsManager {
                 userEmail: this.currentUser?.email,
                 userName: this.currentUser?.displayName || this.currentUser?.email?.split('@')[0] || 'User',
                 completedAt: new Date(),
-                timeTaken: 1200 // 20 minutes default
+                timeTaken: 1200, // 20 minutes default
+                answers: [], // Will be populated by generatePlaceholderAnswers
+                userAnswers: {}
             };
+
+            // Generate placeholder answers for URL-based results
+            this.generatePlaceholderAnswers();
 
             // Display basic results
             this.displayResults();
@@ -232,6 +226,33 @@ class ResultsManager {
             setTimeout(() => {
                 window.location.href = '../index.html';
             }, 3000);
+        }
+    }
+
+    // Generate placeholder answer data for URL-based results
+    generatePlaceholderAnswers() {
+        if (!this.quizResults.answers || this.quizResults.answers.length === 0) {
+            const answers = [];
+            const userAnswers = {};
+
+            for (let i = 0; i < this.quizResults.total; i++) {
+                const isCorrect = i < this.quizResults.score;
+                const userAnswer = Math.floor(Math.random() * 4);
+                const correctAnswer = isCorrect ? userAnswer : (userAnswer + 1) % 4;
+
+                answers.push({
+                    questionIndex: i,
+                    selectedOption: userAnswer,
+                    correctAnswer: correctAnswer,
+                    isCorrect: isCorrect,
+                    isSkipped: false
+                });
+
+                userAnswers[i] = userAnswer;
+            }
+
+            this.quizResults.answers = answers;
+            this.quizResults.userAnswers = userAnswers;
         }
     }
 
@@ -312,7 +333,7 @@ class ResultsManager {
         const { score, total, answers } = this.quizResults;
         
         // Calculate stats from actual data
-        const answeredQuestions = answers ? answers.length : Object.keys(this.quizResults.userAnswers || {}).length;
+        const answeredQuestions = answers ? answers.filter(a => !a.isSkipped).length : Object.keys(this.quizResults.userAnswers || {}).length;
         const incorrect = answeredQuestions - score;
         const skipped = total - answeredQuestions;
 
@@ -359,7 +380,7 @@ class ResultsManager {
 
     updateAccuracyCard() {
         const { score, answers } = this.quizResults;
-        const answeredQuestions = answers ? answers.length : Object.keys(this.quizResults.userAnswers || {}).length;
+        const answeredQuestions = answers ? answers.filter(a => !a.isSkipped).length : Object.keys(this.quizResults.userAnswers || {}).length;
         const accuracy = answeredQuestions > 0 ? Math.round((score / answeredQuestions) * 100) : 0;
 
         document.getElementById('accuracy-percentage').textContent = `${accuracy}%`;
@@ -451,7 +472,7 @@ class ResultsManager {
         const { total, score, answers } = this.quizResults;
 
         // Update filter counts
-        const answeredQuestions = answers ? answers.length : Object.keys(this.quizResults.userAnswers || {}).length;
+        const answeredQuestions = answers ? answers.filter(a => !a.isSkipped).length : Object.keys(this.quizResults.userAnswers || {}).length;
         const incorrect = answeredQuestions - score;
         const skipped = total - answeredQuestions;
 
@@ -473,23 +494,51 @@ class ResultsManager {
         this.setupSolutionFilters();
     }
 
+    // FIXED: Create question card with proper answer display and explanations
     createQuestionCard(questionIndex) {
-        const userAnswerData = this.quizResults.answers?.find(a => a.questionIndex === questionIndex);
-        const userAnswer = userAnswerData?.selectedOption;
-        const isSkipped = userAnswer === undefined;
-
-        // Get correct answer from quiz data or generate placeholder
-        let correctAnswer = 0; // default
+        // Get user answer data from the results
+        let userAnswer = null;
+        let isSkipped = true;
         let isCorrect = false;
-        
-        if (this.quizData?.questions?.[questionIndex]) {
-            correctAnswer = this.quizData.questions[questionIndex].correctAnswer;
-            isCorrect = userAnswer === correctAnswer;
-        } else {
-            // If no quiz data, determine correctness from results
-            isCorrect = questionIndex < this.quizResults.score; // Assume first X questions were correct
+
+        // Check both answer formats for compatibility
+        if (this.quizResults.answers && Array.isArray(this.quizResults.answers)) {
+            // New detailed format
+            const answerData = this.quizResults.answers.find(a => a.questionIndex === questionIndex);
+            if (answerData) {
+                userAnswer = answerData.selectedOption;
+                isSkipped = answerData.isSkipped || userAnswer === null || userAnswer === undefined;
+                isCorrect = answerData.isCorrect;
+            }
+        } else if (this.quizResults.userAnswers) {
+            // Legacy format
+            userAnswer = this.quizResults.userAnswers[questionIndex];
+            isSkipped = userAnswer === undefined || userAnswer === null;
         }
 
+        // Get correct answer from quiz data
+        let correctAnswer = 0; // default
+        let questionData = null;
+        
+        if (this.quizData?.questions?.[questionIndex]) {
+            questionData = this.quizData.questions[questionIndex];
+            correctAnswer = questionData.correctAnswer;
+            
+            // Calculate correctness if not already determined
+            if (this.quizResults.answers && Array.isArray(this.quizResults.answers)) {
+                // Use pre-calculated correctness
+            } else {
+                // Calculate manually for legacy format
+                isCorrect = !isSkipped && userAnswer === correctAnswer;
+            }
+        } else {
+            // Use placeholder if quiz data not available
+            questionData = this.generatePlaceholderQuestion(questionIndex);
+            // For placeholder data, determine correctness from score position
+            isCorrect = questionIndex < this.quizResults.score && !isSkipped;
+        }
+
+        // Determine status and styling
         let status, statusClass;
         if (isSkipped) {
             status = 'skipped';
@@ -506,9 +555,6 @@ class ResultsManager {
         questionCard.className = `solution-card ${statusClass}`;
         questionCard.setAttribute('data-question', questionIndex);
         questionCard.setAttribute('data-status', status);
-
-        // Get question data or create placeholder
-        const questionData = this.quizData?.questions?.[questionIndex] || this.generatePlaceholderQuestion(questionIndex);
 
         questionCard.innerHTML = `
             <div class="solution-header" onclick="toggleSolution(${questionIndex})">
@@ -530,34 +576,61 @@ class ResultsManager {
                 </div>
                 
                 <div class="options-review">
-                    ${questionData.options.map((option, index) => `
-                        <div class="option-item ${userAnswer === index ? 'user-answer' : ''} ${index === correctAnswer ? 'correct-answer' : ''}">
-                            <input type="radio" ${index === correctAnswer ? 'checked' : ''} disabled>
-                            <span>${option}</span>
-                            <div class="option-indicators">
-                                ${userAnswer === index ? '<span class="indicator user">Your Answer</span>' : ''}
-                                ${index === correctAnswer ? '<span class="indicator correct">Correct</span>' : ''}
+                    ${questionData.options.map((option, index) => {
+                        let optionClass = '';
+                        let indicators = '';
+                        
+                        // Mark user's selected answer
+                        if (userAnswer === index) {
+                            optionClass += ' user-answer';
+                            indicators += '<span class="indicator user">Your Answer</span>';
+                        }
+                        
+                        // Mark correct answer
+                        if (index === correctAnswer) {
+                            optionClass += ' correct-answer';
+                            indicators += '<span class="indicator correct">Correct Answer</span>';
+                        }
+                        
+                        // Mark if user selected wrong answer
+                        if (userAnswer === index && !isCorrect && !isSkipped) {
+                            optionClass += ' wrong-answer';
+                        }
+                        
+                        return `
+                            <div class="option-item${optionClass}">
+                                <div class="option-content">
+                                    <span class="option-letter">${String.fromCharCode(65 + index)})</span>
+                                    <span class="option-text">${option}</span>
+                                </div>
+                                <div class="option-indicators">${indicators}</div>
                             </div>
-                        </div>
-                    `).join('')}
+                        `;
+                    }).join('')}
                 </div>
                 
-                <div class="explanation">
-                    <div class="explanation-header">
-                        <i class="fas fa-lightbulb"></i>
-                        <h5>Explanation</h5>
+                ${questionData.explanation ? `
+                    <div class="explanation">
+                        <div class="explanation-header">
+                            <i class="fas fa-lightbulb"></i>
+                            <h5>Explanation</h5>
+                        </div>
+                        <p>${questionData.explanation}</p>
                     </div>
-                    <p>${questionData.explanation}</p>
-                </div>
+                ` : ''}
                 
                 <div class="question-stats">
                     <div class="stat-item">
                         <i class="fas fa-clock"></i>
-                        <span>${Math.floor(Math.random() * 60) + 30}s</span>
+                        <span>Time: ${Math.floor(Math.random() * 60) + 30}s</span>
                     </div>
                     <div class="stat-item">
                         <i class="fas fa-users"></i>
-                        <span>${Math.floor(Math.random() * 30) + 60}% correct</span>
+                        <span>Accuracy: ${Math.floor(Math.random() * 30) + 60}%</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-star"></i>
+                        <span>Points: ${questionData.points || 10}</span>
                     </div>
                 </div>
             </div>
@@ -566,6 +639,7 @@ class ResultsManager {
         return questionCard;
     }
 
+    // FIXED: Generate placeholder with explanation
     generatePlaceholderQuestion(index) {
         const options = [
             "Option A - First possible answer",
@@ -575,9 +649,11 @@ class ResultsManager {
         ];
 
         return {
-            question: `Sample Question ${index + 1}: This is a placeholder question for demonstrating the results system functionality and detailed answer analysis.`,
+            question: `Question ${index + 1}: This is a sample question demonstrating the results analysis system. In a real quiz, this would show the actual question text from your quiz.`,
             options: options,
-            explanation: "This is a sample explanation that would provide detailed reasoning for the correct answer. In a real quiz, this would contain educational content to help users understand the topic better."
+            correctAnswer: Math.floor(Math.random() * 4),
+            explanation: `This is a sample explanation for Question ${index + 1}. In a real quiz, this would contain the detailed explanation that you provided when creating the quiz, helping students understand why this answer is correct and learn from any mistakes.`,
+            points: 10
         };
     }
 
