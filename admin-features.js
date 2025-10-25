@@ -1,4 +1,4 @@
-// ===== ENHANCED ADMIN FEATURES - COMPLETE IMPLEMENTATION WITH JSON EXPLANATION VALIDATION =====
+// ===== ENHANCED ADMIN FEATURES - COMPLETE CORRECTED IMPLEMENTATION =====
 
 console.log('Loading Enhanced Admin Features...');
 
@@ -32,9 +32,9 @@ async function loadQuizzes() {
 
     // Show loading state
     quizList.innerHTML = `
-        <div class="loading-state">
+        <div class="loading-message">
             <i class="fas fa-spinner fa-spin"></i>
-            <p>Loading quizzes...</p>
+            Loading quizzes...
         </div>
     `;
 
@@ -477,7 +477,7 @@ function switchUploadTab(tabName) {
     document.querySelector(`[onclick="switchUploadTab('${tabName}')"]`).classList.add('active');
 }
 
-// Add question to manual creation (ENHANCED WITH EXPLANATIONS)
+// Add question to manual creation (WITH EXPLANATIONS)
 function addQuestion() {
     const questionsList = document.getElementById('questionsList');
     const questionNumber = questionsList.children.length + 1;
@@ -528,7 +528,7 @@ function addQuestion() {
                 </div>
             </div>
 
-            <!-- EXPLANATION FIELD - MANDATORY -->
+            <!-- ✅ EXPLANATION FIELD - MANDATORY -->
             <div class="form-group">
                 <label for="explanation-${questionNumber}" class="required">Explanation:</label>
                 <textarea 
@@ -690,7 +690,7 @@ function collectQuizData() {
             throw new Error(`Question ${questionNum}: Please select the correct answer`);
         }
 
-        // Get explanation - MANDATORY
+        // ✅ Get explanation - MANDATORY
         const explanation = formData.get(`explanation-${questionNum}`)?.trim();
         if (!explanation) {
             throw new Error(`Question ${questionNum}: Explanation is required`);
@@ -704,7 +704,7 @@ function collectQuizData() {
             question: questionText,
             options: options,
             correctAnswer: correctAnswer,
-            explanation: explanation, // MANDATORY FIELD
+            explanation: explanation, // ✅ MANDATORY FIELD
             points: points
         });
     });
@@ -724,6 +724,11 @@ async function createManualQuiz() {
 
         // Show loading state
         const submitBtn = document.querySelector('.submit-quiz-btn');
+        if (!submitBtn) {
+            console.error('Submit button not found');
+            return;
+        }
+
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Quiz...';
         submitBtn.disabled = true;
@@ -757,7 +762,7 @@ async function createManualQuiz() {
         // Restore button
         const submitBtn = document.querySelector('.submit-quiz-btn');
         if (submitBtn) {
-            submitBtn.innerHTML = originalText;
+            submitBtn.innerHTML = 'Create Quiz';
             submitBtn.disabled = false;
         }
     }
@@ -766,7 +771,13 @@ async function createManualQuiz() {
 // ✅ FIXED: Upload JSON quiz with explanation validation
 async function uploadJsonQuiz() {
     const jsonInput = document.getElementById('jsonQuizData');
-    const jsonData = jsonInput?.value.trim();
+    
+    if (!jsonInput) {
+        alert('❌ JSON input field not found');
+        return;
+    }
+
+    const jsonData = jsonInput.value.trim();
     
     if (!jsonData) {
         alert('Please enter quiz JSON data');
@@ -781,7 +792,7 @@ async function uploadJsonQuiz() {
             throw new Error('Invalid quiz format. Title and questions array are required.');
         }
 
-        // ✅ NEW: Validate each question has explanation
+        // ✅ Validate each question has explanation
         for (let i = 0; i < quizData.questions.length; i++) {
             const question = quizData.questions[i];
             
@@ -805,9 +816,11 @@ async function uploadJsonQuiz() {
         }
         
         // Show loading state
-        const uploadBtn = document.querySelector('.upload-json-btn');
-        const originalText = uploadBtn?.innerHTML || 'Upload Quiz';
+        const uploadBtn = document.querySelector('.upload-json-btn') || document.querySelector('button[onclick="uploadJsonQuiz()"]');
+        let originalText = 'Upload Quiz';
+        
         if (uploadBtn) {
+            originalText = uploadBtn.innerHTML;
             uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
             uploadBtn.disabled = true;
         }
@@ -844,9 +857,9 @@ async function uploadJsonQuiz() {
         alert(`❌ Error uploading quiz:\n\n${errorMessage}`);
     } finally {
         // Restore button
-        const uploadBtn = document.querySelector('.upload-json-btn');
+        const uploadBtn = document.querySelector('.upload-json-btn') || document.querySelector('button[onclick="uploadJsonQuiz()"]');
         if (uploadBtn) {
-            uploadBtn.innerHTML = originalText;
+            uploadBtn.innerHTML = 'Upload Quiz';
             uploadBtn.disabled = false;
         }
     }
@@ -857,6 +870,8 @@ async function uploadJsonQuiz() {
 // Load users
 async function loadUsers() {
     const usersList = document.getElementById('usersList');
+    
+    if (!usersList) return;
     
     try {
         const usersSnapshot = await firebase.firestore().collection('users').get();
@@ -926,4 +941,4 @@ if (typeof window !== 'undefined') {
     });
 }
 
-console.log('Enhanced Admin Features with JSON Explanation Validation loaded successfully!');
+console.log('Enhanced Admin Features with Complete Functionality loaded successfully!');
