@@ -868,3 +868,117 @@ body {
 .animate-pulse {
     animation: pulse 2s infinite;
 }
+
+
+
+
+
+
+
+
+/* Enhanced Quiz Card Styles */
+.sample-quiz {
+    position: relative;
+    border: 2px solid #f59e0b !important;
+    background: linear-gradient(135deg, #fef3c7, #fed7aa) !important;
+}
+
+.sample-quiz::before {
+    content: "SAMPLE";
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    background: #f59e0b;
+    color: white;
+    padding: 4px 12px;
+    font-size: 10px;
+    font-weight: bold;
+    border-radius: 0 8px 0 8px;
+    letter-spacing: 1px;
+}
+
+.sample-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.sample-btn:hover {
+    background: linear-gradient(135deg, #d97706, #b45309) !important;
+    transform: translateY(-2px);
+}
+
+/* Loading and Animation Styles */
+.animate-fadeIn {
+    animation: fadeInUp 0.6s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.quiz-loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: #64748b;
+}
+
+.quiz-loading i {
+    font-size: 48px;
+    margin-bottom: 20px;
+    display: block;
+    color: #cbd5e1;
+    animation: spin 1s linear infinite;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+}
+
+/* Sample Notice Styling */
+.sample-notice {
+    grid-column: 1 / -1;
+    margin: 20px 0;
+}
+
+/* Better button hover effects */
+.btn-quiz-start:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+}
+
+.btn-quiz-preview:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .quiz-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-quiz-start, 
+    .btn-quiz-preview {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
