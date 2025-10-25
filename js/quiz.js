@@ -868,3 +868,32 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+
+
+
+
+
+// ✅ CRITICAL: Make QuizManager globally available
+window.QuizManager = QuizManager;
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Initializing QuizManager...');
+    window.quizManager = new QuizManager();
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
