@@ -1,4 +1,4 @@
-// ===== REAL-TIME FIREBASE QUIZ SYSTEM WITH ALL FEATURES =====
+// ===== UPDATED QUIZ SYSTEM WITH ALL REQUESTED FEATURES =====
 
 class QuizManager {
     constructor() {
@@ -551,6 +551,7 @@ class QuizManager {
                     // Redirect to results page
                     const params = new URLSearchParams({
                         quizId: this.quizId,
+                        resultId: results.resultId || '',
                         score: results.score,
                         total: results.total,
                         percentage: results.percentage
@@ -573,14 +574,30 @@ class QuizManager {
         }, 3000);
     }
 
+    // FIXED: Calculate results with proper answer format
     calculateResults() {
         let correctAnswers = 0;
         const totalQuestions = this.currentQuiz.questions.length;
-
+        
+        // Create detailed answer analysis
+        const detailedAnswers = [];
+        
         this.currentQuiz.questions.forEach((question, index) => {
-            if (this.userAnswers[index] === question.correctAnswer) {
+            const userAnswer = this.userAnswers[index];
+            const isCorrect = userAnswer === question.correctAnswer;
+            
+            if (isCorrect) {
                 correctAnswers++;
             }
+            
+            // Store detailed answer data for results page
+            detailedAnswers.push({
+                questionIndex: index,
+                selectedOption: userAnswer !== undefined ? userAnswer : null,
+                correctAnswer: question.correctAnswer,
+                isCorrect: isCorrect,
+                isSkipped: userAnswer === undefined
+            });
         });
 
         const percentage = Math.round((correctAnswers / totalQuestions) * 100);
@@ -596,10 +613,13 @@ class QuizManager {
             total: totalQuestions,
             percentage: percentage,
             timeTaken: (this.currentQuiz.timeLimit * 60) - this.timeRemaining,
-            answers: Object.keys(this.userAnswers).map(key => ({
-                questionIndex: parseInt(key),
-                selectedOption: this.userAnswers[key]
-            })),
+            
+            // FIXED: Proper answer format for results analysis
+            answers: detailedAnswers,
+            
+            // Keep simple format for compatibility
+            userAnswers: this.userAnswers,
+            
             markedQuestions: Array.from(this.markedQuestions),
             selectedQuote: this.selectedQuote,
             category: this.currentQuiz.category || 'general-knowledge',
@@ -607,33 +627,51 @@ class QuizManager {
         };
     }
 
+    // FIXED: Save quiz results with proper data structure
     async saveQuizResults(results) {
-        // Save quiz result
-        const resultRef = await firebase.firestore()
-            .collection('quizResults')
-            .add(results);
+        try {
+            console.log('Saving quiz results:', results);
+            
+            // Save quiz result to Firebase
+            const resultRef = await firebase.firestore()
+                .collection('quizResults')
+                .add(results);
 
-        // Save to leaderboard
-        await firebase.firestore()
-            .collection('leaderboard')
-            .add({
-                ...results,
-                resultId: resultRef.id
-            });
+            console.log('Results saved with ID:', resultRef.id);
 
-        // Update user stats
-        const userRef = firebase.firestore()
-            .collection('users')
-            .doc(this.currentUser.uid);
+            // Save to leaderboard
+            await firebase.firestore()
+                .collection('leaderboard')
+                .add({
+                    ...results,
+                    resultId: resultRef.id
+                });
 
-        await userRef.set({
-            email: this.currentUser.email,
-            displayName: this.currentUser.displayName || this.currentUser.email.split('@')[0],
-            quizzesTaken: firebase.firestore.FieldValue.increment(1),
-            totalScore: firebase.firestore.FieldValue.increment(results.score),
-            lastQuizDate: firebase.firestore.FieldValue.serverTimestamp(),
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
+            // Update user stats
+            const userRef = firebase.firestore()
+                .collection('users')
+                .doc(this.currentUser.uid);
+
+            await userRef.set({
+                email: this.currentUser.email,
+                displayName: this.currentUser.displayName || this.currentUser.email.split('@')[0],
+                quizzesTaken: firebase.firestore.FieldValue.increment(1),
+                totalScore: firebase.firestore.FieldValue.increment(results.score),
+                totalCorrectAnswers: firebase.firestore.FieldValue.increment(results.score),
+                totalQuestionsAttempted: firebase.firestore.FieldValue.increment(results.total),
+                lastQuizDate: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
+            console.log('User stats updated successfully');
+
+            // Store result ID for redirect
+            results.resultId = resultRef.id;
+
+        } catch (error) {
+            console.error('Error saving quiz results:', error);
+            throw error;
+        }
     }
 
     showInterstitialAd(callback) {
