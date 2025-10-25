@@ -160,68 +160,105 @@ function initQuizLoading() {
     const quizGrid = document.getElementById('quiz-grid');
     
     // Simulate loading quizzes
-    setTimeout(() => {
-        loadSampleQuizzes();
-    }, 2000);
-}
+
+
+
+// Load real quizzes from Firebase
+setTimeout(() => loadRealQuizzes(), 2000);
+
+
+
+
+    
 
 // Load sample quizzes
 let allQuizzes = [];
 
-function loadSampleQuizzes() {
+
+
+
+// Load REAL quizzes from Firebase
+async function loadRealQuizzes() {
     const quizGrid = document.getElementById('quiz-grid');
     
-    const sampleQuizzes = [
-        {
-            id: 1,
-            title: "General Knowledge Challenge 2024",
-            description: "Test your knowledge across various topics including current affairs, history, geography, and science.",
-            category: "general-knowledge",
-            questions: 30,
-            duration: 30,
-            date: "2024-10-25"
-        },
-        {
-            id: 2,
-            title: "English Grammar Mastery",
-            description: "Perfect your English grammar skills with comprehensive questions covering tenses, vocabulary, and sentence structure.",
-            category: "english",
-            questions: 25,
-            duration: 25,
-            date: "2024-10-24"
-        },
-        {
-            id: 3,
-            title: "World Knowledge Quiz",
-            description: "Explore fascinating facts about countries, cultures, landmarks, and global events in this comprehensive quiz.",
-            category: "general-knowledge",
-            questions: 35,
-            duration: 35,
-            date: "2024-10-26"
-        },
-        {
-            id: 4,
-            title: "English Literature & Comprehension",
-            description: "Dive deep into English literature, reading comprehension, and advanced language skills.",
-            category: "english",
-            questions: 40,
-            duration: 40,
-            date: "2024-10-23"
-        },
-        {
-            id: 5,
-            title: "Current Affairs 2024",
-            description: "Stay updated with the latest happenings around the world with our current affairs quiz.",
-            category: "general-knowledge",
-            questions: 20,
-            duration: 20,
-            date: "2024-10-27"
+    try {
+        // Show loading state
+        quizGrid.innerHTML = `
+            <div class="quiz-loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Loading quizzes from database...</p>
+            </div>
+        `;
+
+        // Check if Firebase is ready
+        if (typeof firebase === 'undefined' || !firebase.apps.length) {
+            throw new Error('Firebase not initialized');
         }
-    ];
-    
-    allQuizzes = sampleQuizzes;
-    displayQuizzes(allQuizzes);
+
+        // Get quizzes from Firestore
+        const quizzesRef = firebase.firestore().collection('quizzes');
+        const snapshot = await quizzesRef.where('status', '==', 'active').get();
+        
+        allQuizzes = []; // Clear existing quizzes
+        
+        if (snapshot.empty) {
+            quizGrid.innerHTML = `
+                <div class="quiz-loading" style="text-align: center; padding: 60px 20px;">
+                    <i class="fas fa-question-circle" style="font-size: 48px; color: #ddd; margin-bottom: 15px;"></i>
+                    <h3>No quizzes available yet</h3>
+                    <p style="margin-bottom: 20px;">Quizzes created by admin will appear here.</p>
+                    <p style="font-size: 14px; color: #666;">Contact admin to add quizzes to the platform.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Process each quiz
+        snapshot.forEach(doc => {
+            const quiz = doc.data();
+            allQuizzes.push({
+                id: doc.id,
+                title: quiz.title || 'Untitled Quiz',
+                description: quiz.description || 'No description available',
+                category: quiz.category || 'general-knowledge',
+                questions: quiz.questions?.length || 0,
+                duration: quiz.timeLimit || 30,
+                date: quiz.createdAt ? quiz.createdAt.toDate().toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                difficulty: quiz.difficulty || 'medium'
+            });
+        });
+
+        // Display the real quizzes
+        displayQuizzes(allQuizzes);
+        console.log(`Loaded ${allQuizzes.length} quizzes from Firebase`);
+
+    } catch (error) {
+        console.error('Error loading quizzes:', error);
+        quizGrid.innerHTML = `
+            <div class="quiz-loading" style="text-align: center; padding: 60px 20px;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #dc2626; margin-bottom: 15px;"></i>
+                <h3>Error Loading Quizzes</h3>
+                <p style="margin-bottom: 20px;">${error.message}</p>
+                <button class="btn-primary" onclick="loadRealQuizzes()">
+                    <i class="fas fa-refresh"></i> Try Again
+                </button>
+            </div>
+        `;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function displayQuizzes(quizzes) {
     const quizGrid = document.getElementById('quiz-grid');
@@ -365,12 +402,44 @@ function initScrollEffects() {
 }
 
 // Quiz functions (placeholders)
+
+// Quiz functions - UPDATED TO WORK WITH REAL DATA
 function startQuiz(quizId) {
     console.log('Starting quiz:', quizId);
-    // This will be implemented in later steps
-    alert('Quiz functionality will be implemented in the next steps!');
+    
+    // Check if user is logged in
+    if (!firebase.auth().currentUser) {
+        // Show login modal
+        const authModal = document.getElementById('auth-modal');
+        if (authModal) {
+            authModal.classList.add('show');
+        }
+        alert('Please login to start the quiz');
+        return;
+    }
+    
+    // Redirect to quiz page with the actual quiz ID
+    window.location.href = `quiz.html?id=${quizId}`;
 }
 
+function previewQuiz(quizId) {
+    console.log('Previewing quiz:', quizId);
+    // Find the quiz in our loaded quizzes
+    const quiz = allQuizzes.find(q => q.id === quizId);
+    if (quiz) {
+        alert(`Quiz Preview:\n\nTitle: ${quiz.title}\nQuestions: ${quiz.questions}\nDuration: ${quiz.duration} minutes\nDifficulty: ${quiz.difficulty}\n\nClick "Start Quiz" to begin!`);
+    } else {
+        alert('Quiz details not available');
+    }
+}
+
+
+
+
+
+
+
+    
 function previewQuiz(quizId) {
     console.log('Previewing quiz:', quizId);
     // This will be implemented in later steps
