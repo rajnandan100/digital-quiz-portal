@@ -10,22 +10,9 @@
     <meta name="keywords" content="quiz, online quiz, test, knowledge, education, learning">
     
     <!-- CSS Files -->
-   
-
-
-
-    <!-- CSS Files -->
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="css/auth.css">
-<link rel="stylesheet" href="css/responsive.css">
-
-
-
-
-
-
-
-    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="css/responsive.css">
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -35,36 +22,29 @@
     
     <!-- Particles.js for Background Effects -->
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-
-
-
-
     
     <!-- Firebase SDK -->
- <!-- Firebase SDK v8 Compatibility (CDN) -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-
-
-    
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-    <!-- Navigation Header -->
+    <!-- Enhanced Top Navigation Header -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
+            <!-- Logo Section (Left) -->
             <div class="nav-logo">
                 <i class="fas fa-brain"></i>
                 <span>DigiQuiz Portal</span>
             </div>
             
-            <div class="nav-menu" id="nav-menu">
+            <!-- Desktop Menu (Center) -->
+            <div class="nav-menu desktop-menu" id="nav-menu">
                 <a href="#home" class="nav-link active">
                     <i class="fas fa-home"></i>
                     <span>Home</span>
                 </a>
-                <a href="#leaderboard" class="nav-link">
+                <a href="leaderboard.html" class="nav-link">
                     <i class="fas fa-trophy"></i>
                     <span>Leaderboard</span>
                 </a>
@@ -78,33 +58,78 @@
                 </a>
             </div>
             
+            <!-- User Auth Section (Right) -->
             <div class="nav-auth">
+                <!-- Logged In User Info -->
                 <div class="user-info" id="user-info" style="display: none;">
-                    <img src="" alt="User" class="user-avatar" id="user-avatar">
-                    <span class="user-name" id="user-name"></span>
-                    <button class="btn-logout" id="btn-logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
+                    <div class="user-profile" onclick="toggleProfileMenu()">
+                        <img src="" alt="User" class="user-avatar" id="user-avatar">
+                        <span class="user-name" id="user-name"></span>
+                        <i class="fas fa-chevron-down profile-arrow"></i>
+                    </div>
+                    <!-- Profile Dropdown -->
+                    <div class="profile-dropdown" id="profile-dropdown">
+                        <div class="profile-info">
+                            <img src="" alt="User" class="dropdown-avatar" id="dropdown-avatar">
+                            <div class="profile-details">
+                                <span class="profile-name" id="profile-name"></span>
+                                <span class="profile-email" id="profile-email"></span>
+                            </div>
+                        </div>
+                        <div class="profile-actions">
+                            <button class="profile-action" onclick="goToAdmin()">
+                                <i class="fas fa-cog"></i>
+                                Admin Panel
+                            </button>
+                            <button class="profile-action logout-btn" onclick="logoutUser()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
                 </div>
+                
+                <!-- Login Button (for non-logged users) -->
                 <button class="btn-login" id="btn-login">
                     <i class="fas fa-sign-in-alt"></i>
                     <span>Login</span>
                 </button>
             </div>
-            
-            <div class="nav-toggle" id="nav-toggle">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav" id="mobile-nav">
+        <div class="mobile-nav-toggle" onclick="toggleMobileNav()">
+            <i class="fas fa-chevron-up" id="mobile-nav-icon"></i>
+        </div>
+        <div class="mobile-nav-content" id="mobile-nav-content">
+            <a href="#home" class="mobile-nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="leaderboard.html" class="mobile-nav-item">
+                <i class="fas fa-trophy"></i>
+                <span>Rankings</span>
+            </a>
+            <a href="#about" class="mobile-nav-item">
+                <i class="fas fa-info-circle"></i>
+                <span>About</span>
+            </a>
+            <a href="#contact" class="mobile-nav-item">
+                <i class="fas fa-envelope"></i>
+                <span>Contact</span>
+            </a>
         </div>
     </nav>
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Hero Section -->
+        <!-- Enhanced Hero Section with Bubble Effects -->
         <section class="hero-section" id="home">
             <div class="particles-background" id="particles-js"></div>
+            <div class="bubble-effects" id="bubble-container"></div>
+            
             <div class="hero-content">
                 <div class="hero-text">
                     <h1 class="hero-title">
@@ -113,35 +138,53 @@
                     <p class="hero-subtitle">
                         Challenge yourself with our interactive quizzes and compete with thousands of users worldwide
                     </p>
-                    <div class="hero-buttons">
-                        <button class="btn-primary" id="start-quiz-btn">
-                            <i class="fas fa-play"></i>
-                            Start Quiz
-                        </button>
-                        <button class="btn-secondary" id="view-leaderboard-btn">
-                            <i class="fas fa-trophy"></i>
-                            View Rankings
-                        </button>
-                    </div>
                 </div>
+                
+                <div class="hero-buttons">
+                    <button class="btn-primary hero-btn" id="start-quiz-btn">
+                        <i class="fas fa-play"></i>
+                        Start Quiz
+                    </button>
+                    <button class="btn-secondary hero-btn" id="view-leaderboard-btn">
+                        <i class="fas fa-trophy"></i>
+                        View Rankings
+                    </button>
+                </div>
+                
+                <!-- Enhanced Stats Cards -->
                 <div class="hero-stats">
-                    <div class="stat-item">
-                        <div class="stat-number" id="total-users">5000+</div>
-                        <div class="stat-label">Active Users</div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-users">5000+</div>
+                            <div class="stat-label">Active Users</div>
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="total-quizzes">50+</div>
-                        <div class="stat-label">Quizzes Available</div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-quizzes">50+</div>
+                            <div class="stat-label">Quizzes Available</div>
+                        </div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-number" id="total-questions">1500+</div>
-                        <div class="stat-label">Questions</div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-questions">1500+</div>
+                            <div class="stat-label">Questions</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Quizzes Section -->
+        <!-- Enhanced Quizzes Section -->
         <section class="quizzes-section" id="quizzes">
             <div class="container">
                 <div class="section-header">
@@ -149,63 +192,58 @@
                     <p class="section-subtitle">Choose from our collection of engaging quizzes</p>
                 </div>
 
+                <!-- Compact Filter Section -->
+                <div class="quiz-filters-compact">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="subject-filter">
+                                <i class="fas fa-book"></i> Subject
+                            </label>
+                            <select id="subject-filter" class="filter-select">
+                                <option value="all">All Subjects</option>
+                                <option value="general-knowledge">General Knowledge</option>
+                                <option value="english">English</option>
+                                <option value="science">Science</option>
+                                <option value="mathematics">Mathematics</option>
+                                <option value="history">History</option>
+                                <option value="geography">Geography</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="date-filter">
+                                <i class="fas fa-calendar"></i> Date
+                            </label>
+                            <input type="date" id="date-filter" class="filter-input">
+                        </div>
+                        
+                        <button class="btn-filter" id="apply-filters">
+                            <i class="fas fa-filter"></i>
+                            Apply
+                        </button>
+                    </div>
+                </div>
 
-
-
-
-
-
-
-
-
-
-
-                
-                <!-- Filter Section -->
-              <div class="filter-group">
-    <label for="subject-filter">
-        <i class="fas fa-book"></i>
-        Subject
-    </label>
-    <select id="subject-filter" class="filter-select">
-        <option value="all">All Subjects</option>
-        <option value="general-knowledge">General Knowledge</option>
-        <option value="english">English</option>
-    </select>
-</div>
-
-
-
-
+                <!-- Quiz Grid with Pagination -->
+                <div class="quiz-container">
+                    <div class="quiz-grid" id="quiz-grid">
+                        <!-- Quiz cards will be dynamically loaded here -->
+                        <div class="quiz-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading quizzes...</p>
+                        </div>
+                    </div>
                     
-                    <div class="filter-group">
-                        <label for="date-filter">
-                            <i class="fas fa-calendar"></i>
-                            Date
-                        </label>
-                        <input type="date" id="date-filter" class="filter-input">
+                    <!-- Pagination Controls -->
+                    <div class="pagination-controls" id="pagination-controls" style="display: none;">
+                        <div class="pagination-info">
+                            Showing <span id="current-count">2</span> of <span id="total-count">0</span> quizzes
+                        </div>
+                        <button class="btn-load-more" id="load-more-btn">
+                            <i class="fas fa-plus"></i>
+                            Load More Quizzes
+                        </button>
                     </div>
-                    <button class="btn-filter" id="apply-filters">
-                        <i class="fas fa-filter"></i>
-                        Apply Filters
-                    </button>
-                </div>
-
-                <!-- Quiz Grid -->
-                <div class="quiz-grid" id="quiz-grid">
-                    <!-- Quiz cards will be dynamically loaded here -->
-                    <div class="quiz-loading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <p>Loading quizzes...</p>
-                    </div>
-                </div>
-
-                <!-- Load More Button -->
-                <div class="load-more-section">
-                    <button class="btn-load-more" id="load-more-btn">
-                        <i class="fas fa-chevron-down"></i>
-                        Load More Quizzes
-                    </button>
                 </div>
             </div>
         </section>
@@ -224,207 +262,156 @@
         </section>
     </main>
 
+    <!-- Enhanced Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="fas fa-brain"></i>
+                        <span>DigiQuiz Portal</span>
+                    </div>
+                    <p class="footer-description">
+                        Empowering minds through interactive learning and competitive quizzes. 
+                        Test your knowledge in General Knowledge and English with our comprehensive quiz platform.
+                    </p>
+                </div>
+                
+                <div class="footer-social">
+                    <h4>Connect With Us</h4>
+                    <div class="social-links">
+                        <a href="#" class="social-link" title="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="social-link" title="Telegram">
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 DigiQuiz Portal. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
 
-
-
-
-
-
-
-
-
-
-
-    
-    <!-- Footer -->
- 
-
-<!-- Footer -->
-<footer class="footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-brand">
-                <div class="footer-logo">
+    <!-- Authentication Modal -->
+    <div class="auth-modal" id="auth-modal">
+        <div class="auth-container">
+            <button class="auth-close" id="auth-close">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="auth-header">
+                <div class="auth-logo">
                     <i class="fas fa-brain"></i>
                     <span>DigiQuiz Portal</span>
                 </div>
-                <p class="footer-description">
-                    Empowering minds through interactive learning and competitive quizzes. Test your knowledge in General Knowledge and English with our comprehensive quiz platform.
-                </p>
+                <h2 class="auth-title">Welcome Back!</h2>
+                <p class="auth-subtitle">Sign in to access your quizzes and track your progress</p>
             </div>
             
-            <div class="footer-social">
-                <h4>Connect With Us</h4>
-                <div class="social-links">
-                    <a href="#" class="social-link" title="WhatsApp">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
-                    <a href="#" class="social-link" title="Telegram">
-                        <i class="fab fa-telegram"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-        
-        <div class="footer-bottom">
-            <p>&copy; 2024 DigiQuiz Portal. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-    <!-- Authentication Modal -->
-   
-
-<!-- Authentication Modal -->
-<!-- Authentication Modal -->
-<div class="auth-modal" id="auth-modal">
-    <div class="auth-container">
-        <button class="auth-close" id="auth-close">
-            <i class="fas fa-times"></i>
-        </button>
-        
-        <div class="auth-header">
-            <div class="auth-logo">
-                <i class="fas fa-brain"></i>
-                <span>DigiQuiz Portal</span>
-            </div>
-            <h2 class="auth-title">Welcome Back!</h2>
-            <p class="auth-subtitle">Sign in to access your quizzes and track your progress</p>
-        </div>
-        
-        <div class="auth-content">
-            <div id="auth-message" class="auth-message"></div>
-            
-            <div class="auth-tabs">
-                <button class="auth-tab active" data-tab="login">Sign In</button>
-                <button class="auth-tab" data-tab="signup">Sign Up</button>
-            </div>
-            
-            <!-- Login Form -->
-            <form id="login-form" class="auth-form active">
-                <div class="form-group">
-                    <label for="login-email" class="form-label">Email Address</label>
-                    <input type="email" id="login-email" class="form-input" placeholder="Enter your email" required>
-                    <div class="form-error"></div>
+            <div class="auth-content">
+                <div id="auth-message" class="auth-message"></div>
+                
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Sign In</button>
+                    <button class="auth-tab" data-tab="signup">Sign Up</button>
                 </div>
                 
-                <div class="form-group">
-                    <label for="login-password" class="form-label">Password</label>
-                    <div class="password-container">
-                        <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required>
-                        <button type="button" class="password-toggle">
-                            <i class="fas fa-eye"></i>
-                        </button>
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form active">
+                    <div class="form-group">
+                        <label for="login-email" class="form-label">Email Address</label>
+                        <input type="email" id="login-email" class="form-input" placeholder="Enter your email" required>
+                        <div class="form-error"></div>
                     </div>
-                    <div class="form-error"></div>
-                </div>
-                
-                <button type="submit" class="auth-btn auth-btn-primary">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Sign In
-                </button>
-                
-                <div class="auth-divider">
-                    <span>or continue with</span>
-                </div>
-                
-                <button type="button" class="auth-btn auth-btn-google">
-                    <i class="fab fa-google"></i>
-                    Continue with Google
-                </button>
-            </form>
-            
-            <!-- Signup Form -->
-            <form id="signup-form" class="auth-form">
-                <div class="form-group">
-                    <label for="signup-name" class="form-label">Full Name</label>
-                    <input type="text" id="signup-name" class="form-input" placeholder="Enter your full name" required>
-                    <div class="form-error"></div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="signup-email" class="form-label">Email Address</label>
-                    <input type="email" id="signup-email" class="form-input" placeholder="Enter your email" required>
-                    <div class="form-error"></div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="signup-password" class="form-label">Password</label>
-                    <div class="password-container">
-                        <input type="password" id="signup-password" class="form-input" placeholder="Create a password" required>
-                        <button type="button" class="password-toggle">
-                            <i class="fas fa-eye"></i>
-                        </button>
+                    
+                    <div class="form-group">
+                        <label for="login-password" class="form-label">Password</label>
+                        <div class="password-container">
+                            <input type="password" id="login-password" class="form-input" placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-error"></div>
                     </div>
-                    <div class="form-error"></div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="signup-confirm-password" class="form-label">Confirm Password</label>
-                    <div class="password-container">
-                        <input type="password" id="signup-confirm-password" class="form-input" placeholder="Confirm your password" required>
-                        <button type="button" class="password-toggle">
-                            <i class="fas fa-eye"></i>
-                        </button>
+                    
+                    <button type="submit" class="auth-btn auth-btn-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Sign In
+                    </button>
+                    
+                    <div class="auth-divider">
+                        <span>or continue with</span>
                     </div>
-                    <div class="form-error"></div>
-                </div>
+                    
+                    <button type="button" class="auth-btn auth-btn-google">
+                        <i class="fab fa-google"></i>
+                        Continue with Google
+                    </button>
+                </form>
                 
-                <button type="submit" class="auth-btn auth-btn-primary">
-                    <i class="fas fa-user-plus"></i>
-                    Create Account
-                </button>
-                
-                <div class="auth-divider">
-                    <span>or continue with</span>
-                </div>
-                
-                <button type="button" class="auth-btn auth-btn-google">
-                    <i class="fab fa-google"></i>
-                    Continue with Google
-                </button>
-            </form>
+                <!-- Signup Form -->
+                <form id="signup-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="signup-name" class="form-label">Full Name</label>
+                        <input type="text" id="signup-name" class="form-input" placeholder="Enter your full name" required>
+                        <div class="form-error"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signup-email" class="form-label">Email Address</label>
+                        <input type="email" id="signup-email" class="form-input" placeholder="Enter your email" required>
+                        <div class="form-error"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signup-password" class="form-label">Password</label>
+                        <div class="password-container">
+                            <input type="password" id="signup-password" class="form-input" placeholder="Create a password" required>
+                            <button type="button" class="password-toggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-error"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signup-confirm-password" class="form-label">Confirm Password</label>
+                        <div class="password-container">
+                            <input type="password" id="signup-confirm-password" class="form-input" placeholder="Confirm your password" required>
+                            <button type="button" class="password-toggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-error"></div>
+                    </div>
+                    
+                    <button type="submit" class="auth-btn auth-btn-primary">
+                        <i class="fas fa-user-plus"></i>
+                        Create Account
+                    </button>
+                    
+                    <div class="auth-divider">
+                        <span>or continue with</span>
+                    </div>
+                    
+                    <button type="button" class="auth-btn auth-btn-google">
+                        <i class="fab fa-google"></i>
+                        Continue with Google
+                    </button>
+                </form>
+            </div>
         </div>
         
         <div id="auth-loading" class="auth-loading">
             <div class="loading-spinner"></div>
         </div>
     </div>
-</div>
 
-<!-- Remove any existing modal-overlay div -->
-<!-- Make sure to delete this if it exists: -->
-<!-- <div class="modal-overlay" id="auth-modal">...</div> -->
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
     <!-- JavaScript Files -->
     <script src="js/firebase-config.js"></script>
     <script src="js/auth.js"></script>
