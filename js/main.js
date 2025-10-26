@@ -96,7 +96,13 @@ async function initQuizLoading() {
         });
 
         // Sort by creation date (newest first)
-        allQuizzes = tempQuizzes.sort((a, b) => new Date(b.date) - new Date(a.date));
+// FIXED: Sort by creation date - newest first (descending order)
+allQuizzes = tempQuizzes.sort((a, b) => {
+    const dateA = quiz.createdAt ? quiz.createdAt.toDate() : new Date(a.date);
+    const dateB = quiz.createdAt ? quiz.createdAt.toDate() : new Date(b.date);
+    return dateB - dateA; // Descending order (latest first)
+});
+
         
         if (allQuizzes.length === 0) {
             console.log('📭 No active quizzes found in database');
@@ -369,48 +375,74 @@ function startQuiz(quizId) {
     }, 500);
 }
 
+
+
+
+
+
+
+
 // ===== ENHANCED HERO BUTTONS =====
 function initButtons() {
     console.log('🔘 Initializing enhanced buttons...');
 
+
+
+
+
+    
     // Enhanced Start Quiz button (latest quiz priority)
-    const startQuizBtn = document.getElementById('start-quiz-btn');
-    if (startQuizBtn) {
-        startQuizBtn.addEventListener('click', () => {
-            if (allQuizzes.length > 0) {
-                // Always get the latest quiz (first in sorted array)
-                const latestQuiz = allQuizzes[0];
-                console.log('🎯 Starting latest quiz:', latestQuiz.title);
-                startQuiz(latestQuiz.id);
-            } else if (!currentUser) {
-                // New users see login prompt
-                alert('🔐 Login Required\n\nLogin to access our quiz collection!');
-                if (window.authManager) {
-                    window.authManager.showAuthModal();
-                }
-            } else {
-                // Logged users see no quizzes message
-                alert('📭 No quizzes available.\n\nNew quizzes will appear here once created!');
-                refreshQuizzes();
-            }
-        });
-    }
+// FIXED: Start Quiz button scrolls to quiz section
+const startQuizBtn = document.getElementById('start-quiz-btn');
+if (startQuizBtn) {
+    startQuizBtn.addEventListener('click', () => {
+        console.log('Scrolling to quiz section...');
+        
+        // Smooth scroll to quiz section
+        const quizSection = document.getElementById('quizzes');
+        if (quizSection) {
+            quizSection.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+        
+        // Add visual feedback
+        startQuizBtn.innerHTML = '<i class="fas fa-arrow-down"></i><span>Scrolling...</span>';
+        setTimeout(() => {
+            startQuizBtn.innerHTML = '<i class="fas fa-play"></i><span>Start Quiz</span>';
+        }, 1000);
+    });
+}
 
+
+
+
+
+    
     // Enhanced View Rankings button (direct to leaderboard)
-    const leaderboardBtn = document.getElementById('view-leaderboard-btn');
-    if (leaderboardBtn) {
-        leaderboardBtn.addEventListener('click', () => {
-            console.log('🏆 Redirecting to latest rankings...');
-            
-            // Add loading feedback
-            leaderboardBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading Rankings...</span>';
-            
-            setTimeout(() => {
-                window.location.href = 'leaderboard.html';
-            }, 300);
-        });
-    }
+// FIXED: Correct path to leaderboard
+const leaderboardBtn = document.getElementById('view-leaderboard-btn');
+if (leaderboardBtn) {
+    leaderboardBtn.addEventListener('click', () => {
+        console.log('Redirecting to leaderboard page...');
+        // Add loading feedback
+        leaderboardBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Loading Rankings...</span>';
+        setTimeout(() => {
+            window.location.href = 'pages/leaderboard.html';  // FIXED: Correct path
+        }, 300);
+    });
+}
 
+
+
+
+
+
+
+
+
+    
     // Enhanced Load More button
     const loadMoreBtn = document.getElementById('load-more-btn');
     if (loadMoreBtn) {
