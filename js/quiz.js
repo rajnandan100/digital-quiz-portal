@@ -587,7 +587,8 @@ class QuizManager {
 
     
     // FIXED: Calculate results with proper answer format
-    calculateResults() {
+  // FIXED Calculate results with proper answer format
+calculateResults() {
     let correctAnswers = 0;
     const totalQuestions = this.currentQuiz?.questions?.length || 0;
     
@@ -597,7 +598,10 @@ class QuizManager {
     if (this.currentQuiz?.questions) {
         this.currentQuiz.questions.forEach((question, index) => {
             const userAnswer = this.userAnswers[index];
-            const correctAnswerIndex = question.correctAnswer || 0;
+            
+            // FIX: Use 'correct' field from your Firebase data structure
+            const correctAnswerIndex = question.correct !== undefined ? question.correct : 0;
+            
             const isCorrect = userAnswer === correctAnswerIndex;
             
             if (isCorrect) {
@@ -614,27 +618,24 @@ class QuizManager {
             });
         });
     }
-
+    
     const percentage = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
-
+    
     return {
-        quizId: this.quizId || '',
+        quizId: this.quizId,
         quizTitle: this.currentQuiz?.title || 'Quiz',
-        userId: this.currentUser?.uid || '',
-        userEmail: this.currentUser?.email || '',
+        userId: this.currentUser?.uid,
+        userEmail: this.currentUser?.email,
         userName: this.currentUser?.displayName || this.currentUser?.email?.split('@')[0] || 'User',
         userFirstName: this.userFirstName || 'User',
         score: correctAnswers,
         total: totalQuestions,
         percentage: percentage,
-        timeTaken: Math.max(0, (this.currentQuiz?.timeLimit || 30) * 60 - this.timeRemaining),
-        
+        timeTaken: Math.max(0, ((this.currentQuiz?.timeLimit || 30) * 60) - this.timeRemaining),
         // FIXED: Proper answer format for results analysis
         answers: detailedAnswers,
-        
         // Keep simple format for compatibility
-        userAnswers: this.userAnswers || {},
-        
+        userAnswers: this.userAnswers,
         markedQuestions: Array.from(this.markedQuestions),
         selectedQuote: this.selectedQuote || { text: "Great job!", author: "DigiQuiz" },
         category: this.currentQuiz?.category || 'general-knowledge',
@@ -644,6 +645,9 @@ class QuizManager {
 
 
 
+
+
+    
 
 
     
