@@ -494,169 +494,233 @@ class ResultsManager {
         this.setupSolutionFilters();
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     // FIXED: Create question card with proper answer display and explanations
-    createQuestionCard(questionIndex) {
-        // Get user answer data from the results
-        let userAnswer = null;
-        let isSkipped = true;
-        let isCorrect = false;
+ // FIXED Create question card with proper answer display and explanations
+createQuestionCard(questionIndex) {
+    // Get user answer data from the results
+    let userAnswer = null;
+    let isSkipped = true;
+    let isCorrect = false;
 
-        // Check both answer formats for compatibility
-        if (this.quizResults.answers && Array.isArray(this.quizResults.answers)) {
-            // New detailed format
-            const answerData = this.quizResults.answers.find(a => a.questionIndex === questionIndex);
-            if (answerData) {
-                userAnswer = answerData.selectedOption;
-                isSkipped = answerData.isSkipped || userAnswer === null || userAnswer === undefined;
-                isCorrect = answerData.isCorrect;
-            }
-        } else if (this.quizResults.userAnswers) {
-            // Legacy format
-            userAnswer = this.quizResults.userAnswers[questionIndex];
-            isSkipped = userAnswer === undefined || userAnswer === null;
+    // Check both answer formats for compatibility
+    if (this.quizResults.answers && Array.isArray(this.quizResults.answers)) {
+        // New detailed format
+        const answerData = this.quizResults.answers.find(a => a.questionIndex === questionIndex);
+        if (answerData) {
+            userAnswer = answerData.selectedOption;
+            isSkipped = answerData.isSkipped || (userAnswer === null || userAnswer === undefined);
+            isCorrect = answerData.isCorrect;
         }
-
-        // Get correct answer from quiz data
-        let correctAnswer = 0; // default
-        let questionData = null;
-        
-        if (this.quizData?.questions?.[questionIndex]) {
-            questionData = this.quizData.questions[questionIndex];
-            correctAnswer = questionData.correctAnswer;
-            
-            // Calculate correctness if not already determined
-            if (this.quizResults.answers && Array.isArray(this.quizResults.answers)) {
-                // Use pre-calculated correctness
-            } else {
-                // Calculate manually for legacy format
-                isCorrect = !isSkipped && userAnswer === correctAnswer;
-            }
-        } else {
-            // Use placeholder if quiz data not available
-            questionData = this.generatePlaceholderQuestion(questionIndex);
-            // For placeholder data, determine correctness from score position
-            isCorrect = questionIndex < this.quizResults.score && !isSkipped;
-        }
-
-        // Determine status and styling
-        let status, statusClass;
-        if (isSkipped) {
-            status = 'skipped';
-            statusClass = 'skipped';
-        } else if (isCorrect) {
-            status = 'correct';
-            statusClass = 'correct';
-        } else {
-            status = 'incorrect';
-            statusClass = 'incorrect';
-        }
-
-        const questionCard = document.createElement('div');
-        questionCard.className = `solution-card ${statusClass}`;
-        questionCard.setAttribute('data-question', questionIndex);
-        questionCard.setAttribute('data-status', status);
-
-        questionCard.innerHTML = `
-            <div class="solution-header" onclick="toggleSolution(${questionIndex})">
-                <div class="solution-info">
-                    <span class="question-number">${questionIndex + 1}</span>
-                    <span class="question-preview">${this.truncateText(questionData.question, 60)}</span>
-                </div>
-                <div class="solution-status">
-                    <div class="status-icon ${statusClass}">
-                        <i class="fas fa-${isSkipped ? 'minus' : isCorrect ? 'check' : 'times'}"></i>
-                    </div>
-                    <i class="fas fa-chevron-down toggle-icon"></i>
-                </div>
-            </div>
-            
-            <div class="solution-content collapsed" id="solution-content-${questionIndex}">
-                <div class="question-full">
-                    <h4>${questionData.question}</h4>
-                </div>
-                
-                <div class="options-review">
-                    ${questionData.options.map((option, index) => {
-                        let optionClass = '';
-                        let indicators = '';
-                        
-                        // Mark user's selected answer
-                        if (userAnswer === index) {
-                            optionClass += ' user-answer';
-                            indicators += '<span class="indicator user">Your Answer</span>';
-                        }
-                        
-                        // Mark correct answer
-                        if (index === correctAnswer) {
-                            optionClass += ' correct-answer';
-                            indicators += '<span class="indicator correct">Correct Answer</span>';
-                        }
-                        
-                        // Mark if user selected wrong answer
-                        if (userAnswer === index && !isCorrect && !isSkipped) {
-                            optionClass += ' wrong-answer';
-                        }
-                        
-                        return `
-                            <div class="option-item${optionClass}">
-                                <div class="option-content">
-                                    <span class="option-letter">${String.fromCharCode(65 + index)})</span>
-                                    <span class="option-text">${option}</span>
-                                </div>
-                                <div class="option-indicators">${indicators}</div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-                
-                ${questionData.explanation ? `
-                    <div class="explanation">
-                        <div class="explanation-header">
-                            <i class="fas fa-lightbulb"></i>
-                            <h5>Explanation</h5>
-                        </div>
-                        <p>${questionData.explanation}</p>
-                    </div>
-                ` : ''}
-                
-                <div class="question-stats">
-                    <div class="stat-item">
-                        <i class="fas fa-clock"></i>
-                        <span>Time: ${Math.floor(Math.random() * 60) + 30}s</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="fas fa-users"></i>
-                        <span>Accuracy: ${Math.floor(Math.random() * 30) + 60}%</span>
-                    </div>
-                    <div class="stat-item">
-                        <i class="fas fa-star"></i>
-                        <span>Points: ${questionData.points || 10}</span>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        return questionCard;
+    } else if (this.quizResults.userAnswers) {
+        // Legacy format
+        userAnswer = this.quizResults.userAnswers[questionIndex];
+        isSkipped = (userAnswer === undefined || userAnswer === null);
     }
+
+    // Get correct answer from quiz data
+    let correctAnswer = 0; // default
+    let questionData = null;
+    if (this.quizData?.questions?.[questionIndex]) {
+        questionData = this.quizData.questions[questionIndex];
+        // FIX: Use 'correct' field (same fix as quiz.js)
+        correctAnswer = questionData.correct !== undefined ? questionData.correct : 0;
+        
+        // Calculate correctness if not already determined
+        if (!this.quizResults.answers || !Array.isArray(this.quizResults.answers)) {
+            // Calculate manually for legacy format
+            isCorrect = !isSkipped && (userAnswer === correctAnswer);
+        }
+    } else {
+        // Use placeholder if quiz data not available
+        questionData = this.generatePlaceholderQuestion(questionIndex);
+        correctAnswer = questionData.correct || 0;
+        // For placeholder data, determine correctness from score position
+        isCorrect = (questionIndex < this.quizResults.score) && !isSkipped;
+    }
+
+    // Determine status and styling
+    let status, statusClass;
+    if (isSkipped) {
+        status = 'skipped';
+        statusClass = 'skipped';
+    } else if (isCorrect) {
+        status = 'correct';
+        statusClass = 'correct';
+    } else {
+        status = 'incorrect';
+        statusClass = 'incorrect';
+    }
+
+    const questionCard = document.createElement('div');
+    questionCard.className = `solution-card ${statusClass}`;
+    questionCard.setAttribute('data-question', questionIndex);
+    questionCard.setAttribute('data-status', status);
+
+    questionCard.innerHTML = `
+        <div class="solution-header" onclick="toggleSolution(${questionIndex})">
+            <div class="solution-info">
+                <span class="question-number">${questionIndex + 1}</span>
+                <span class="question-preview">${this.truncateText(questionData.question, 60)}</span>
+            </div>
+            <div class="solution-status">
+                <div class="status-icon ${statusClass}">
+                    <i class="fas fa-${isSkipped ? 'minus' : (isCorrect ? 'check' : 'times')}"></i>
+                </div>
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </div>
+        </div>
+        <div class="solution-content collapsed" id="solution-content-${questionIndex}">
+            <div class="question-full">
+                <h4>${questionData.question}</h4>
+            </div>
+            <div class="options-review">
+                ${questionData.options.map((option, index) => {
+                    let optionClass = '';
+                    let indicators = '';
+                    
+                    // Mark user's selected answer
+                    if (userAnswer === index) {
+                        optionClass += ' user-answer';
+                        indicators += '<span class="indicator user">Your Answer</span>';
+                    }
+                    
+                    // Mark correct answer - ALWAYS SHOW
+                    if (index === correctAnswer) {
+                        optionClass += ' correct-answer';
+                        indicators += '<span class="indicator correct">Correct Answer</span>';
+                    }
+                    
+                    // Mark if user selected wrong answer
+                    if (userAnswer === index && !isCorrect && !isSkipped) {
+                        optionClass += ' wrong-answer';
+                    }
+                    
+                    return `
+                        <div class="option-item${optionClass}">
+                            <div class="option-content">
+                                <span class="option-letter">${String.fromCharCode(65 + index)}</span>
+                                <span class="option-text">${option}</span>
+                            </div>
+                            <div class="option-indicators">${indicators}</div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+            ${questionData.explanation ? `
+                <div class="explanation">
+                    <div class="explanation-header">
+                        <i class="fas fa-lightbulb"></i>
+                        <h5>Explanation</h5>
+                    </div>
+                    <p>${questionData.explanation}</p>
+                </div>
+            ` : ''}
+            <div class="question-stats">
+                <div class="stat-item">
+                    <i class="fas fa-clock"></i>
+                    <span>Time: ${Math.floor(Math.random() * 60) + 30}s</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-users"></i>
+                    <span>Accuracy: ${Math.floor(Math.random() * 30) + 60}%</span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-star"></i>
+                    <span>Points: ${questionData.points || 10}</span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    return questionCard;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
     // FIXED: Generate placeholder with explanation
-    generatePlaceholderQuestion(index) {
-        const options = [
-            "Option A - First possible answer",
-            "Option B - Second possible answer", 
-            "Option C - Third possible answer",
-            "Option D - Fourth possible answer"
-        ];
+// FIXED Generate placeholder with correct field name
+generatePlaceholderQuestion(index) {
+    const options = [
+        "Option A - First possible answer",
+        "Option B - Second possible answer", 
+        "Option C - Third possible answer",
+        "Option D - Fourth possible answer"
+    ];
+    
+    return {
+        question: `Question ${index + 1}: This is a sample question demonstrating the results analysis system. In a real quiz, this would show the actual question text from your quiz.`,
+        options: options,
+        correct: Math.floor(Math.random() * 4), // FIX: Use 'correct' instead of 'correctAnswer'
+        explanation: `This is a sample explanation for Question ${index + 1}. In a real quiz, this would contain the detailed explanation that you provided when creating the quiz, helping students understand why this answer is correct and learn from any mistakes.`,
+        points: 10
+    };
+}
 
-        return {
-            question: `Question ${index + 1}: This is a sample question demonstrating the results analysis system. In a real quiz, this would show the actual question text from your quiz.`,
-            options: options,
-            correctAnswer: Math.floor(Math.random() * 4),
-            explanation: `This is a sample explanation for Question ${index + 1}. In a real quiz, this would contain the detailed explanation that you provided when creating the quiz, helping students understand why this answer is correct and learn from any mistakes.`,
-            points: 10
-        };
-    }
 
+
+
+
+
+    
     truncateText(text, maxLength) {
         return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
     }
