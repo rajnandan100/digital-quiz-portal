@@ -574,17 +574,31 @@ class QuizManager {
         }, 3000);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+    
     // FIXED: Calculate results with proper answer format
     calculateResults() {
-        let correctAnswers = 0;
-        const totalQuestions = this.currentQuiz.questions.length;
-        
-        // Create detailed answer analysis
-        const detailedAnswers = [];
-        
+    let correctAnswers = 0;
+    const totalQuestions = this.currentQuiz?.questions?.length || 0;
+    
+    // Create detailed answer analysis
+    const detailedAnswers = [];
+    
+    if (this.currentQuiz?.questions) {
         this.currentQuiz.questions.forEach((question, index) => {
             const userAnswer = this.userAnswers[index];
-            const isCorrect = userAnswer === question.correctAnswer;
+            const correctAnswerIndex = question.correctAnswer || 0;
+            const isCorrect = userAnswer === correctAnswerIndex;
             
             if (isCorrect) {
                 correctAnswers++;
@@ -594,40 +608,45 @@ class QuizManager {
             detailedAnswers.push({
                 questionIndex: index,
                 selectedOption: userAnswer !== undefined ? userAnswer : null,
-                correctAnswer: correctAnswer,
+                correctAnswer: correctAnswerIndex,
                 isCorrect: isCorrect,
                 isSkipped: userAnswer === undefined
             });
         });
-
-        const percentage = Math.round((correctAnswers / totalQuestions) * 100);
-
-        return {
-            quizId: this.quizId,
-            quizTitle: this.currentQuiz.title,
-            userId: this.currentUser.uid,
-            userEmail: this.currentUser.email,
-            userName: this.currentUser.displayName || this.currentUser.email.split('@')[0],
-            userFirstName: this.userFirstName,
-            score: correctAnswers,
-            total: totalQuestions,
-            percentage: percentage,
-           timeTaken: Math.max(0, (this.currentQuiz?.timeLimit || 30) * 60 - this.timeRemaining),
-
-            
-            // FIXED: Proper answer format for results analysis
-            answers: detailedAnswers,
-            
-            // Keep simple format for compatibility
-            userAnswers: this.userAnswers,
-            
-            markedQuestions: Array.from(this.markedQuestions),
-        selectedQuote: this.selectedQuote || { text: "Great job!", author: "DigiQuiz" },
-category: this.currentQuiz?.category || 'general-knowledge',
-            completedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
     }
 
+    const percentage = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+
+    return {
+        quizId: this.quizId || '',
+        quizTitle: this.currentQuiz?.title || 'Quiz',
+        userId: this.currentUser?.uid || '',
+        userEmail: this.currentUser?.email || '',
+        userName: this.currentUser?.displayName || this.currentUser?.email?.split('@')[0] || 'User',
+        userFirstName: this.userFirstName || 'User',
+        score: correctAnswers,
+        total: totalQuestions,
+        percentage: percentage,
+        timeTaken: Math.max(0, (this.currentQuiz?.timeLimit || 30) * 60 - this.timeRemaining),
+        
+        // FIXED: Proper answer format for results analysis
+        answers: detailedAnswers,
+        
+        // Keep simple format for compatibility
+        userAnswers: this.userAnswers || {},
+        
+        markedQuestions: Array.from(this.markedQuestions),
+        selectedQuote: this.selectedQuote || { text: "Great job!", author: "DigiQuiz" },
+        category: this.currentQuiz?.category || 'general-knowledge',
+        completedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+}
+
+
+
+
+
+    
     // FIXED: Save quiz results with proper data structure
     async saveQuizResults(results) {
         try {
