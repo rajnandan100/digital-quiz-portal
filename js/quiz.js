@@ -631,7 +631,9 @@ category: this.currentQuiz?.category || 'general-knowledge',
     // FIXED: Save quiz results with proper data structure
     async saveQuizResults(results) {
         try {
-            console.log('Saving quiz results:', results);
+           console.log('Saving quiz results:', results);
+console.log('Checking for undefined values:', JSON.stringify(results, null, 2));
+
             
             // Save quiz result to Firebase
             const resultRef = await firebase.firestore()
