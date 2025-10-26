@@ -42,28 +42,86 @@ class LeaderboardManager {
         });
     }
 
-    async loadRealLeaderboardData() {
-        this.showLoading(true);
-        
-        try {
-            const urlParams = new URLSearchParams(window.location.search);
-            const quizId = urlParams.get('quiz') || 'gk-001';
-            
-            // Generate realistic data based on actual user patterns
-            await this.generateRealData(quizId);
-            
-            // Process and display the data
-            this.processLeaderboardData();
-            this.displayAllSections();
-            
-        } catch (error) {
-            console.error('Error loading leaderboard:', error);
-            this.showToast('Failed to load leaderboard data', 'error');
-        } finally {
-            this.showLoading(false);
-        }
-    }
 
+
+
+
+
+
+    // FIXED: Load real quiz results from Firebase
+async loadRealLeaderboardData() {
+    this.showLoading(true);
+    try {
+        console.log('Loading real leaderboard data from Firebase...');
+        
+        // Get real quiz results from Firebase
+        const resultsRef = firebase.firestore().collection('quizResults');
+        const snapshot = await resultsRef
+            .orderBy('percentage', 'desc')  // Order by score descending
+            .orderBy('timeTaken', 'asc')    // Then by time ascending for ties
+            .limit(100)  // Get top 100 results
+            .get();
+
+        if (snapshot.empty) {
+            console.log('No quiz results found in Firebase');
+            this.showToast('No quiz results available yet. Complete some quizzes to see the leaderboard!', 'info');
+            this.showLoading(false);
+            return;
+        }
+
+        // Process real Firebase data
+        const participants = [];
+        snapshot.forEach((doc, index) => {
+            const data = doc.data();
+            participants.push({
+                id: doc.id,
+                name: data.userName || data.userFirstName || 'Anonymous User',
+                score: data.percentage || 0,  // Use percentage as score
+                time: data.timeTaken || 0,
+                date: data.completedAt ? data.completedAt.toDate() : new Date(),
+                rank: index + 1,
+                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.userName || 'User')}&background=4F46E5&color=fff&bold=true`,
+                isCurrentUser: this.currentUser && data.userId === this.currentUser.uid,
+                quizTitle: data.quizTitle || 'Quiz'
+            });
+        });
+
+        console.log(`Loaded ${participants.length} real participants from Firebase`);
+
+        // Set quiz info based on real data
+        this.quizInfo = {
+            title: 'DigiQuiz Portal Leaderboard',
+            totalParticipants: participants.length,
+            averageScore: Math.round(participants.reduce((sum, p) => sum + p.score, 0) / participants.length),
+            averageTime: this.formatTime(Math.round(participants.reduce((sum, p) => sum + p.time, 0) / participants.length)),
+            highestScore: participants.length > 0 ? participants[0].score : 0,
+            fastestTime: Math.min(...participants.map(p => p.time))
+        };
+
+        // Store the real data
+        this.realLeaderboardData = participants;
+        this.filteredData = [...participants];
+
+        // Process and display the data
+        this.processLeaderboardData();
+        this.displayAllSections();
+
+    } catch (error) {
+        console.error('Error loading real leaderboard data:', error);
+        this.showToast('Failed to load leaderboard data', 'error');
+    } finally {
+        this.showLoading(false);
+    }
+}
+
+
+
+
+
+
+
+
+    
     async generateRealData(quizId) {
         // Simulate real Firebase data with realistic patterns
         const participants = await this.fetchParticipantsFromFirebase(quizId);
@@ -82,19 +140,8 @@ class LeaderboardManager {
         this.filteredData = [...participants];
     }
 
-    async fetchParticipantsFromFirebase(quizId) {
-        // Generate realistic data with current user included
-        const participants = [];
-        const realNames = [
-            'Alex Johnson', 'Sarah Wilson', 'Mike Chen', 'Emma Davis', 'James Brown',
-            'Lisa Garcia', 'David Miller', 'Anna Rodriguez', 'Chris Taylor', 'Maria Lopez',
-            'Robert Anderson', 'Jennifer Moore', 'Michael Jackson', 'Ashley White', 'Daniel Harris',
-            'Jessica Martin', 'Matthew Thompson', 'Emily Clark', 'Andrew Lewis', 'Michelle Lee',
-            'John Walker', 'Amanda Hall', 'Kevin Young', 'Stephanie King', 'Brian Wright',
-            'Nicole Green', 'Justin Adams', 'Rachel Baker', 'Ryan Nelson', 'Laura Hill',
-            'Steven Garcia', 'Linda Martinez', 'William Jones', 'Elizabeth Brown', 'Joseph Wilson',
-            'Patricia Davis', 'Charles Miller', 'Barbara Moore', 'Thomas Anderson', 'Susan Taylor'
-        ];
+  // REMOVED: Delete the entire fetchParticipantsFromFirebase function
+// It's no longer needed since we're using real Firebase data above
 
         // Generate realistic score distribution
         for (let i = 0; i < 150; i++) {
