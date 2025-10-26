@@ -594,7 +594,7 @@ class QuizManager {
             detailedAnswers.push({
                 questionIndex: index,
                 selectedOption: userAnswer !== undefined ? userAnswer : null,
-                correctAnswer: question.correctAnswer,
+                correctAnswer: correctAnswer,
                 isCorrect: isCorrect,
                 isSkipped: userAnswer === undefined
             });
