@@ -887,6 +887,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+// ✅ CRITICAL: Export QuizManager globally
+window.QuizManager = QuizManager;
+console.log('QuizManager class exported globally');
 
 
 
