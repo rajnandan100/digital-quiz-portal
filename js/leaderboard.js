@@ -49,17 +49,17 @@ class LeaderboardManager {
 
 
     // FIXED: Load real quiz results from Firebase
+// FIXED: Load real quiz results with correct field names
 async loadRealLeaderboardData() {
     this.showLoading(true);
     try {
         console.log('Loading real leaderboard data from Firebase...');
         
-        // Get real quiz results from Firebase
+        // FIXED: Simple query without composite index requirement
         const resultsRef = firebase.firestore().collection('quizResults');
         const snapshot = await resultsRef
-            .orderBy('percentage', 'desc')  // Order by score descending
-            .orderBy('timeTaken', 'asc')    // Then by time ascending for ties
-            .limit(100)  // Get top 100 results
+            .orderBy('completedAt', 'desc')  // Order by completion time (latest first)
+            .limit(100)  // Get recent 100 results
             .get();
 
         if (snapshot.empty) {
@@ -69,18 +69,26 @@ async loadRealLeaderboardData() {
             return;
         }
 
-        // Process real Firebase data
+        // Process real Firebase data with CORRECT field names
         const participants = [];
         snapshot.forEach((doc, index) => {
             const data = doc.data();
+            
+            // FIXED: Use correct field names from your quiz results
+            const score = data.score || 0;  // Use 'score' not 'percentage'
+            const totalQuestions = data.total || 1;
+            const percentage = Math.round((score / totalQuestions) * 100);
+            
             participants.push({
                 id: doc.id,
-                name: data.userName || data.userFirstName || 'Anonymous User',
-                score: data.percentage || 0,  // Use percentage as score
-                time: data.timeTaken || 0,
+                name: data.userFirstName || data.userName || 'Anonymous User',
+                score: percentage,  // Convert to percentage
+                rawScore: score,    // Keep raw score
+                totalQuestions: totalQuestions,
+                time: data.timeTaken || 0,  // FIXED: Use correct field name
                 date: data.completedAt ? data.completedAt.toDate() : new Date(),
-                rank: index + 1,
-                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.userName || 'User')}&background=4F46E5&color=fff&bold=true`,
+                rank: 0, // Will be set after sorting
+                avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.userFirstName || data.userName || 'User')}&background=4F46E5&color=fff&bold=true`,
                 isCurrentUser: this.currentUser && data.userId === this.currentUser.uid,
                 quizTitle: data.quizTitle || 'Quiz'
             });
@@ -88,14 +96,27 @@ async loadRealLeaderboardData() {
 
         console.log(`Loaded ${participants.length} real participants from Firebase`);
 
+        // FIXED: Sort by score (percentage) descending, then by time ascending
+        participants.sort((a, b) => {
+            if (a.score !== b.score) {
+                return b.score - a.score;  // Higher score first
+            }
+            return a.time - b.time;  // Lower time first for ties
+        });
+
+        // FIXED: Set correct ranks after sorting
+        participants.forEach((participant, index) => {
+            participant.rank = index + 1;
+        });
+
         // Set quiz info based on real data
         this.quizInfo = {
             title: 'DigiQuiz Portal Leaderboard',
             totalParticipants: participants.length,
-            averageScore: Math.round(participants.reduce((sum, p) => sum + p.score, 0) / participants.length),
-            averageTime: this.formatTime(Math.round(participants.reduce((sum, p) => sum + p.time, 0) / participants.length)),
+            averageScore: participants.length > 0 ? Math.round(participants.reduce((sum, p) => sum + p.score, 0) / participants.length) : 0,
+            averageTime: participants.length > 0 ? this.formatTime(Math.round(participants.reduce((sum, p) => sum + p.time, 0) / participants.length)) : '0:00',
             highestScore: participants.length > 0 ? participants[0].score : 0,
-            fastestTime: Math.min(...participants.map(p => p.time))
+            fastestTime: participants.length > 0 ? Math.min(...participants.map(p => p.time)) : 0
         };
 
         // Store the real data
@@ -108,7 +129,7 @@ async loadRealLeaderboardData() {
 
     } catch (error) {
         console.error('Error loading real leaderboard data:', error);
-        this.showToast('Failed to load leaderboard data', 'error');
+        this.showToast('Failed to load leaderboard data. Please refresh the page.', 'error');
     } finally {
         this.showLoading(false);
     }
@@ -280,33 +301,59 @@ async loadRealLeaderboardData() {
         }
     }
 
-    updateUserPosition() {
-        const userEntry = this.realLeaderboardData.find(entry => entry.isCurrentUser);
+   // FIXED: Update user position with better logic
+updateUserPosition() {
+    const userEntry = this.realLeaderboardData.find(entry => entry.isCurrentUser);
+    
+    if (userEntry) {
+        console.log('Found current user in leaderboard:', userEntry);
         
-        if (userEntry) {
-            document.getElementById('user-rank').textContent = `#${userEntry.rank}`;
-            document.getElementById('user-name').textContent = userEntry.name;
-            document.getElementById('user-score').textContent = `${userEntry.score}%`;
-            document.getElementById('user-time').textContent = this.formatTime(userEntry.time);
-            
-            // Update position difference text
-            const positionDiff = document.getElementById('position-diff');
-            if (userEntry.rank <= 10) {
-                positionDiff.textContent = "🎉 You're in the top 10!";
-            } else if (userEntry.rank <= 20) {
-                const diff = userEntry.rank - 10;
-                positionDiff.textContent = `${diff} spots away from top 10!`;
+        // Update user position display
+        const userRankEl = document.getElementById('user-rank');
+        const userNameEl = document.getElementById('user-name'); 
+        const userScoreEl = document.getElementById('user-score');
+        const userTimeEl = document.getElementById('user-time');
+        
+        if (userRankEl) userRankEl.textContent = `#${userEntry.rank}`;
+        if (userNameEl) userNameEl.textContent = userEntry.name;
+        if (userScoreEl) userScoreEl.textContent = `${userEntry.score}%`;
+        if (userTimeEl) userTimeEl.textContent = this.formatTime(userEntry.time);
+
+        // Update position difference text
+        const positionDiff = document.getElementById('position-diff');
+        if (positionDiff) {
+            if (userEntry.rank <= 3) {
+                positionDiff.textContent = '🏆 You\'re in the top 3!';
+                positionDiff.style.color = '#10b981';
+            } else if (userEntry.rank <= 10) {
+                positionDiff.textContent = '🌟 You\'re in the top 10!';
+                positionDiff.style.color = '#4f46e5';
+            } else if (userEntry.rank <= 50) {
+                const diff = 10 - userEntry.rank;
+                positionDiff.textContent = `${Math.abs(diff)} spots away from top 10`;
+                positionDiff.style.color = '#f59e0b';
             } else {
-                const diff = userEntry.rank - 10;
-                positionDiff.textContent = `${diff} spots away from top 10!`;
+                positionDiff.textContent = 'Keep practicing to climb higher!';
+                positionDiff.style.color = '#6b7280';
             }
-            
-            // Update progress bar
-            const progress = Math.max(0, 100 - (userEntry.rank / this.realLeaderboardData.length * 100));
-            document.getElementById('position-progress').style.width = `${progress}%`;
+        }
+
+        // Update progress bar
+        const progressBar = document.getElementById('position-progress');
+        if (progressBar) {
+            const progress = Math.max(5, 100 - (userEntry.rank / this.realLeaderboardData.length * 100));
+            progressBar.style.width = `${progress}%`;
+        }
+    } else {
+        console.log('Current user not found in leaderboard data');
+        
+        // Hide user position section if user not found
+        const userPositionSection = document.querySelector('.user-position');
+        if (userPositionSection) {
+            userPositionSection.style.display = 'none';
         }
     }
-
+}
 
 
 
