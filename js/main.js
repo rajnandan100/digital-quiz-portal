@@ -734,7 +734,15 @@ function initNavigation() {
     console.log('🧭 Enhanced navigation with active states initialized');
 }
 
+
+
+
+
+
+
+
 // ===== SCROLL EFFECTS =====
+// FIXED: Enhanced scroll effects with mobile navbar auto-hide
 function initScrollEffects() {
     const navbar = document.getElementById('navbar');
     let lastScrollY = window.scrollY;
@@ -742,26 +750,59 @@ function initScrollEffects() {
     window.addEventListener('scroll', () => {
         const currentScrollY = window.scrollY;
         
+        // Scrolled state
         if (currentScrollY > 100) {
             navbar?.classList.add('scrolled');
         } else {
             navbar?.classList.remove('scrolled');
         }
         
-        // Add scroll direction classes
-        if (currentScrollY > lastScrollY) {
-            navbar?.classList.add('scroll-down');
-            navbar?.classList.remove('scroll-up');
+        // At top state
+        if (currentScrollY <= 10) {
+            navbar?.classList.add('at-top');
+            navbar?.classList.remove('scroll-down', 'scroll-up');
         } else {
-            navbar?.classList.add('scroll-up');
-            navbar?.classList.remove('scroll-down');
+            navbar?.classList.remove('at-top');
+            
+            // Mobile auto-hide logic
+            if (window.innerWidth <= 768) {
+                if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                    // Scrolling down - hide navbar
+                    navbar?.classList.add('scroll-down');
+                    navbar?.classList.remove('scroll-up');
+                } else if (currentScrollY < lastScrollY) {
+                    // Scrolling up - show navbar
+                    navbar?.classList.add('scroll-up');
+                    navbar?.classList.remove('scroll-down');
+                }
+            } else {
+                // Desktop - always show
+                navbar?.classList.remove('scroll-down', 'scroll-up');
+            }
         }
         
         lastScrollY = currentScrollY;
     });
     
-    console.log('📜 Enhanced scroll effects initialized');
+    console.log('Enhanced scroll effects with mobile auto-hide initialized');
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ===== UTILITY FUNCTIONS =====
 function updateStats() {
