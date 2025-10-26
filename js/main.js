@@ -373,7 +373,7 @@ function startQuiz(quizId) {
     
     // Redirect to quiz page
     setTimeout(() => {
-        window.location.href = `quiz.html?id=${quizId}`;
+        window.location.href = `pages/quiz.html?id=${quizId}`;
     }, 500);
 }
 
