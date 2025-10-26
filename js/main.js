@@ -97,11 +97,13 @@ async function initQuizLoading() {
 
         // Sort by creation date (newest first)
 // FIXED: Sort by creation date - newest first (descending order)
+// FIXED CODE - Sort by creation date (newest first)
 allQuizzes = tempQuizzes.sort((a, b) => {
-    const dateA = quiz.createdAt ? quiz.createdAt.toDate() : new Date(a.date);
-    const dateB = quiz.createdAt ? quiz.createdAt.toDate() : new Date(b.date);
+    const dateA = a.createdAt ? a.createdAt.toDate() : new Date(a.date);  // ✅ FIXED
+    const dateB = b.createdAt ? b.createdAt.toDate() : new Date(b.date);  // ✅ FIXED
     return dateB - dateA; // Descending order (latest first)
 });
+
 
         
         if (allQuizzes.length === 0) {
