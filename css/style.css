@@ -1554,3 +1554,55 @@ body {
         max-width: none;
     }
 }
+
+
+
+
+
+
+
+
+
+/* ===== MOBILE FIXES ===== */
+
+/* Fix 4: Show Platform Name on Mobile */
+@media (max-width: 768px) {
+    .logo-text {
+        display: inline-block !important;
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+    }
+    
+    .nav-logo {
+        font-size: 1.1rem !important;
+    }
+}
+
+/* Fix 5: Mobile Navbar Auto-Hide */
+@media (max-width: 768px) {
+    .navbar {
+        transition: transform 0.3s ease !important;
+    }
+    
+    .navbar.scroll-down {
+        transform: translateY(-100%) !important;
+    }
+    
+    .navbar.scroll-up {
+        transform: translateY(0) !important;
+    }
+    
+    .navbar.at-top {
+        transform: translateY(0) !important;
+    }
+    
+    /* Prevent overlap with hero section */
+    .hero-section {
+        padding-top: 80px !important;
+    }
+}
+
+
+
+
+
