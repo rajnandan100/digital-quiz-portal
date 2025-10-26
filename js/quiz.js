@@ -882,3 +882,33 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Initializing QuizManager...');
     window.quizManager = new QuizManager();
 });
+
+
+
+
+
+
+// Make selectAnswer globally accessible for option clicks
+window.selectAnswer = (optionIndex) => {
+    if (window.quizManager) {
+        window.quizManager.selectAnswer(optionIndex);
+    }
+};
+
+// ✅ CRITICAL: Export QuizManager globally  
+window.QuizManager = QuizManager;
+console.log('QuizManager exported globally');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
