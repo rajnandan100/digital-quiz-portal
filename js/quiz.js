@@ -612,7 +612,8 @@ class QuizManager {
             score: correctAnswers,
             total: totalQuestions,
             percentage: percentage,
-            timeTaken: (this.currentQuiz.timeLimit * 60) - this.timeRemaining,
+           timeTaken: Math.max(0, (this.currentQuiz?.timeLimit || 30) * 60 - this.timeRemaining),
+
             
             // FIXED: Proper answer format for results analysis
             answers: detailedAnswers,
@@ -621,8 +622,8 @@ class QuizManager {
             userAnswers: this.userAnswers,
             
             markedQuestions: Array.from(this.markedQuestions),
-            selectedQuote: this.selectedQuote,
-            category: this.currentQuiz.category || 'general-knowledge',
+        selectedQuote: this.selectedQuote || { text: "Great job!", author: "DigiQuiz" },
+category: this.currentQuiz?.category || 'general-knowledge',
             completedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
     }
