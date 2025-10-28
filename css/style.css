@@ -1602,6 +1602,29 @@ body {
     }
 }
 
+/* ===== CUSTOM LOGO STYLING ===== */
+.logo-image {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Mobile logo adjustments */
+@media (max-width: 768px) {
+    .logo-image {
+        width: 32px;
+        height: 32px;
+    }
+}
+
+/* Admin panel logo */
+.admin-logo .logo-image {
+    width: 32px;
+    height: 32px;
+}
 
 
 
