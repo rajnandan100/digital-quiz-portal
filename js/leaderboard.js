@@ -110,7 +110,7 @@ class LeaderboardManager {
 
             // Set quiz info based on real data
             this.quizInfo = {
-               title: 'DK AGRAWAL Leaderboard'
+               title: 'DK AGRAWAL Leaderboard',
 
                 totalParticipants: participants.length,
                 averageScore: participants.length > 0 ? Math.round(participants.reduce((sum, p) => sum + p.score, 0) / participants.length) : 0,
