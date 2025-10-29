@@ -1,3 +1,4 @@
+
 // LEADERBOARD PAGE - COMPLETELY FIXED VERSION
 console.log('Loading Fixed Leaderboard Manager...');
 
@@ -12,8 +13,6 @@ class LeaderboardManager {
         this.currentPage = 1;
         this.itemsPerPage = 20;
         this.isLoading = false;
-         this.selectedSubject = 'all'; // NEW: Track selected subject
-    this.availableQuizzes = []; // NEW: Store all available quizzes
         this.init();
     }
 
@@ -32,14 +31,6 @@ class LeaderboardManager {
 
     // FIXED: Better error handling and debugging
     async setup() {
-
-
-// Get quiz filter from URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    this.selectedSubject = urlParams.get('quiz') || 'all';
-
-
-        
         // Check authentication
         firebase.auth().onAuthStateChanged(user => {
             this.currentUser = user;
@@ -118,43 +109,6 @@ class LeaderboardManager {
                 participant.rank = index + 1;
             });
 
-
-
-
-
-
-
-
-
-// After processing participants, ADD this code before setting this.quizInfo:
-
-// NEW: Collect all unique quiz titles and categories
-const uniqueQuizzes = [...new Set(participants.map(p => p.quizTitle))];
-const quizCategories = [...new Set(participants.map(p => p.quizCategory || 'General'))];
-
-this.availableQuizzes = uniqueQuizzes;
-
-// NEW: Setup the dropdown after loading data
-this.setupSubjectDropdown();
-
-// NEW: Filter data based on selected subject
-this.applySubjectFilter();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            
             // Set quiz info based on real data
             this.quizInfo = {
                title: 'DK AGRAWAL Leaderboard',
@@ -634,100 +588,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
-
-
-
-
-
-// NEW: Setup subject dropdown with available quizzes
-setupSubjectDropdown() {
-    const dropdown = document.getElementById('subject-filter');
-    if (!dropdown) return;
-    
-    // Clear existing options (except the first 3)
-    const options = dropdown.querySelectorAll('option');
-    for (let i = 3; i < options.length; i++) {
-        options[i].remove();
-    }
-    
-    // Add individual quiz options
-    this.availableQuizzes.forEach(quizTitle => {
-        const option = document.createElement('option');
-        option.value = quizTitle;
-        option.textContent = quizTitle;
-        dropdown.appendChild(option);
-    });
-    
-    // Set the selected value
-    dropdown.value = this.selectedSubject;
-    
-    // Add event listener
-    dropdown.addEventListener('change', (e) => {
-        this.selectedSubject = e.target.value;
-        this.applySubjectFilter();
-        this.updateQuizTitle();
-    });
-}
-
-// NEW: Filter data based on selected subject
-applySubjectFilter() {
-    if (this.selectedSubject === 'all') {
-        this.filteredData = [...this.realLeaderboardData];
-    } else if (this.selectedSubject === 'General Knowledge') {
-        this.filteredData = this.realLeaderboardData.filter(participant => 
-            participant.quizCategory === 'General Knowledge' || 
-            participant.quizTitle.toLowerCase().includes('general knowledge')
-        );
-    } else if (this.selectedSubject === 'English') {
-        this.filteredData = this.realLeaderboardData.filter(participant => 
-            participant.quizCategory === 'English' || 
-            participant.quizTitle.toLowerCase().includes('english')
-        );
-    } else {
-        // Specific quiz selected
-        this.filteredData = this.realLeaderboardData.filter(participant => 
-            participant.quizTitle === this.selectedSubject
-        );
-    }
-    
-    // Re-rank the filtered data
-    this.filteredData.forEach((participant, index) => {
-        participant.rank = index + 1;
-    });
-    
-    // Update displays
-    this.updateLeaderboardList();
-    this.updatePodium();
-    this.updateUserPosition();
-    this.updateStatistics();
-}
-
-// NEW: Update quiz title based on selection
-updateQuizTitle() {
-    const quizTitle = document.getElementById('quiz-title');
-    if (!quizTitle) return;
-    
-    if (this.selectedSubject === 'all') {
-        quizTitle.textContent = 'DK AGRAWAL - All Quizzes Leaderboard';
-    } else if (this.selectedSubject === 'General Knowledge') {
-        quizTitle.textContent = 'DK AGRAWAL - General Knowledge Leaderboard';
-    } else if (this.selectedSubject === 'English') {
-        quizTitle.textContent = 'DK AGRAWAL - English Leaderboard';
-    } else {
-        quizTitle.textContent = `DK AGRAWAL - ${this.selectedSubject}`;
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
