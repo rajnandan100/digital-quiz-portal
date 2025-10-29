@@ -362,7 +362,7 @@
 
         function goToLeaderboard() {
             const quizId = new URLSearchParams(window.location.search).get('quizId');
-            window.location.href = `leaderboard.html${quizId ? '?quizId=' + quizId : ''}`;
+            window.location.href = `leaderboard.html?quiz=${encodeURIComponent(quizTitle)}`;
         }
 
         function retakeQuiz() {
